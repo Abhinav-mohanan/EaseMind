@@ -1,0 +1,14 @@
+# Virtual environment
+venv/
+
+# Python compiled files
+__pycache__/
+*.pyc
+pycache/
+
+# Environment variables
+.env
+
+# Node.js dependencies
+node_modules/
+
