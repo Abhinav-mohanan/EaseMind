@@ -1,24 +1,30 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { ToastContainer } from 'react-toastify'
+import { BrowserRouter as Router,Route,Routes } from 'react-router-dom'
+import RoleSelection from './Pages/Users/RoleSelection'
+import Signup from './Pages/Users/Signup'
+
 
 function App() {
-  const [message,setMessage] = useState('')
-  useEffect(()=>{
-    const fetchdata = async()=>{
-      try{
-        const response = await axios.get('http://127.0.0.1:8000/api/test/')
-        setMessage(response.data.message)
-      }catch{
-        console.log("Error ocuured")
-      }
-    }
-    fetchdata()
-  },[]) 
-  
+
   return (
-    <>
-    <h1 className='text-red-500 text-3xl text-center'>{message}</h1>
-    </>
+    <Router>
+      <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          />
+      <Routes>
+        <Route path='/' element={<RoleSelection/>}/>
+        <Route path='/signup' element={<Signup/>}/>
+      </Routes>
+    </Router>
   )
 
 }

@@ -1,5 +1,9 @@
 
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -17,6 +21,13 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG','0') == '1'
+
+cloudinary.config(
+    cloud_name = os.getenv('CLOUD_NAME'),
+    api_key = os.getenv('API_KEY'),
+    api_secret = os.getenv('API_SECRET'),
+    secure = True
+)
 
 ALLOWED_HOSTS = []
 
@@ -36,6 +47,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
+    
 
 
 ]
@@ -56,6 +70,8 @@ ROOT_URLCONF = 'EaseMind.urls'
 
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS','').split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+AUTH_USER_MODEL = 'authentication_app.CustomUser'
 
 TEMPLATES = [
     {
@@ -119,6 +135,18 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 
 USE_TZ = True
+
+# MediaFile
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET')
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 
 # Static files (CSS, JavaScript, Images)
