@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from . serializer import (SignupSerializer,VerifyOTPserializer)
+from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer)
 from . models import CustomUser
 from . utils import send_otp_email
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes
 
 
 # Signup
@@ -20,12 +22,16 @@ class BaseSignupView(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserSignupView(BaseSignupView):
+    permission_classes=[AllowAny]
     role = 'user'
 
 class PsychologistSignupView(BaseSignupView):
+    permission_classes = [AllowAny]
     role = 'psychologist'
 
 class VerifyOTPView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self,request):
         data = request.data
         serializer = VerifyOTPserializer(data=data)
@@ -36,6 +42,8 @@ class VerifyOTPView(APIView):
 
 # Resend otp [email verification,password reset]
 class ResendOTPView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self,request):
         email = request.data.get('email')
         purpose = request.data.get('purpose','email_verification')   
@@ -51,3 +59,33 @@ class ResendOTPView(APIView):
             return Response({'error':'User with this email does not exists'},status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error':f'Failed to resend OTP {str(e)}'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class BaseAuthView(APIView):
+    role = None
+
+    def handle_login(self,request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+
+            #Check rol
+            if user.role != self.role:
+                return Response({"error":f'User is not {self.role} Please select valid role'},status=status.HTTP_403_FORBIDDEN)
+            tokens = serializer.get_token_for_users(user)
+            return Response({
+                'message':f'{self.role.capitalize()} Login Successful',
+                'refresh':tokens['refresh'],
+                'access':tokens['access'],
+            },status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    def post(self,request):
+        return self.handle_login(request)
+
+class UserLoginView(BaseAuthView):
+    permission_classes = [AllowAny]
+    role = "user"
+
+class PsychologistLoginView(BaseAuthView):
+    permission_classes = [AllowAny]
+    role = "psychologist"

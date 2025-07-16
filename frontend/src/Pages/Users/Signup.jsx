@@ -6,8 +6,6 @@ import { useNavigate } from 'react-router-dom'
 const Signup = () => {
     const navigate = useNavigate()
     const role = useSelector((state) => state.role.selectedRole)
-    console.log(role,'from signup')
-
     useEffect(() => {
         if (!role) {
         navigate('/')

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'cloudinary',
     'cloudinary_storage',
+    'rest_framework_simplejwt',
     
 
 
@@ -72,6 +73,18 @@ CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS','').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'authentication_app.CustomUser'
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', 
+    ],
+
+}
 
 TEMPLATES = [
     {

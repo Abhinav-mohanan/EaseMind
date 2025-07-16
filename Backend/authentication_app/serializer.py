@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from .utils import send_otp_email
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class SignupSerializer(serializers.ModelSerializer):
     # Write-only (not  returned in response)
@@ -91,3 +92,42 @@ class VerifyOTPserializer(serializers.Serializer):
         otp_obj.delete()
 
         return user
+
+class LoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['email','password']
+    
+    def validate(self,data):
+        email = data.get('email')
+        password = data.get('password')
+
+        if email and password:
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError("Invalid email or password")
+            
+            if not user.check_password(password):
+                raise serializers.ValidationError("Invalid email or password")
+            if user.is_blocked:
+                raise serializers.ValidationError("Account is blocked by Admin")
+            if not user.is_email_verified and not user.role != 'admin':
+                raise serializers.ValidationError("Please verify your email before logged in")
+            
+            data['user'] = user
+        else:
+            raise serializers.ValidationError("Email and Password are required")
+        
+        return data
+        
+    def get_token_for_users(self,user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh' : str(refresh),
+            'access'  : str(refresh.access_token)
+        }
+        

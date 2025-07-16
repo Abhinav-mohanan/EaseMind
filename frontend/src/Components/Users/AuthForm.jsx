@@ -122,10 +122,11 @@ const AuthForm = ({ type, fields }) => {
                         {/* Auth Type Tabs */}
                         <div className="flex gap-1 justify-center mb-6 bg-gray-200 p-1 rounded-lg">
                             <button 
+                                onClick={()=>navigate('/login')}
                                 className={`flex-1 py-2 text-sm rounded-md font-medium transition-colors ${
                                     type === 'login' 
                                         ? 'bg-teal-500 text-white shadow-sm' 
-                                        : 'text-gray-600 hover:text-gray-800'
+                                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-300'
                                 }`}>
                                 Login
                             </button>
@@ -134,7 +135,7 @@ const AuthForm = ({ type, fields }) => {
                                 className={`flex-1 py-2 text-sm rounded-md font-medium transition-colors ${
                                     type === 'signup' 
                                         ? 'bg-teal-500 text-white shadow-sm' 
-                                        : 'text-gray-600 hover:text-gray-800'
+                                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-300'
                                 }`}
                             >
                                 Register

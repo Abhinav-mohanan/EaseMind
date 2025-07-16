@@ -56,7 +56,7 @@ const VerifyOTP = ({ initialEmail, purpose, title, description }) => {
       setTimeLeft(300);
       setResendDisabled(true);
     } catch (error) {
-      ErrorHandler(error, navigate);
+      ErrorHandler(error);
     }
   };
 

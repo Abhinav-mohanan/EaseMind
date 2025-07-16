@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import VerifyOTP from '../../Components/Users/VerifyOTP'
 import { useLocation } from 'react-router-dom'
 
+// validate email after signup
 const EmailVerification = () => {
     const location = useLocation()
     const email = location.state.email || ''
