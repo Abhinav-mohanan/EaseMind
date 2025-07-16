@@ -2,6 +2,7 @@ import { ToastContainer } from 'react-toastify'
 import { BrowserRouter as Router,Route,Routes } from 'react-router-dom'
 import RoleSelection from './Pages/Users/RoleSelection'
 import Signup from './Pages/Users/Signup'
+import EmailVerification from './Pages/Users/EmailVerification'
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path='/' element={<RoleSelection/>}/>
         <Route path='/signup' element={<Signup/>}/>
+        <Route path='/verify-otp' element={<EmailVerification/>}/>
       </Routes>
     </Router>
   )

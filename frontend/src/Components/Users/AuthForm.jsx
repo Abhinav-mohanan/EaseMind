@@ -5,6 +5,7 @@ import login_img from '../../assets/Login_img.jpg'
 import { toast } from 'react-toastify'
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { SignupApi } from '../../api/authApi'
+import ErrorHandler from '../Layouts/ErrorHandler'
 
 const AuthForm = ({ type, fields }) => {
     const navigate = useNavigate()
@@ -75,8 +76,9 @@ const AuthForm = ({ type, fields }) => {
         try {
             const data = await SignupApi(role, type, formData)
             toast.success(data.message)
+            navigate('/verify-otp',{state:{email:formData.email}})
         } catch (error) {
-            console.log(error)
+            ErrorHandler(error)
         }
     }
 

@@ -3,17 +3,29 @@ import CONFIG from './config';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../Components/Layouts/ErrorHandler';
 
-// Dynamic signup or login based on role and type
+// signup or login based on role
 export const SignupApi = async (role, type, data) => {
-    try {
-        const rolePrefix = role === 'psychologist' ? 'psychologist' : 'user';
-        const endpoint = `${CONFIG.BACKEND_URL}/${rolePrefix}/${type}/`;
-        const response = await axios.post(endpoint, data);
-        return response.data;
-    } catch (error) {
-        // Handle specific error messages from the server
-        const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
-        ErrorHandler(error)
-        throw error 
-    }
+    const rolePrefix = role === 'psychologist' ? 'psychologist' : 'user';
+    const endpoint = `${CONFIG.BACKEND_URL}/${rolePrefix}/${type}/`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
 };
+
+// verify otp (email verification / reset password)
+export const verifyOTPApi = async(email,otp,purpose) =>{
+    const response = await axios.post(`${CONFIG.BACKEND_URL}/verify-otp/`,{
+        email:email,
+        otp:otp,
+        purpose:purpose
+    })
+    return response.data
+}
+
+// Resend OTP
+export const resendOTPApi = async(email,purpose) =>{
+    const response = await axios.post(`${CONFIG.BACKEND_URL}/resend-otp/`,{
+        email:email,
+        purpose:purpose
+    })
+    return response.data
+}
