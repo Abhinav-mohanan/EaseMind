@@ -4,6 +4,7 @@ import RoleSelection from './Pages/Users/RoleSelection'
 import Signup from './Pages/Users/Signup'
 import EmailVerification from './Pages/Users/EmailVerification'
 import Login from './Pages/Users/Login'
+import Home from './Pages/Users/Home'
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path='/signup' element={<Signup/>}/>
         <Route path='/verify-otp' element={<EmailVerification/>}/>
         <Route path='/login' element={<Login/>}/>
+        <Route path='/home' element={<Home/>}/>
       </Routes>
     </Router>
   )

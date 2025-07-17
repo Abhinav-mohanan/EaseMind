@@ -74,9 +74,25 @@ const AuthForm = ({ type, fields }) => {
             return
         }
         try {
-            const data = await SignupApi(role, type, formData)
-            toast.success(data.message)
-            navigate('/verify-otp',{state:{email:formData.email}})
+            const data = await SignupApi(role, type, formData)  
+            if(type == 'signup'){
+                toast.success(data.message)
+                navigate('/verify-otp',{state:{email:formData.email}})
+            }
+            else if(type == 'login'){
+                if(data?.is_email_verified != true){
+                    toast.error("Please verify your email before logged in")
+                    navigate('/verify-otp',{state:{email:formData.email}})    // If user is not email verified -> verify otp
+                }
+                else{
+                    toast.success(data.message)
+                    const {access,refresh} = data
+                    if (!access || !refresh){
+                        console.log("access or refresh is not present")
+                    }
+                    navigate('/home')    // home
+                }
+            }
         } catch (error) {
             ErrorHandler(error)
         }

@@ -115,9 +115,7 @@ class LoginSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Invalid email or password")
             if user.is_blocked:
                 raise serializers.ValidationError("Account is blocked by Admin")
-            if not user.is_email_verified and not user.role != 'admin':
-                raise serializers.ValidationError("Please verify your email before logged in")
-            
+                        
             data['user'] = user
         else:
             raise serializers.ValidationError("Email and Password are required")

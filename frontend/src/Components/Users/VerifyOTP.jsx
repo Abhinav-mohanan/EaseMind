@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { resendOTPApi, verifyOTPApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../Layouts/ErrorHandler';
 import imageSrc from '../../assets/image_src.jpeg';
 
-const VerifyOTP = ({ initialEmail, purpose, title, description }) => {
+const VerifyOTP = ({ initialEmail, purpose, description }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: initialEmail || '', otp: '' });
   const [timeLeft, setTimeLeft] = useState(300);
@@ -39,7 +39,7 @@ const VerifyOTP = ({ initialEmail, purpose, title, description }) => {
       return;
     }
     try {
-      const data = await verifyOTPApi(formData.email, formData.otp, purpose);
+      const data = await verifyOTPApi(formData.email, formData.otp, purpose); // api call
       toast.success(data.message);
       navigate(purpose === 'password_reset' ? '/reset-password' : '/login', {
         state: { email: formData.email },

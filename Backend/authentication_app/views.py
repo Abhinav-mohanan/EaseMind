@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer)
 from . models import CustomUser
-from . utils import send_otp_email
+from . utils import send_otp_email,set_token_cookies
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 
@@ -68,15 +68,16 @@ class BaseAuthView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
 
-            #Check rol
+            #Check role
             if user.role != self.role:
                 return Response({"error":f'User is not {self.role} Please select valid role'},status=status.HTTP_403_FORBIDDEN)
             tokens = serializer.get_token_for_users(user)
-            return Response({
-                'message':f'{self.role.capitalize()} Login Successful',
-                'refresh':tokens['refresh'],
-                'access':tokens['access'],
+            is_email_verified = user.is_email_verified
+            response = Response({
+                "message":f'{self.role.capitalize()} Login Successful',
+                'is_email_verified':is_email_verified
             },status=status.HTTP_200_OK)
+            return set_token_cookies(response,tokens['access'],tokens['refresh']) # set Jwt token is http only cookies
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
