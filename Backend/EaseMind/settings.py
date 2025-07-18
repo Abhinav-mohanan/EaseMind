@@ -78,7 +78,7 @@ AUTH_USER_MODEL = 'authentication_app.CustomUser'
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'authentication_app.utils.CustomJWTAuthentication',
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [
@@ -192,7 +192,7 @@ SIMPLE_JWT = {
 }
 
 JWT_COOKIE_SETTINGS = {
-    'SECURE': not DEBUG,
+    'SECURE': False,
     'HTTPONLY': True,
     'SAMESITE': 'Lax',
     'ACCESS_MAX_AGE': 900,    # 15 min

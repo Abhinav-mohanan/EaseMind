@@ -1,7 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import axiosInstance from '../../api/axiosInstance'
+import { toast } from 'react-toastify'
+import ErrorHandler from '../Layouts/ErrorHandler'
+
 
 const Navbar = () => {  
+  useEffect(()=>{
+    const fetch = async() =>{
+      try{
+        const response = await axiosInstance.get('/test/')
+        toast.success(response.data.message)
+
+      }catch(error){
+        ErrorHandler(error)
+      }
+    }
+    fetch()
+  },[])
   return (
         <nav className='bg-white shadow-md p-4 flex justify-between items-center'>
         <div className='text-2xl font-bold text-teal-500'>EaseMind</div>

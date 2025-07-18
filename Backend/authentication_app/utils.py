@@ -48,7 +48,7 @@ def set_token_cookies(response,access,refresh):
         httponly=config['HTTPONLY'],
         secure=config['SECURE'],
         samesite=config['SAMESITE'],
-        path='/'
+        path='api/'
     )
     response.set_cookie(
         'refresh_token',
@@ -57,7 +57,18 @@ def set_token_cookies(response,access,refresh):
         httponly=config['HTTPONLY'],
         secure=config['SECURE'],
         samesite=config['SAMESITE'],
-        path='/'
+        path='api/'
     )
+   
     logger.info('access and refresh token can set http only successfully')
     return response
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+class CustomJWTAuthentication(JWTAuthentication):
+    def authenticate(self, request):
+        access_token = request.COOKIES.get('access_token')
+        if access_token:
+            validated_token = self.get_validated_token(access_token)
+            return self.get_user(validated_token), validated_token
+        return None
