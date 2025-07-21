@@ -90,7 +90,7 @@ const AuthForm = ({ type, fields }) => {
                     if (!access || !refresh){
                         console.log("access or refresh is not present")
                     }
-                    navigate('/home')    // home
+                    navigate('/')    // home
                 }
             }
         } catch (error) {

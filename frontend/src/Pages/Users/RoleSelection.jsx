@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { setRole } from '../../Redux/roleSlice'
 import { Brain, UserRound, ArrowLeft } from 'lucide-react'
 import login_img from '../../assets/Login_img.jpg'
@@ -92,12 +92,12 @@ const RoleSelection = () => {
 
                     {/* Back to Home Link */}
                     <div className="text-center">
-                        <button 
+                        <Link to={'/'} 
                             className="text-gray-500 hover:text-gray-900 inline-flex items-center gap-2 transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             Back to Home
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

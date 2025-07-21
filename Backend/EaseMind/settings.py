@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist'
     
 
 
@@ -187,12 +188,11 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
-    "AUTH_HEADER_TYPES": ("Bearer",),
     "UPDATE_LAST_LOGIN": False,
 }
 
 JWT_COOKIE_SETTINGS = {
-    'SECURE': False,
+    'SECURE': not DEBUG,
     'HTTPONLY': True,
     'SAMESITE': 'Lax',
     'ACCESS_MAX_AGE': 900,    # 15 min

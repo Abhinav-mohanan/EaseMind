@@ -1,4 +1,5 @@
 from django.utils.crypto import get_random_string
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
@@ -48,7 +49,7 @@ def set_token_cookies(response,access,refresh):
         httponly=config['HTTPONLY'],
         secure=config['SECURE'],
         samesite=config['SAMESITE'],
-        path='api/'
+        path='/'
     )
     response.set_cookie(
         'refresh_token',
@@ -57,13 +58,11 @@ def set_token_cookies(response,access,refresh):
         httponly=config['HTTPONLY'],
         secure=config['SECURE'],
         samesite=config['SAMESITE'],
-        path='api/'
+        path='/'
     )
    
     logger.info('access and refresh token can set http only successfully')
     return response
-
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):

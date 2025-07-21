@@ -8,7 +8,7 @@ const Signup = () => {
     const role = useSelector((state) => state.role.selectedRole)
     useEffect(() => {
         if (!role) {
-        navigate('/')
+        navigate('/roleSelection')
         }
     }, [role, navigate])
     

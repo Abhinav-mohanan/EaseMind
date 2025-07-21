@@ -24,11 +24,11 @@ function App() {
           theme="light"
           />
       <Routes>
-        <Route path='/' element={<RoleSelection/>}/>
+        <Route path='/roleSelection' element={<RoleSelection/>}/>
         <Route path='/signup' element={<Signup/>}/>
         <Route path='/verify-otp' element={<EmailVerification/>}/>
         <Route path='/login' element={<Login/>}/>
-        <Route path='/home' element={<Home/>}/>
+        <Route path='/' element={<Home/>}/>
       </Routes>
     </Router>
   )

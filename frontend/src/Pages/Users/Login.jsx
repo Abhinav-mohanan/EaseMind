@@ -8,7 +8,7 @@ const Login = () => {
     const navigate = useNavigate()
     const role = useSelector((state)=>state.role.selectedRole)
     useEffect(()=>{
-        if(!role) navigate('/')
+        if(!role) navigate('/roleSelection')
     },[role,navigate])
     const fields = [
         {name:'email',type:'email',placeholder:'Enter your email'},

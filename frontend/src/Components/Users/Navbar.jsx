@@ -1,24 +1,71 @@
-import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import axiosInstance from '../../api/axiosInstance'
+import { Link, useNavigate } from 'react-router-dom'
+import { AuthStatusApi, LogoutApi } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import ErrorHandler from '../Layouts/ErrorHandler'
+import { useEffect, useRef, useState } from 'react'
+import { LogIn, LogOut, User, UserCircle } from 'lucide-react'
+import ConfirmationModal from '../Layouts/Confirmationmodal'
 
 
 const Navbar = () => {  
-  useEffect(()=>{
-    const fetch = async() =>{
-      try{
-        const response = await axiosInstance.get('/test/')
-        toast.success(response.data.message)
+  const navigate = useNavigate()
+  const [isAuthenticated,setIsAuthenticated] = useState()
+  const dropdwonRef = useRef()
+  const [dropdownOpen,setDropdownOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(()=>{
+    const checkAuth = async()=>{
+      try{
+        const data = await AuthStatusApi()
+        setIsAuthenticated(data.isAuthenticated)
       }catch(error){
-        ErrorHandler(error)
+        setIsAuthenticated(false)
       }
     }
-    fetch()
+    checkAuth()
   },[])
+
+  const handleUserProfile = ()=>{
+    setDropdownOpen(prev=>!prev)
+  }
+
+  const handleLogout = () =>{
+    setIsModalOpen(true)
+  }
+
+  // logout
+  const ConfirmLogout = async() =>{
+    try{
+      const data = await LogoutApi()
+      toast.success(data.message)
+      navigate('/login')
+    }catch(error){
+      ErrorHandler(error)
+      setIsModalOpen(false)
+    }
+  }
+
+  const onCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // dropdown menu automatically closes when the user clicks outside
+  useEffect(()=>{
+    const handleClickoutside = (event)=>{
+
+      if (dropdwonRef.current && !dropdwonRef.current.contains(event.target)){
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown",handleClickoutside) // add eventlistener to check the mouse clicks
+    return()=>{
+      document.removeEventListener("mousedown",handleClickoutside) // cleanup fun
+    }
+  })
+
   return (
+        <>
         <nav className='bg-white shadow-md p-4 flex justify-between items-center'>
         <div className='text-2xl font-bold text-teal-500'>EaseMind</div>
         <div className='flex items-center space-x-6'>
@@ -26,9 +73,56 @@ const Navbar = () => {
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Articles</Link>
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Therapyist</Link>
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Contact us</Link>
-            <button className='text-red-500 border border:gray-400 hover:text-700'>Logout</button>
+  
+            <div className='relative' ref={dropdwonRef}>
+              <UserCircle size={24} onClick={handleUserProfile}
+              className='text-gray-700 hover:text-green-700 cursor-pointer'/>
+              {dropdownOpen &&(
+                <div className='absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-50 border'>
+                  {isAuthenticated ?(
+                    <>
+                    <button
+                      className="w-full flex items-center gap-3 p-1.5 hover:bg-gray-100 text-gray-700 rounded-lg"
+                    >
+                      <User className="h-4 w-4" />
+                      <span className="text-md">My Profile</span>
+                  </button>
+                    <div className="p-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 p-1.5 hover:bg-red-50 rounded-lg text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span className="text-md">Logout</span>
+                      </button>
+                    </div>
+                    </>
+                  ):(
+                    <button
+                      onClick={() => navigate('/login')}
+                      className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-700 rounded-lg"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span className="text-md">Login</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+            </div>
+
         </div>
-    </nav>
+      </nav>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={onCloseModal}
+        onConfirm={ConfirmLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to log out?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        />
+    </>
   )
 }
 
