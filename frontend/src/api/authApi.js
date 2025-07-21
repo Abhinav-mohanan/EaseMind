@@ -1,6 +1,4 @@
 import CONFIG from './config';
-import { toast } from 'react-toastify';
-import ErrorHandler from '../Components/Layouts/ErrorHandler';
 import axiosInstance from '../api/axiosInstance';
 import axios from 'axios';
 
@@ -40,5 +38,17 @@ export const AuthStatusApi = async() =>{
 // Logout Api
 export const LogoutApi = async() =>{
     const response = await axiosInstance.post('/logout/')
+    return response.data
+}
+
+// forgotPassword Api
+export const ForgotPasswordApi = async(data)=>{
+    const response = await axios.post(`${CONFIG.BACKEND_URL}/forgot-password/`,data)
+    return response.data
+}
+
+// ResetPassword
+export const ResetPasswordApi = async(data)=>{
+    const response = await axios.post(`${CONFIG.BACKEND_URL}/reset-password/`,data)
     return response.data
 }

@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer)
+from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer,
+                          ForgotPasswordSerializer,ResetPasswordSerializer)
 from . models import CustomUser
 from . utils import send_otp_email,set_token_cookies
 from rest_framework.permissions import AllowAny,IsAuthenticated
@@ -119,6 +120,7 @@ class CustomRefreshView(TokenRefreshView):
         except Exception:
             return Response({"error":'Invalid refresh token'},status=status.HTTP_401_UNAUTHORIZED)
 
+#Logout
 class Logoutview(APIView):
     def post(self,request):
         refresh_token = request.COOKIES.get('refresh_token')
@@ -136,6 +138,25 @@ class Logoutview(APIView):
         response.delete_cookie('refresh_token')
         return response
 
-        
 
-        
+# ForgotPassword
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+    def post(self,request):
+        data = request.data
+        serializer = ForgotPasswordSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"OTP sent to your email for password reset"},status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+# Reset the password
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+    def post(self,request):
+        data = request.data
+        serializer = ResetPasswordSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Password reset successfully"},status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

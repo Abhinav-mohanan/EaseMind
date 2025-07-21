@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { replace, useLocation, useNavigate } from 'react-router-dom';
 import { resendOTPApi, verifyOTPApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../Layouts/ErrorHandler';
 import imageSrc from '../../assets/image_src.jpeg';
+import Loading from '../Layouts/Loading';
 
 const VerifyOTP = ({ initialEmail, purpose, description }) => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
   const [timeLeft, setTimeLeft] = useState(300);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [otpError, setOtpError] = useState('');
+  const [isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -39,13 +41,17 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
       return;
     }
     try {
+      setIsLoading(true)
       const data = await verifyOTPApi(formData.email, formData.otp, purpose); // api call
       toast.success(data.message);
       navigate(purpose === 'password_reset' ? '/reset-password' : '/login', {
-        state: { email: formData.email },
+        state: { email: formData.email,otp:formData.otp}, 
+        replace:true,  // Prevent going back
       });
     } catch (error) {
       ErrorHandler(error, navigate);
+    }finally{
+      setIsLoading(true)
     }
   };
 
@@ -61,6 +67,7 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
   };
 
   return (
+    <Loading isLoading={isLoading}>
     <div className="h-screen flex bg-gray-100">
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
@@ -148,6 +155,7 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
         </div>
       </div>
     </div>
+  </Loading>
   );
 };
 

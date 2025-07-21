@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { SignupApi } from '../../api/authApi'
 import ErrorHandler from '../Layouts/ErrorHandler'
+import Loading from '../Layouts/Loading'
 
 const AuthForm = ({ type, fields }) => {
     const navigate = useNavigate()
@@ -14,6 +15,7 @@ const AuthForm = ({ type, fields }) => {
     const [formData, setFormData] = useState({})
     const [errors, setErrors] = useState({})
     const [showPassword, setShowPassword] = useState({})
+    const [isLoading,setIsLoading] = useState(false)
 
     const handleChange = (e) => {
         const {name,value} = e.target
@@ -74,6 +76,7 @@ const AuthForm = ({ type, fields }) => {
             return
         }
         try {
+            setIsLoading(true)
             const data = await SignupApi(role, type, formData)  
             if(type == 'signup'){
                 toast.success(data.message)
@@ -95,10 +98,13 @@ const AuthForm = ({ type, fields }) => {
             }
         } catch (error) {
             ErrorHandler(error)
+        }finally{
+            setIsLoading(false)
         }
     }
 
     return (
+        <Loading isLoading={isLoading}>
         <div className="min-h-screen flex bg-gray-100">
             {/* Left Side - Hero Image */}
             <div className="hidden lg:flex lg:w-1/2 relative">
@@ -195,6 +201,7 @@ const AuthForm = ({ type, fields }) => {
                             {type === 'login' && (
                                 <div className="text-right">
                                     <button
+                                        onClick={()=>navigate('/forgot-password')}
                                         type="button"
                                         className="text-xs text-teal-500 hover:text-teal-600 font-medium"
                                     >
@@ -250,6 +257,7 @@ const AuthForm = ({ type, fields }) => {
                 </div>
             </div>
         </div>
+    </Loading>
     )
 }
 

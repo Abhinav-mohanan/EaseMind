@@ -10,7 +10,6 @@ const EmailVerification = () => {
     <VerifyOTP
     initialEmail={email}
     purpose='email_verification'
-    title='verifify Email'
     description='Enter the OTP sent to your email to verify your account'/>
   )
 }

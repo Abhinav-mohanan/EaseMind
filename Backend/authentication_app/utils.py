@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 def send_otp_email(user,purpose='email_verification'):
     otp = get_random_string(length=6,allowed_chars='1234567890')
     
-    EmailOTP.objects.get_or_create(
+    EmailOTP.objects.update_or_create(
         user = user,
+        purpose = purpose,
         defaults={
             'otp':otp,
             'created_at':timezone.now()

@@ -5,6 +5,9 @@ import Signup from './Pages/Users/Signup'
 import EmailVerification from './Pages/Users/EmailVerification'
 import Login from './Pages/Users/Login'
 import Home from './Pages/Users/Home'
+import ForgotPassword from './Pages/Users/ForgotPassword'
+import ResetPasswordEmailverification from './Pages/Users/ResetPasswordEmailverification'
+import ResetPassword from './Pages/Users/ResetPassword'
 
 
 function App() {
@@ -29,6 +32,9 @@ function App() {
         <Route path='/verify-otp' element={<EmailVerification/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/' element={<Home/>}/>
+        <Route path='/forgot-password' element={<ForgotPassword/>}/>
+        <Route path='/resetpassword/email-verify' element={<ResetPasswordEmailverification/>}/>
+        <Route path='/reset-password' element={<ResetPassword/>}/>
       </Routes>
     </Router>
   )

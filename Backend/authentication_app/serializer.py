@@ -57,21 +57,23 @@ class SignupSerializer(serializers.ModelSerializer):
 
         return user
 
-# VerifyOTP
+# VerifyOTP[email_validation/reset_password]
 class VerifyOTPserializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
+    purpose = serializers.CharField(default='email_verification') # default for signup
 
     def validate(self, data):
         email = data.get('email')
         otp = data.get('otp')
+        purpose = data.get('purpose')
 
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
             raise serializers.ValidationError('User with this email does not exists')
         try:
-            otp_obj = EmailOTP.objects.get(user=user)
+            otp_obj = EmailOTP.objects.get(user=user,purpose=purpose)
         except EmailOTP.DoesNotExist:
             raise serializers.ValidationError("OTP Not found please request new one")
         
@@ -80,17 +82,21 @@ class VerifyOTPserializer(serializers.Serializer):
         if otp_obj.is_expired():
             raise serializers.ValidationError("OTP is Expired")
 
+        data['user'] = user
+        data['otp_obj'] = otp_obj
         return data
     
     def save(self):
-        email = self.validated_data['email']
-        user = CustomUser.objects.get(email=email)
-        user.is_email_verified = True             # Ensure that the email is verified
+        user = self.validated_data['user']
+        purpose = self.validated_data['purpose']
+        otp_obj = self.validated_data['otp_obj']
+
+        if purpose == 'email_verification':
+            user.is_email_verified = True   # Ensure that email is verified
+        elif purpose == 'password_reset':
+            pass
         user.save()
-
-        otp_obj = EmailOTP.objects.get(user=user)
         otp_obj.delete()
-
         return user
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -111,7 +117,7 @@ class LoginSerializer(serializers.ModelSerializer):
             except CustomUser.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password")
             
-            if not user.check_password(password):
+            if not user.check_password(password):   #check the password is correct
                 raise serializers.ValidationError("Invalid email or password")
             if user.is_blocked:
                 raise serializers.ValidationError("Account is blocked by Admin")
@@ -123,9 +129,59 @@ class LoginSerializer(serializers.ModelSerializer):
         return data
         
     def get_token_for_users(self,user):
-        refresh = RefreshToken.for_user(user)
+        refresh = RefreshToken.for_user(user)      # create token
         return {
             'refresh' : str(refresh),
             'access'  : str(refresh.access_token)
         }
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    role = serializers.CharField()
+
+    def validate(self,data):
+        email = data['email']
+        role = data['role']
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("No user is registered with this email")
+        if user.role != role:
+            raise serializers.ValidationError(f'User is not {role} Please select valid Role')
+        data['user'] = user
+        return data
+    
+    def save(self):
+        user = self.validated_data['user']
+        send_otp_email(user,purpose='password_reset')   # send otp
+        return user
+
+# Reset password
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        email = data.get('email')
+        if password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match")
+        if len(password) < 6:
+            raise serializers.ValidationError("Password must be at least 6 characters")
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exists")
+        data['user'] = user
+        return data
+    
+    def save(self):
+        user = self.validated_data['user']
+        password = self.validated_data['password']
+        user.set_password(password)        
+        user.save()
+        return user
+        
         
