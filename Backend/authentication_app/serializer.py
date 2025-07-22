@@ -52,6 +52,9 @@ class SignupSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
+        if user.role == 'psychologist':
+            PsychologistProfile.objects.create(user=user)
+
         # send OTP
         send_otp_email(user,purpose='email_verification')
 
