@@ -35,7 +35,8 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('user','User'),
-        ('psychologist','Psychologist')
+        ('psychologist','Psychologist'),
+        ('admin','Admin')
     )
 
     GENDER_CHOICES = (
