@@ -8,6 +8,7 @@ import Home from './Pages/Users/Home'
 import ForgotPassword from './Pages/Users/ForgotPassword'
 import ResetPasswordEmailverification from './Pages/Users/ResetPasswordEmailverification'
 import ResetPassword from './Pages/Users/ResetPassword'
+import UserProfile from './Pages/Users/User/UserProfile'
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
         <Route path='/forgot-password' element={<ForgotPassword/>}/>
         <Route path='/resetpassword/email-verify' element={<ResetPasswordEmailverification/>}/>
         <Route path='/reset-password' element={<ResetPassword/>}/>
+        <Route path='/user/profile' element={<UserProfile/>}/>
       </Routes>
     </Router>
   )

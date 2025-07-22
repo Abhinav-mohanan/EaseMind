@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .utils import send_otp_email
 from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import timedelta,datetime,date
 
 class SignupSerializer(serializers.ModelSerializer):
     # Write-only (not  returned in response)
@@ -183,5 +184,55 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.set_password(password)        
         user.save()
         return user
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id','email','first_name','last_name','role','profile_picture',
+                  'phone_number','gender','date_of_birth']
+    
+    def get_profile_picture(self,obj):
+        if obj.profile_picture:
+            return obj.profile_picture.url
+        return None
+
+class UserProfileWriterSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'profile_picture', 'phone_number', 'gender', 'date_of_birth']
+    
+    def validate(self, data):
+        phone_number = data.get('phone_number')
+        date_of_birth = data.get('date_of_birth')
+        
+        # Phone number: must be 10 digits
+        if phone_number:
+            if not phone_number.isdigit() or len(phone_number) != 10:
+                raise serializers.ValidationError('Enter a valid 10-digit phone number')
+        
+        # DOB must be in the past and user must be at least 10 years old
+        if date_of_birth:
+            today = date.today()
+            if date_of_birth > today:
+                raise serializers.ValidationError("Date of birth cannot be in the future")
+            
+            age = today.year - date_of_birth.year -(
+                (today.month,today.day) < (date_of_birth.month,date_of_birth.day))
+            if age < 10:
+                raise serializers.ValidationError('User must be at least 10 years old')
+        return data
+    
+    def update(self,instance,validated_data):
+        for attr,value in validated_data.items():
+            if attr == 'profile_picture':
+                if value is not None:
+                    setattr(instance,attr,value)
+            else:
+                setattr(instance,attr,value)
+        instance.save()
+        return instance
         
         

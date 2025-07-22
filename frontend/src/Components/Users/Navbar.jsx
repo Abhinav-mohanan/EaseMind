@@ -82,6 +82,7 @@ const Navbar = () => {
                   {isAuthenticated ?(
                     <>
                     <button
+                      onClick={()=>navigate('/user/profile')}
                       className="w-full flex items-center gap-3 p-1.5 hover:bg-gray-100 text-gray-700 rounded-lg"
                     >
                       <User className="h-4 w-4" />

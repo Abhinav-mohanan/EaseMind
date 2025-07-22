@@ -52,3 +52,15 @@ export const ResetPasswordApi = async(data)=>{
     const response = await axios.post(`${CONFIG.BACKEND_URL}/reset-password/`,data)
     return response.data
 }
+
+export const FetchUserDetail = async() =>{
+    const response = await axiosInstance.get('/user/profile/')
+    return response.data
+}
+
+export const UserProfileApi = async(data) =>{
+    const response = await axiosInstance.patch('/user/profile/',data,{headers:{
+        'Content-Type':'multipart/form-data'
+    }})
+    return response.data
+}

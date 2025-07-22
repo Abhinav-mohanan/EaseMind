@@ -2,14 +2,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer,
-                          ForgotPasswordSerializer,ResetPasswordSerializer)
+                          ForgotPasswordSerializer,ResetPasswordSerializer,UserProfileSerializer,
+                          UserProfileWriterSerializer)
 from . models import CustomUser
 from . utils import send_otp_email,set_token_cookies
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 # Signup
 class BaseSignupView(APIView):
@@ -160,3 +164,30 @@ class ResetPasswordView(APIView):
             serializer.save()
             return Response({"message":"Password reset successfully"},status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+# user-profile
+class UserProfileView(APIView):
+
+    def get(self,request):
+        try:
+            user = request.user
+            serializer = UserProfileSerializer(user)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(str(e))
+            return Response({"error": "Something went wrong while retrieving profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self,request):
+        try:
+            user = request.user
+            serializer = UserProfileWriterSerializer(user,data=request.data,partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                response_serializer = UserProfileSerializer(user)
+                return Response(response_serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(str(e))
+            return Response({"error":"Something went wrong while updating profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
