@@ -13,18 +13,26 @@ const Navbar = () => {
   const dropdwonRef = useRef()
   const [dropdownOpen,setDropdownOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [role,setRole] = useState(null)
 
   useEffect(()=>{
     const checkAuth = async()=>{
       try{
         const data = await AuthStatusApi()
         setIsAuthenticated(data.isAuthenticated)
+        setRole(data.role)
       }catch(error){
         setIsAuthenticated(false)
+        setRole(null)
       }
     }
     checkAuth()
   },[])
+
+  
+  const profileRoute = role === 'psychologist'
+    ? '/psychologist/profile'
+    : '/user/profile'
 
   const handleUserProfile = ()=>{
     setDropdownOpen(prev=>!prev)
@@ -62,14 +70,14 @@ const Navbar = () => {
     return()=>{
       document.removeEventListener("mousedown",handleClickoutside) // cleanup fun
     }
-  })
+  },[])
 
   return (
         <>
         <nav className='bg-white shadow-md p-4 flex justify-between items-center'>
         <div className='text-2xl font-bold text-teal-500'>EaseMind</div>
         <div className='flex items-center space-x-6'>
-            <Link to="#" className='text-gray-700 hover:text-teal-700'>Home</Link>
+            <Link to="/" className='text-gray-700 hover:text-teal-700'>Home</Link>
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Articles</Link>
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Therapyist</Link>
             <Link to="#" className='text-gray-700 hover:text-teal-700'>Contact us</Link>
@@ -82,7 +90,8 @@ const Navbar = () => {
                   {isAuthenticated ?(
                     <>
                     <button
-                      onClick={()=>navigate('/user/profile')}
+                    disabled={!role}
+                      onClick={()=>navigate(profileRoute)}
                       className="w-full flex items-center gap-3 p-1.5 hover:bg-gray-100 text-gray-700 rounded-lg"
                     >
                       <User className="h-4 w-4" />

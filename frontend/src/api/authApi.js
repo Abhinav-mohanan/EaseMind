@@ -53,13 +53,29 @@ export const ResetPasswordApi = async(data)=>{
     return response.data
 }
 
+// Fetch user profile
 export const FetchUserDetail = async() =>{
     const response = await axiosInstance.get('/user/profile/')
     return response.data
 }
 
+// Update user profile
 export const UserProfileApi = async(data) =>{
     const response = await axiosInstance.patch('/user/profile/',data,{headers:{
+        'Content-Type':'multipart/form-data'
+    }})
+    return response.data
+}
+
+// Fetch Psychologist profile
+export const FetchPsychologistDetail = async()=>{
+    const response = await axiosInstance.get('/psychologist/profile/')
+    return response.data
+}
+
+// Update Psychologist Profile
+export const PsychologistProfileApi = async(data) =>{
+    const response = await axiosInstance.patch('/psychologist/profile/',data,{headers:{
         'Content-Type':'multipart/form-data'
     }})
     return response.data

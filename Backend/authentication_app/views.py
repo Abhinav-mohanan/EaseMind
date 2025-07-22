@@ -3,13 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer,
                           ForgotPasswordSerializer,ResetPasswordSerializer,UserProfileSerializer,
-                          UserProfileWriterSerializer)
+                          UserProfileWriterSerializer,PsychologistProfileSerializer,
+                          PsychologistProfileWriterSerializer)
 from . models import CustomUser
 from . utils import send_otp_email,set_token_cookies
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
+from django.core.exceptions import ObjectDoesNotExist
 import logging
 
 
@@ -104,7 +106,8 @@ class AuthStatusView(APIView):
     def get(self,request):
         user = request.user
         if user.is_authenticated:
-            return  Response({'isAuthenticated':True,'email':user.email})
+            role = user.role
+            return  Response({'isAuthenticated':True,'email':user.email,'role':role})
         return Response({'isAuthenticated':False})        
 
 
@@ -190,4 +193,38 @@ class UserProfileView(APIView):
         except Exception as e:
             logger.error(str(e))
             return Response({"error":"Something went wrong while updating profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+#Psychologist-profile
+class PsychologistProfileView(APIView):
     
+    def get(self,request):
+        user = request.user
+        if user.role != 'psychologist':
+            return Response({'error':"Only Psychologist can access this endpoint"},status=status.HTTP_403_FORBIDDEN)
+        try:
+            profile = user.psychologist_profile
+            serializer = PsychologistProfileSerializer(profile)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'error':"Profile not found"},status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error':'Something went wrong while retrieving profile'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self,request):
+        user = request.user
+        if user.role != 'psychologist':
+            return Response({'error':"Only Psychologist can access this endpoint"},status=status.HTTP_403_FORBIDDEN)
+        try:
+            profile = user.psychologist_profile
+            serializer = PsychologistProfileWriterSerializer(profile,data=request.data,partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                response_serializer = PsychologistProfileSerializer(profile)
+                return Response(response_serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            return Response({"error":"Psychologist profile not found"},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f'Error updating psychologist profile {str(e)}')
+            return Response({'error':'Something went wrong while updating profile'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

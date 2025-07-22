@@ -35,7 +35,6 @@ const UserProfile = () => {
   const fetchUser = async () => {
     try {
       const res = await FetchUserDetail()
-      console.log('API Response:', res)
       const data = {
         first_name: res.first_name || '',
         last_name: res.last_name || '',

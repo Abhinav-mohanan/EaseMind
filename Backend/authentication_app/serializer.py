@@ -53,6 +53,8 @@ class SignupSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
+        if user.role == 'psychologist':
+            PsychologistProfile.objects.create(user=user)
         # send OTP
         send_otp_email(user,purpose='email_verification')
 
@@ -234,5 +236,55 @@ class UserProfileWriterSerializer(serializers.ModelSerializer):
                 setattr(instance,attr,value)
         instance.save()
         return instance
+
+class PsychologistProfileSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer()
+    license_certificate = serializers.SerializerMethodField()
+    experience_certificate = serializers.SerializerMethodField()
+    education_certificate = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PsychologistProfile
+        fields = '__all__'
+    
+    def get_license_certificate(self,obj):
+        if obj.license_certificate:
+            return obj.license_certificate.url
+        return None
+    
+    def get_experience_certificate(self,obj):
+        if obj.experience_certificate:
+            return obj.experience_certificate.url
+        return None
+    
+    def get_education_certificate(self,obj):
+        if obj.education_certificate:
+            return obj.education_certificate.url
+        return None
+
+class PsychologistProfileWriterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PsychologistProfile
+        fields = [
+            'bio',
+            'education',
+            'license_no',
+            'specialization',
+            'experience_years',
+            'license_certificate',
+            'education_certificate',
+            'experience_certificate',
+        ]
+    
+    def update(self, instance, validated_data):
+        for attr,value in validated_data.items():
+            if attr in ['license_certificate','experience_certificate','education_certificate']:
+                if value is not None:
+                    setattr(instance,attr,value)
+            else:
+                setattr(instance,attr,value)
+        instance.save()
+        return instance
+
         
         
