@@ -3,10 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from authentication_app.serializer import LoginSerializer
 from authentication_app.utils import set_token_cookies
-
-# Create your views here.
+from authentication_app.models import CustomUser
 
 
 # Admin login
@@ -24,4 +24,57 @@ class AdminLoginView(APIView):
             response = Response({"message":"Login Successful"},status=status.HTTP_200_OK)
             return set_token_cookies(response,tokens['access'],tokens['refresh'])
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class BaseAdminView(APIView):
+    def validate(self,user):
+        if user.role != 'admin':
+            return Response({"error":"Access denied"},status=status.HTTP_403_FORBIDDEN)
+        return None
+    
+class AdminUserManageView(BaseAdminView):
+    def get(self,request):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        users = CustomUser.objects.filter(role='user').order_by('created_at')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(users,request)
+        user_list = [
+            {
+                'id':user.id,
+                'name':f"{user.first_name} {user.last_name}",
+                'email':user.email,
+                'phone_number':user.phone_number,
+                'is_blocked':user.is_blocked
+
+            }
+            for user in page
+        ]
+        return paginator.get_paginated_response(user_list)
+    
+    
+    def patch(self,request,user_id=None):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        if not user_id:
+            return Response({"error":"User ID is required"},status=status.HTTP_400_BAD_REQUEST)
         
+        try:
+            user =CustomUser.objects.get(id=user_id,role='user')
+        except CustomUser.DoesNotExist:
+            return Response({"error":"User not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        is_blocked = request.data.get('is_blocked')
+
+        if is_blocked is not None:
+            if isinstance(is_blocked,str):  
+                is_blocked = is_blocked.lower() == 'true'  # if the is_block is str update in to bool
+
+            user.is_blocked = is_blocked
+        else:
+            user.is_blocked = not user.is_blocked # Toggle current status
+        
+        user.save()
+        return Response({"error":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
+                         'is_blocked':user.is_blocked},status=status.HTTP_200_OK)

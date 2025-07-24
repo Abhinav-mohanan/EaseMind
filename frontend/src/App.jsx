@@ -11,6 +11,7 @@ import ResetPassword from './Pages/Users/ResetPassword'
 import UserProfile from './Pages/Users/User/UserProfile'
 import PsychologistProfile from './Pages/Users/Psychologist/PsychologistProfile'
 import AdminLogin from './Pages/Admin/AdminLogin'
+import ManageUser from './Pages/Admin/ManageUser'
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path='/user/profile' element={<UserProfile />} />
         <Route path='/psychologist/profile' element={<PsychologistProfile />} />
         <Route path='/admin/login' element={<AdminLogin />} />
+        <Route path='/admin/user/management' element={<ManageUser />} />
       </Routes>
     </Router>
   );
