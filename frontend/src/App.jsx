@@ -12,6 +12,7 @@ import UserProfile from './Pages/Users/User/UserProfile'
 import PsychologistProfile from './Pages/Users/Psychologist/PsychologistProfile'
 import AdminLogin from './Pages/Admin/AdminLogin'
 import ManageUser from './Pages/Admin/ManageUser'
+import ManagePsychologist from './Pages/Admin/ManagePsychologist'
 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
         <Route path='/psychologist/profile' element={<PsychologistProfile />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/user/management' element={<ManageUser />} />
+        <Route path='/admin/psychologist/management' element={<ManagePsychologist />} />
       </Routes>
     </Router>
   );

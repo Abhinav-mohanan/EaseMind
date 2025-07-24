@@ -25,12 +25,15 @@ class AdminLoginView(APIView):
             return set_token_cookies(response,tokens['access'],tokens['refresh'])
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+
 class BaseAdminView(APIView):
+
     def validate(self,user):
         if user.role != 'admin':
             return Response({"error":"Access denied"},status=status.HTTP_403_FORBIDDEN)
         return None
     
+
 class AdminUserManageView(BaseAdminView):
     def get(self,request):
         authorization_error = self.validate(request.user)
@@ -51,7 +54,6 @@ class AdminUserManageView(BaseAdminView):
             for user in page
         ]
         return paginator.get_paginated_response(user_list)
-    
     
     def patch(self,request,user_id=None):
         authorization_error = self.validate(request.user)
@@ -76,5 +78,48 @@ class AdminUserManageView(BaseAdminView):
             user.is_blocked = not user.is_blocked # Toggle current status
         
         user.save()
-        return Response({"error":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
+        return Response({"message":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
                          'is_blocked':user.is_blocked},status=status.HTTP_200_OK)
+
+
+class ManagePsychologistView(BaseAdminView):
+    def get(self,request):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        psychologists = CustomUser.objects.filter(role ='psychologist').order_by('created_at')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(psychologists,request)
+        psychologist_list = [
+            {
+                'id':psychologist.id,
+                'name':f"{psychologist.first_name} {psychologist.last_name}",
+                'email':psychologist.email,
+                'phone_number':psychologist.phone_number,
+                'is_blocked':psychologist.is_blocked
+            }
+            for psychologist in page
+        ]
+        return paginator.get_paginated_response(psychologist_list)
+    
+    def patch(self,request,psychologist_id=None):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        if not psychologist_id:
+            return Response({"error":"Psychologist ID is required"},status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            psychologist = CustomUser.objects.get(id=psychologist_id,role='psychologist')
+        except CustomUser.DoesNotExist:
+            return Response({"error":"Psychologist Not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        is_blocked = request.data.get('is_blocked')
+        if isinstance(is_blocked,str):
+            is_blocked = is_blocked.lower() == 'true'
+            psychologist.is_blocked = is_blocked
+        else:
+            psychologist.is_blocked = not psychologist.is_blocked
+        psychologist.save()
+        return Response({'message':f"Psychologsit {'blocked' if psychologist.is_blocked else 'unblocked'} successfully",
+                         'is_blocked':is_blocked},status=status.HTTP_200_OK)
