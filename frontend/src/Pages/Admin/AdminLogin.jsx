@@ -4,8 +4,10 @@ import { toast } from 'react-toastify'
 import ErrorHandler from '../../Components/Layouts/ErrorHandler'
 import { Eye, EyeClosed } from 'lucide-react'
 import Login_img from '../../assets/Login_img.jpg'
+import { useNavigate } from 'react-router-dom'
 
 const AdminLogin = () => {
+    const navigate = useNavigate()
     const [formData,setFormData] = useState({})
     const [errors,setErrors] = useState({})
     const [showPassword,setShowPassword] = useState(false)
@@ -38,6 +40,7 @@ const AdminLogin = () => {
             setIsLoading(true)
             const data = await AdminLoginApi(formData)
             toast.success(data.message)
+            navigate('/admin/user/management')
         }catch(errors){
             ErrorHandler(errors)
         }finally{
