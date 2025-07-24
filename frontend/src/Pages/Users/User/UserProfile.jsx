@@ -1,14 +1,25 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { FetchUserDetail, UserProfileApi } from '../../../api/authApi'
-import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
-import { toast } from 'react-toastify'
-import { User, Mail, Phone, Users, Calendar, Camera, Edit, X, Save, CheckCircle } from 'lucide-react'
-import UserSidebar from '../../../Components/Users/User/UserSidebar'
-import Navbar from '../../../Components/Users/Navbar'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FetchUserDetail, UserProfileApi } from '../../../api/authApi';
+import ErrorHandler from '../../../Components/Layouts/ErrorHandler';
+import { toast } from 'react-toastify';
+import {
+  User,
+  Mail,
+  Phone,
+  Users,
+  Calendar,
+  Camera,
+  Edit,
+  X,
+  Save,
+  CheckCircle,
+} from 'lucide-react';
+import UserSidebar from '../../../Components/Users/User/UserSidebar';
+import Navbar from '../../../Components/Users/Navbar';
 
 const UserProfile = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -18,23 +29,23 @@ const UserProfile = () => {
     date_of_birth: '',
     profile_picture: null,
   });
-  const [isLoading, setIsLoading] = useState(true)
-  const [role, setRole] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [initialData, setInitialData] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [errors,setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [initialData, setInitialData] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const calculateProgress = (data) => {
-    const fields = ['first_name', 'last_name', 'phone_number', 'gender', 'date_of_birth']
-    const filledFields = fields.filter((field) => data[field]).length
-    return Math.round((filledFields / fields.length) * 100)
-  }
+    const fields = ['first_name', 'last_name', 'phone_number', 'gender', 'date_of_birth'];
+    const filledFields = fields.filter((field) => data[field]).length;
+    return Math.round((filledFields / fields.length) * 100);
+  };
 
   const fetchUser = async () => {
     try {
-      const res = await FetchUserDetail()
+      const res = await FetchUserDetail();
       const data = {
         first_name: res.first_name || '',
         last_name: res.last_name || '',
@@ -44,39 +55,39 @@ const UserProfile = () => {
         date_of_birth: res.date_of_birth || '',
         profile_picture: res.data?.profile_picture || res.profile_picture || '',
       };
-      setFormData(data)
-      setInitialData(data)
-      setRole(res.role)
-      setProgress(calculateProgress(data))
-      setImagePreview(res.data?.profile_picture || res.profile_picture || null)
+      setFormData(data);
+      setInitialData(data);
+      setRole(res.role);
+      setProgress(calculateProgress(data));
+      setImagePreview(res.data?.profile_picture || res.profile_picture || null);
     } catch (error) {
-      ErrorHandler(error)
+      ErrorHandler(error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && role !== 'user') {
-      navigate('/')
+      navigate('/');
     }
-  }, [role, isLoading, navigate])
+  }, [role, isLoading, navigate]);
 
   const handleChange = (e) => {
     const updatedFormData = { ...formData, [e.target.name]: e.target.value };
     setFormData(updatedFormData);
-    setProgress(calculateProgress(updatedFormData))
-    setErrors({...errors,[e.target.name]:''})
+    setProgress(calculateProgress(updatedFormData));
+    setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const handleSelectChange = (field, value) => {
-    const updatedFormData = { ...formData, [field]: value }
-    setFormData(updatedFormData)
-    setProgress(calculateProgress(updatedFormData))
+    const updatedFormData = { ...formData, [field]: value };
+    setFormData(updatedFormData);
+    setProgress(calculateProgress(updatedFormData));
   };
 
   const handleImageChange = (e) => {
@@ -84,18 +95,18 @@ const UserProfile = () => {
     if (file) {
       if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
         toast.error('Profile picture must be PNG, JPG, WEBP, or JPEG');
-        return
+        return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Profile picture must be less than 5MB')
-        return
+        toast.error('Profile picture must be less than 5MB');
+        return;
       }
       setFormData({ ...formData, profile_picture: file });
       const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -103,43 +114,44 @@ const UserProfile = () => {
     if (initialData) {
       setFormData(initialData);
       setProgress(calculateProgress(initialData));
-      setImagePreview(typeof initialData.profile_picture === 'string' ? initialData.profile_picture : null);
+      setImagePreview(
+        typeof initialData.profile_picture === 'string' ? initialData.profile_picture : null
+      );
     }
     setIsEditing(false);
   };
 
-    const formValidate = () => {
-    const formErrors = {}
+  const formValidate = () => {
+    const formErrors = {};
 
     // Validate First Name
     if (formData.first_name.trim() === '') {
-        formErrors.first_name = 'First name is required'
+      formErrors.first_name = 'First name is required';
     } else if (!/^[A-Za-z]+$/.test(formData.first_name)) {
-        formErrors.first_name = 'Enter a valid first name'
+      formErrors.first_name = 'Enter a valid first name';
     }
 
     // Validate Last Name
     if (formData.last_name.trim() === '') {
-        formErrors.last_name = 'Last name is required'
+      formErrors.last_name = 'Last name is required';
     } else if (!/^[A-Za-z]+$/.test(formData.last_name)) {
-        formErrors.last_name = 'Enter a valid last name'
+      formErrors.last_name = 'Enter a valid last name';
     }
 
     // Validate Phone Number
     if (formData.phone_number.trim() === '') {
-        formErrors.phone_number = 'Phone number is required'
+      formErrors.phone_number = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone_number)) {
-        formErrors.phone_number = 'Enter a valid 10-digit phone number'
+      formErrors.phone_number = 'Enter a valid 10-digit phone number';
     }
 
-    setErrors(formErrors) 
-    return Object.keys(formErrors).length === 0
-    }
-
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if(!formValidate()) return
+    e.preventDefault();
+    if (!formValidate()) return;
     const formDataToSend = new FormData();
     for (const key in formData) {
       const value = formData[key];
@@ -150,7 +162,10 @@ const UserProfile = () => {
     try {
       setIsLoading(true);
       const res = await UserProfileApi(formDataToSend);
-      const updatedData = { ...formData, profile_picture: res.profile_picture || formData.profile_picture };
+      const updatedData = {
+        ...formData,
+        profile_picture: res.profile_picture || formData.profile_picture,
+      };
       setFormData(updatedData);
       setInitialData(updatedData);
       setImagePreview(res.profile_picture || null);
@@ -206,20 +221,18 @@ const UserProfile = () => {
         <Navbar />
         <div className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto space-y-6">
-            
             {/* Header Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-r from-teal-500 to-cyan-600 h-32 lg:h-40"></div>
               <div className="relative px-6 lg:px-8 pb-6">
                 <div className="flex flex-col lg:flex-row items-start lg:items-end gap-6 -mt-16 lg:-mt-20">
-                  
                   {/* Profile Picture */}
                   <div className="relative">
                     {imagePreview ? (
-                      <img 
-                        src={imagePreview} 
-                        alt="Profile" 
-                        className="w-24 h-24 lg:w-32 lg:h-32 rounded-full object-cover border-4 border-white shadow-lg" 
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
+                        className="w-24 h-24 lg:w-32 lg:h-32 rounded-full object-cover border-4 border-white shadow-lg"
                       />
                     ) : (
                       <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-2xl lg:text-3xl font-bold text-white border-4 border-white shadow-lg">
@@ -245,7 +258,7 @@ const UserProfile = () => {
                       </>
                     )}
                   </div>
-                  
+
                   {/* Profile Info */}
                   <div className="flex-1 min-w-0 mb-5">
                     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
@@ -258,7 +271,7 @@ const UserProfile = () => {
                           <span className="truncate text-gray-800">{formData.email}</span>
                         </div>
                       </div>
-                      
+
                       {/* Action Buttons */}
                       {!isEditing ? (
                         <button
@@ -305,14 +318,12 @@ const UserProfile = () => {
                   <h2 className="text-xl font-semibold text-gray-900">
                     Profile Completion: {progress}%
                   </h2>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Complete your profile
-                  </p>
+                  <p className="text-gray-600 text-sm mt-1">Complete your profile</p>
                 </div>
               </div>
               <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full transition-all duration-500 ease-out" 
+                <div
+                  className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -331,7 +342,7 @@ const UserProfile = () => {
                   </p>
                 </div>
               </div>
-              
+
               {!isEditing ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-6">
@@ -340,7 +351,9 @@ const UserProfile = () => {
                         First Name
                       </label>
                       <p className="mt-2 text-lg text-gray-900">
-                        {formData.first_name || <span className="text-gray-400 italic">Not provided</span>}
+                        {formData.first_name || (
+                          <span className="text-gray-400 italic">Not provided</span>
+                        )}
                       </p>
                     </div>
                     <div>
@@ -350,7 +363,9 @@ const UserProfile = () => {
                       <div className="flex items-center gap-3 mt-2">
                         <Phone className="w-5 h-5 text-teal-500" />
                         <span className="text-lg text-gray-900">
-                          {formData.phone_number || <span className="text-gray-400 italic">Not provided</span>}
+                          {formData.phone_number || (
+                            <span className="text-gray-400 italic">Not provided</span>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -361,7 +376,9 @@ const UserProfile = () => {
                       <div className="flex items-center gap-3 mt-2">
                         <Users className="w-5 h-5 text-teal-500" />
                         <span className="text-lg text-gray-900 capitalize">
-                          {formData.gender || <span className="text-gray-400 italic">Not provided</span>}
+                          {formData.gender || (
+                            <span className="text-gray-400 italic">Not provided</span>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -372,7 +389,9 @@ const UserProfile = () => {
                         Last Name
                       </label>
                       <p className="mt-2 text-lg text-gray-900">
-                        {formData.last_name || <span className="text-gray-400 italic">Not provided</span>}
+                        {formData.last_name || (
+                          <span className="text-gray-400 italic">Not provided</span>
+                        )}
                       </p>
                     </div>
                     <div>
@@ -381,7 +400,9 @@ const UserProfile = () => {
                       </label>
                       <div className="flex items-center gap-3 mt-2">
                         <Mail className="w-5 h-5 text-teal-500" />
-                        <span className="text-lg font-semibold text-gray-900 truncate">{formData.email}</span>
+                        <span className="text-lg font-semibold text-gray-900 truncate">
+                          {formData.email}
+                        </span>
                       </div>
                     </div>
                     <div>
@@ -391,7 +412,9 @@ const UserProfile = () => {
                       <div className="flex items-center gap-3 mt-2">
                         <Calendar className="w-5 h-5 text-teal-500" />
                         <span className="text-lg text-gray-900">
-                          {formData.date_of_birth || <span className="text-gray-400 italic">Not provided</span>}
+                          {formData.date_of_birth || (
+                            <span className="text-gray-400 italic">Not provided</span>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -401,7 +424,10 @@ const UserProfile = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="first_name"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         First Name
                       </label>
                       <input
@@ -412,12 +438,15 @@ const UserProfile = () => {
                         placeholder="Enter your first name"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
                       />
-                    {errors.first_name &&(
+                      {errors.first_name && (
                         <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>
-                    )}
+                      )}
                     </div>
                     <div>
-                      <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="last_name"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Last Name
                       </label>
                       <input
@@ -427,13 +456,16 @@ const UserProfile = () => {
                         onChange={handleChange}
                         placeholder="Enter your last name"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
-                        />
-                        {errors.last_name &&(
-                            <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>
-                        )}
+                      />
+                      {errors.last_name && (
+                        <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>
+                      )}
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Email Address
                       </label>
                       <input
@@ -444,10 +476,13 @@ const UserProfile = () => {
                         onChange={handleChange}
                         disabled
                         className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-500 cursor-not-allowed"
-                        />
+                      />
                     </div>
                     <div>
-                      <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="phone_number"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Phone Number
                       </label>
                       <input
@@ -457,13 +492,16 @@ const UserProfile = () => {
                         onChange={handleChange}
                         placeholder="Enter your phone number"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
-                        />
-                        {errors.phone_number &&(
-                            <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>
-                        )}
+                      />
+                      {errors.phone_number && (
+                        <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>
+                      )}
                     </div>
                     <div>
-                      <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="gender"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Gender
                       </label>
                       <select
@@ -479,7 +517,10 @@ const UserProfile = () => {
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="date_of_birth"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Date of Birth
                       </label>
                       <input
@@ -492,7 +533,7 @@ const UserProfile = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
                     <button
                       type="button"

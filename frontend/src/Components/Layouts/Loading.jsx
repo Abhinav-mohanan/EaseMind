@@ -19,4 +19,4 @@ const Loading = ({ isLoading, children }) => {
   return <>{children}</>;
 };
 
-export default Loading
+export default Loading;
