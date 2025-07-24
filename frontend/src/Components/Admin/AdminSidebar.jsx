@@ -28,7 +28,7 @@ const AdminSidebar = () => {
       icon: Users
     },
     {
-      path: '#a',
+      path: '/admin/psychologist/management',
       label: 'Manage Psychologists',
       icon: UserCheck
     },

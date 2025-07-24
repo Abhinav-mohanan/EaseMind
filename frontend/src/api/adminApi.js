@@ -15,7 +15,17 @@ export const AdminUserDetailApi = async(page) =>{
 // Manage users
 export const ManageUserApi = async(user_id,current_status) => {
     const response = await axiosInstance.patch(`/admin/user/manage/${user_id}/`,
-        {'is_active':!current_status})
+        {'is_blocked':!current_status})
     return response.data
 }
 
+export const AdminPsychologistDetailApi = async(page) =>{
+    const response = await axiosInstance.get(`/admin/psychologist/details/?page=${page}`)
+    return response.data
+}
+
+export const ManagePsychologistApi = async(psychologist_id,current_status) =>{
+    const response = await axiosInstance.patch(`/admin/psychologist/manage/${psychologist_id}/`,
+        {'is_blocked':!current_status})
+    return response.data
+}
