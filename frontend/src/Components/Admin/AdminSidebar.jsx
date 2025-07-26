@@ -33,7 +33,7 @@ const AdminSidebar = () => {
       icon: UserCheck
     },
     {
-      path: '#b',
+      path: '/admin/psychologist/verification',
       label: 'Pending Verification',
       icon: ClipboardCheck
     },

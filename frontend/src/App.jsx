@@ -13,6 +13,7 @@ import PsychologistProfile from './Pages/Users/Psychologist/PsychologistProfile'
 import AdminLogin from './Pages/Admin/AdminLogin'
 import ManageUser from './Pages/Admin/ManageUser'
 import ManagePsychologist from './Pages/Admin/ManagePsychologist'
+import PsychologistVerification from './Pages/Admin/PsychologistVerification'
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/user/management' element={<ManageUser />} />
         <Route path='/admin/psychologist/management' element={<ManagePsychologist />} />
+        <Route path='/admin/psychologist/verification' element={<PsychologistVerification />} />
       </Routes>
     </Router>
   );

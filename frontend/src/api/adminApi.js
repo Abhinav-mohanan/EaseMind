@@ -29,3 +29,17 @@ export const ManagePsychologistApi = async(psychologist_id,current_status) =>{
         {'is_blocked':!current_status})
     return response.data
 }
+
+export const PsychologistVerificationDetailsApi = async(page,status) =>{
+    const response = await axiosInstance.get('/admin/psychologist/verification/details/',
+        {params:{status,page}}
+    )
+    return response.data
+}
+
+export const HandlePsychologistVerificationApi = async(psychologist_id,action) =>{
+    const response = await axiosInstance.patch(`/admin/psychologist/verification/${psychologist_id}/`,
+        {action}
+    )
+    return response.data
+}
