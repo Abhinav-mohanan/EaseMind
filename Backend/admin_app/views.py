@@ -4,9 +4,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from authentication_app.serializer import LoginSerializer
+from authentication_app.serializer import LoginSerializer,PsychologistProfileSerializer
 from authentication_app.utils import set_token_cookies
-from authentication_app.models import CustomUser
+from authentication_app.models import CustomUser,PsychologistProfile
 
 
 # Admin login
@@ -123,3 +123,44 @@ class ManagePsychologistView(BaseAdminView):
         psychologist.save()
         return Response({'message':f"Psychologsit {'blocked' if psychologist.is_blocked else 'unblocked'} successfully",
                          'is_blocked':is_blocked},status=status.HTTP_200_OK)
+    
+
+class PsychologistVerificationView(BaseAdminView):
+    def get(self,request):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        
+        status_param = request.query_params.get('status','pending').lower()  # Default status is Pending
+
+        if status_param not in ['pending','rejected']:
+            return Response({"error":"Invalid status. Use pending or rejected"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        profiles = PsychologistProfile.objects.filter(is_verified=status_param)
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(profiles,request)
+        serializer = PsychologistProfileSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def patch(self,request,psychologist_id):
+        authorization_error = self.validate(request.user)
+        if authorization_error:
+            return authorization_error
+        
+        action =request.data.get('action')
+        if action not in ['reject','verify']:
+            return Response({
+                'error': "Invalid action.User verify or Reject"
+            },status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            psychologist_profile = PsychologistProfile.objects.get(user__id=psychologist_id)
+        except PsychologistProfile.DoesNotExist:
+            return Response({"error":"Psychologist profile not found"},status=status.HTTP_404_NOT_FOUND )
+        
+        psychologist_profile.is_verified = 'verified' if action == 'verify' else 'rejected'
+        psychologist_profile.save()
+        serializer = PsychologistProfileSerializer(psychologist_profile)
+        return Response(serializer.data,status=status.HTTP_200_OK)

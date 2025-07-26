@@ -97,7 +97,7 @@ const PsychologistProfile = () => {
       setInitialPersonalData(personal);
       setInitialProfessionalData(professional);
       setRole(userData.role);
-      setIsVerified(psychData.isVerified || 'pending');
+      setIsVerified(psychData.is_verified || 'pending');
       setProgress(calculateProgress(personal, professional));
       setImagePreview(personal.profile_picture);
     } catch (error) {
