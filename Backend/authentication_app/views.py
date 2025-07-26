@@ -13,11 +13,11 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from django.core.exceptions import ObjectDoesNotExist
 import logging
+from .permissions import IsNotBlocked
 
 
 logger = logging.getLogger(__name__)
 
-# Signup
 class BaseSignupView(APIView):
     role = None
     
@@ -127,7 +127,6 @@ class CustomRefreshView(TokenRefreshView):
         except Exception:
             return Response({"error":'Invalid refresh token'},status=status.HTTP_401_UNAUTHORIZED)
 
-#Logout
 class Logoutview(APIView):
     def post(self,request):
         refresh_token = request.COOKIES.get('refresh_token')
@@ -146,7 +145,6 @@ class Logoutview(APIView):
         return response
 
 
-# ForgotPassword
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
     def post(self,request):
@@ -157,7 +155,6 @@ class ForgotPasswordView(APIView):
             return Response({"message":"OTP sent to your email for password reset"},status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-# Reset the password
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
     def post(self,request):
@@ -169,9 +166,8 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-# user-profile
 class UserProfileView(APIView):
-
+    permission_classes = [IsAuthenticated,IsNotBlocked]
     def get(self,request):
         try:
             user = request.user
@@ -195,9 +191,8 @@ class UserProfileView(APIView):
             return Response({"error":"Something went wrong while updating profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#Psychologist-profile
 class PsychologistProfileView(APIView):
-    
+    permission_classes[IsAuthenticated,IsNotBlocked]
     def get(self,request):
         user = request.user
         if user.role != 'psychologist':
