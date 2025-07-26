@@ -17,7 +17,6 @@ class SignupSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['first_name','last_name','email','phone_number','role','password','confirm_password']
     
-    # Validate the data
     def validate(self,data):
         errors = {}
         password = data.get('password')
@@ -40,7 +39,6 @@ class SignupSerializer(serializers.ModelSerializer):
         return data
     
 
-    # create the instance
     def create(self, validated_data):
         validated_data.pop('confirm_password')
         user = CustomUser.objects.create_user(
@@ -95,7 +93,7 @@ class VerifyOTPserializer(serializers.Serializer):
         otp_obj = self.validated_data['otp_obj']
 
         if purpose == 'email_verification':
-            user.is_email_verified = True   # Ensure that email is verified
+            user.is_email_verified = True   
         elif purpose == 'password_reset':
             pass
         user.save()
@@ -159,7 +157,6 @@ class ForgotPasswordSerializer(serializers.Serializer):
         send_otp_email(user,purpose='password_reset')   # send otp
         return user
 
-# Reset password
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

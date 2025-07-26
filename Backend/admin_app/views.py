@@ -8,7 +8,10 @@ from authentication_app.serializer import LoginSerializer,PsychologistProfileSer
 from authentication_app.utils import set_token_cookies
 from authentication_app.models import CustomUser,PsychologistProfile
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken,OutstandingToken
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 class AdminLoginView(APIView):
     permission_classes = [AllowAny]
@@ -80,8 +83,11 @@ class AdminUserManageView(BaseAdminView):
         
         user.save()
         if not was_blocked and user.is_blocked:
-            for token in OutstandingToken.objects.filter(user=user):
-                BlacklistedToken.objects.get_or_create(token=token)
+            try:
+                for token in OutstandingToken.objects.filter(user=user):
+                    BlacklistedToken.objects.get_or_create(token=token)
+            except Exception as e:
+                logger.warning(f'Failed to blacklist token of user : {str(e)}')
         return Response({"message":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
                          'is_blocked':user.is_blocked},status=status.HTTP_200_OK)
 
@@ -120,15 +126,19 @@ class ManagePsychologistView(BaseAdminView):
         
         is_blocked = request.data.get('is_blocked')
         was_block = psychologist.is_blocked
-        if isinstance(is_blocked,str):
-            is_blocked = is_blocked.lower() == 'true'
+        if is_blocked is not None:
+            if isinstance(is_blocked,str):
+                is_blocked = is_blocked.lower() == 'true'
             psychologist.is_blocked = is_blocked
         else:
             psychologist.is_blocked = not psychologist.is_blocked
         psychologist.save()
         if not was_block and psychologist.is_blocked:
-            for token in OutstandingToken.objects.filter(user=psychologist):
-                BlacklistedToken.objects.get_or_create(token=token)
+            try:
+                for token in OutstandingToken.objects.filter(user=psychologist):
+                    BlacklistedToken.objects.get_or_create(token=token)
+            except Exception as e:
+                logger.warning(f'Failed to blacklist token of user : {str(e)}')
         return Response({'message':f"Psychologsit {'blocked' if psychologist.is_blocked else 'unblocked'} successfully",
                          'is_blocked':is_blocked},status=status.HTTP_200_OK)
     

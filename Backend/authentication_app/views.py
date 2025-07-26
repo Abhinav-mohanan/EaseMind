@@ -13,7 +13,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from django.core.exceptions import ObjectDoesNotExist
 import logging
-from .permissions import IsNotBlocked
+from .permissions import IsNotBlocked,IsPsychologist
 
 
 logger = logging.getLogger(__name__)
@@ -128,6 +128,7 @@ class CustomRefreshView(TokenRefreshView):
             return Response({"error":'Invalid refresh token'},status=status.HTTP_401_UNAUTHORIZED)
 
 class Logoutview(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
@@ -136,7 +137,9 @@ class Logoutview(APIView):
             token = RefreshToken(refresh_token)
             token.blacklist()                  # Black list the refresh token
         except TokenError:
-            return Response({"error":"Invalid or Expired token"},status=status.HTTP_400_BAD_REQUEST)
+            # This may happen if the token was already blacklisted,
+            # for example, if the user was blocked by an admin earlier
+            logger.warning("Logout attempt with an invalid or already blacklisted refresh token.")
         
         # clear tokens
         response = Response({'message':"Logout Succesful"},status=status.HTTP_200_OK)
@@ -192,11 +195,9 @@ class UserProfileView(APIView):
 
 
 class PsychologistProfileView(APIView):
-    permission_classes[IsAuthenticated,IsNotBlocked]
+    permission_classes = [IsAuthenticated,IsNotBlocked,IsPsychologist]
     def get(self,request):
         user = request.user
-        if user.role != 'psychologist':
-            return Response({'error':"Only Psychologist can access this endpoint"},status=status.HTTP_403_FORBIDDEN)
         try:
             profile = user.psychologist_profile
             serializer = PsychologistProfileSerializer(profile)
@@ -208,8 +209,6 @@ class PsychologistProfileView(APIView):
     
     def patch(self,request):
         user = request.user
-        if user.role != 'psychologist':
-            return Response({'error':"Only Psychologist can access this endpoint"},status=status.HTTP_403_FORBIDDEN)
         try:
             profile = user.psychologist_profile
             serializer = PsychologistProfileWriterSerializer(profile,data=request.data,partial=True)
