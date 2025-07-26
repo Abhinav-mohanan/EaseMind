@@ -2,6 +2,12 @@ import { toast } from 'react-toastify';
 
 const ErrorHandler = (error, defaultMsg = 'An error occurred. Please try again later.') => {
   const errorMessages = error?.response?.data || { error: [defaultMsg] };
+  const status = error?.response?.status
+  if (status === 403){
+    toast.error("Access denied.")
+    window.location.href ='/login';
+    return
+  }
 
   toast.error(
     <div>
