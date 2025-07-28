@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'authentication_app',
     'admin_app',
+    'articles',
     
 
     'rest_framework',

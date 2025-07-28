@@ -1,0 +1,49 @@
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+from rest_framework import status
+from authentication_app.permissions import IsVerifiedAndUnblock
+from .serializer import ArticleListSerializer,ArticleCreateSerializer
+from .models import Article
+
+# Create your views here.
+
+class CreateArticleView(APIView):
+    permission_classes = [IsVerifiedAndUnblock]
+
+    def get(self,request):
+        user = request.user
+        articles = Article.objects.filter(author=user)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(articles,request)
+        seralizer = ArticleListSerializer(page,many=True)
+        return paginator.get_paginated_response(seralizer.data)
+    
+    def post(self,request):
+        data = request.data
+        seralizer = ArticleCreateSerializer(data=data,context={'request':request})
+        if seralizer.is_valid():
+            seralizer.save()
+            return Response(seralizer.data,status=status.HTTP_201_CREATED)
+        return Response(seralizer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self,request,article_id):
+        user = request.user
+        try:
+            article = Article.objects.get(id=article_id,author=user)
+        except Article.DoesNotExist:
+            return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
+        serializer = ArticleCreateSerializer(article,data=request.data,partial=True,context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self,request,article_id):
+        user = request.user
+        try:
+            article = Article.objects.get(id=article_id,author=user)
+            article.delete()
+            return Response({"message":"Article deleted successfully"},status=status.HTTP_200_OK)
+        except Article.DoesNotExist:
+            return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)

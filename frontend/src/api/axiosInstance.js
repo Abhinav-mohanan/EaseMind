@@ -23,19 +23,22 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if(originalRequest.url.includes('/token/refresh/')){
+      ErrorHandler(error);
+      window.location.href='/login';
+      return Promise.reject(error);
+    }
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log('Access token expired. Trying refresh...');
       originalRequest._retry = true;
       try {
         await axiosInstance.post(
-          `${CONFIG.BACKEND_URL}/token/refresh/`,
+          `/token/refresh/`,
           {}, // No body needed; backend reads from cookie
           { withCredentials: true }
         );
-        console.log('Refresh successful. Retrying original request...');
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.error('Token refresh failed', refreshError);
         ErrorHandler(refreshError);
         window.location.href = '/login';
         return Promise.reject(refreshError);

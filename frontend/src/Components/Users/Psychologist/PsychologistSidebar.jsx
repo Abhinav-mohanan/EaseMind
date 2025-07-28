@@ -1,4 +1,4 @@
-import { Calendar, ChevronRight, icons, User } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, icons, User } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -16,6 +16,11 @@ const PsychologistSidebar = () => {
       label: 'Appointments',
       icon: Calendar,
     },
+    {
+      path:'/psychologist/articles',
+      label: 'Articles',
+      icon: BookOpen,
+    }
   ];
 
   return (
