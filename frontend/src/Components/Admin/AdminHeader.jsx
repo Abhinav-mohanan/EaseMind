@@ -7,10 +7,34 @@ import {
   ChevronDown,
   Menu
 } from 'lucide-react'
+import { LogoutApi } from '../../api/authApi'
+import { toast } from 'react-toastify'
+import ErrorHandler from '../Layouts/ErrorHandler'
+import ConfirmationModal from '../Layouts/Confirmationmodal'
 
 const AdminHeader = () => {
   const navigate = useNavigate()
   const [showDropdown, setShowDropdown] = useState(false)
+  const [isModalOpen,setIsModalOpen] = useState(false)
+
+  const ConfirmLogout = async() =>{
+    try{
+      const data = await LogoutApi()
+      toast.success(data.message)
+      navigate('/admin/login')
+    }catch(error){
+      ErrorHandler(error)
+      setIsModalOpen(false)
+    }
+  }
+
+  const handleLogout = () =>{
+    setIsModalOpen(true)
+  }
+
+  const onCloseModal = ()=>{
+    setIsModalOpen(false)
+  }
   
   return (
     <header className="bg-white shadow-lg border-b border-teal-100 p-4 flex justify-between items-center  sticky top-0 z-40">
@@ -58,6 +82,7 @@ const AdminHeader = () => {
             <div className="absolute right-0  w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
               <div className="p-2">
                 <button
+                onClick={handleLogout}
                   className="w-full flex items-center gap-3 p-1.5 hover:bg-red-50 rounded-lg text-red-600 hover:text-red-700 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
@@ -76,6 +101,15 @@ const AdminHeader = () => {
           }}
         />
       )}
+      <ConfirmationModal
+      isOpen={isModalOpen}
+      onClose={onCloseModal}
+      onConfirm={ConfirmLogout}
+      title='Confirm Logout'
+      message='Are you sure you want to logout ?'
+      confirmText='Logout'
+      cancelText='Cancel'
+      />
     </header>
   )
 }

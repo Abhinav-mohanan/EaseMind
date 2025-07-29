@@ -3,9 +3,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework import status
 from authentication_app.permissions import IsVerifiedAndUnblock
+from authentication_app.permissions import IsAdmin
 from .serializer import ArticleListSerializer,ArticleCreateSerializer
 from .models import Article
-
+from django.db.models import Q
 # Create your views here.
 
 class CreateArticleView(APIView):
@@ -13,7 +14,16 @@ class CreateArticleView(APIView):
 
     def get(self,request):
         user = request.user
-        articles = Article.objects.filter(author=user)
+        search = request.query_params.get('search')
+        status_filter = request.query_params.get('status')
+        articles = Article.objects.filter(author=user).order_by('-created_at')
+        if search:
+            articles = articles.filter(
+                Q(title__icontains=search) | 
+                Q(content__icontains=search))
+        
+        if status_filter and status_filter != 'all':
+            articles = articles.filter(status=status_filter)
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(articles,request)
         seralizer = ArticleListSerializer(page,many=True)
@@ -45,5 +55,52 @@ class CreateArticleView(APIView):
             article = Article.objects.get(id=article_id,author=user)
             article.delete()
             return Response({"message":"Article deleted successfully"},status=status.HTTP_200_OK)
+        except Article.DoesNotExist:
+            return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class ArticleListView(APIView):    
+    def get(self,request):
+        search_query = request.query_params.get('search')
+        articles = Article.objects.filter(status='published')
+        if search_query:
+            articles = articles.filter(
+                Q(title__icontains=search_query)|
+                Q(content__icontains=search_query))
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(articles,request)
+        serializer = ArticleListSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+class ArticleDetailView(APIView):
+    def get(self,request,article_id):
+        try:
+            article = Article.objects.get(id=article_id)
+            serializer = ArticleListSerializer(article)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error":"Article Not found"},status=status.HTTP_404_NOT_FOUND)
+
+class ArticleAdminView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self,request):
+        search_query = request.query_params.get('search')
+        articles = Article.objects.filter(status='published')
+        if search_query:
+            articles = articles.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query) 
+            )
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(articles,request)
+        serializer = ArticleListSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def delete(self,request,article_id):    
+        try:
+            article = Article.objects.get(id=article_id)
+            article.delete()
+            return Response({"message":"Article deleted Successfully"},status=status.HTTP_200_OK)
         except Article.DoesNotExist:
             return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)

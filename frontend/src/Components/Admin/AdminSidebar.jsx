@@ -38,7 +38,7 @@ const AdminSidebar = () => {
       icon: ClipboardCheck
     },
     {
-      path: '#c',
+      path: '/admin/aritcles',
       label: 'View Articles',
       icon: FileText
     },

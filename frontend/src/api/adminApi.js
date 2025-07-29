@@ -43,3 +43,15 @@ export const HandlePsychologistVerificationApi = async(psychologist_id,action) =
     )
     return response.data
 }
+
+export const AdminArticlesApi = async(page,search) =>{
+    const response = await axiosInstance.get(`/admin/articles/`,
+        {params:{page:page,search:search}}
+    )
+    return response.data
+}
+
+export const AdminArticleDeleteApi = async(article_id) =>{
+    const response = await axiosInstance.delete(`/admin/article/${article_id}/`)
+    return response.data
+}
