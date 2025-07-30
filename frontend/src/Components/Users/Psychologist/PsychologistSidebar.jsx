@@ -1,4 +1,4 @@
-import { BookOpen, Calendar, ChevronRight, icons, User } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, icons, NotebookPen, Pen, User } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -10,6 +10,11 @@ const PsychologistSidebar = () => {
       path: '/psychologist/profile',
       label: 'My Profile',
       icon: User,
+    },
+    {
+      path: '/psychologist/availability',
+      label: 'Availbilitly',
+      icon: NotebookPen,
     },
     {
       path: '#',

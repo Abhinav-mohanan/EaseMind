@@ -18,6 +18,7 @@ import CreateArticle from './Pages/Users/Psychologist/CreateArticle'
 import PublishedArticles from './Pages/Users/PublishedArticles'
 import ArticleDetails from './Pages/Users/ArticleDetails'
 import ArticlesManage from './Pages/Admin/ArticlesManage'
+import PsychologistAvailability from './Pages/Users/Psychologist/PsychologistAvailability'
 
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
         <Route path='/admin/psychologist/management' element={<ManagePsychologist />} />
         <Route path='/admin/psychologist/verification' element={<PsychologistVerification />} />
         <Route path='/psychologist/articles' element={<CreateArticle />} />
+        <Route path='/psychologist/availability' element={<PsychologistAvailability />} />
         <Route path='/articles' element={<PublishedArticles />} />
         <Route path='/article/detail/:article_id' element={<ArticleDetails />} />
         <Route path='/admin/aritcles' element={<ArticlesManage />} />
