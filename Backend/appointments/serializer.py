@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from datetime import datetime,timedelta
 from .models import PsychologistAvailability
+from authentication_app.models import PsychologistProfile
 
 
 class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
@@ -41,4 +42,15 @@ class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         psychologist = request.user.psychologist_profile
         return  PsychologistAvailability.objects.create(psychologist=psychologist,**validated_data)
+
+
+class PsychologistListSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    profile_pic = serializers.URLField(source='user.profile_picture.url',allow_null=True)
+
+    class Meta:
+        model = PsychologistProfile
+        fields = ['id','name','specialization','experience_years','profile_pic']
     
+    def get_name(self,obj):
+        return f'{obj.user.first_name} {obj.user.last_name}'

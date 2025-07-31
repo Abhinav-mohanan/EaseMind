@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from authentication_app.permissions import IsVerifiedAndUnblock
+from authentication_app.models import PsychologistProfile
 from .models import PsychologistAvailability
-from .serializer import PsychologistAvailabilitySerializer
+from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer)
 
 
 
@@ -56,6 +57,15 @@ class PsychologistAvailabilityView(APIView):
             return Response({"message":"Slot deleted successfully"},status=status.HTTP_200_OK)
         except PsychologistAvailability.DoesNotExist:
             return Response({"error":"Slot not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class PsychologitListView(APIView):
+    def get(self,request):
+        psychologit = PsychologistProfile.objects.filter(user__role='psychologist',is_verified='verified').select_related('user')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(psychologit,request)
+        serializer = PsychologistListSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
         
 
 
