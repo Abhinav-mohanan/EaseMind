@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from datetime import datetime,timedelta
-from .models import PsychologistAvailability
+from .models import PsychologistAvailability,Appointment
 from authentication_app.models import PsychologistProfile
-
+from django.utils.timezone import now
 
 class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
     end_time = serializers.SerializerMethodField()
@@ -54,3 +54,46 @@ class PsychologistListSerializer(serializers.ModelSerializer):
     
     def get_name(self,obj):
         return f'{obj.user.first_name} {obj.user.last_name}'
+
+
+class SlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PsychologistAvailability
+        fields = ['id','date','start_time','end_time','is_booked','payment_amount','locked_until']
+
+
+class PsychologistDetailSerializer(serializers.Serializer):
+    psychologist = serializers.SerializerMethodField()
+    slots = SlotSerializer(many=True)
+
+    def get_psychologist(self,obj):
+        psychologist = obj['psychologist']
+        user = psychologist.user
+
+        try:
+            profile_picture = user.profile_picture.url
+        except:
+            profile_picture = None
+        
+        return{
+            'name':f'{user.first_name} {user.last_name}',
+            'email':user.email,
+            'phone_number':user.phone_number,
+            'id':psychologist.id,
+            'bio':psychologist.bio,
+            'education':psychologist.education,
+            'license_no':psychologist.license_no,
+            'specialization':psychologist.specialization,
+            'experience_years':psychologist.experience_years,
+            'profile_picture':profile_picture,
+
+        }
+
+
+class AppointmentWriterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = "__all__"
+     
+    def create(self, validated_data):
+        return Appointment.objects.create(**validated_data)

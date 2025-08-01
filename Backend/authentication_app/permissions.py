@@ -1,21 +1,38 @@
 from rest_framework.permissions import BasePermission
 from authentication_app.models import PsychologistProfile
 
+
 class IsNotBlocked(BasePermission):
     def has_permission(self, request, view):
         return not request.user.is_blocked
 
+
 class IsPsychologist(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'psychologist'
+        if not request.user.is_authenticated:
+            return False
+        if not request.user.role == 'psychologist':
+            return False
+        return True
+
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'admin'
+        if not request.user.is_authenticated:
+            return False
+        if not request.user.role == 'admin':
+            return False
+        return True
+     
 
 class IsUser(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'user'
+        if not request.user.is_authenticated:
+            return False
+        if not request.user.role == 'user':
+            return False
+        return True
+
 
 class IsVerifiedAndUnblock(BasePermission):
     def has_permission(self, request, view):

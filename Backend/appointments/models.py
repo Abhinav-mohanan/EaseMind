@@ -13,6 +13,7 @@ class PsychologistAvailability(models.Model):
     payment_amount = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
     is_booked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    locked_until = models.DateTimeField(null=True,blank=True)
 
     class Meta:
         unique_together = ('psychologist','date','start_time')

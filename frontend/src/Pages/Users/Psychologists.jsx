@@ -5,6 +5,10 @@ import Navbar from '../../Components/Users/Navbar';
 import Pagination from '../../Components/Layouts/Pagination';
 import Footer from '../../Components/Users/Footer';
 import { Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import default_img from '../../assets/default_image.png'
+import Loading from '../../Components/Layouts/Loading';
+
 
 const PsychologistsList = () => {
     const [psychologists,setPsychologists] = useState([])
@@ -37,9 +41,9 @@ const PsychologistsList = () => {
     }
 
     return (
+        <Loading isLoading={isLoading}>
         <div className="min-h-screen bg-gray-50">
             <Navbar />
-            
             {/* Hero Section */}
             <div className="bg-gray-50 text-black-100 py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -66,7 +70,7 @@ const PsychologistsList = () => {
                                     <div className="relative bg-gradient-to-br from-teal-50 to-blue-50 p-8 text-center">
                                         <div className="relative inline-block">
                                             <img
-                                                src={psychologist.profile_pic}
+                                                src={psychologist.profile_pic || default_img}
                                                 alt={psychologist.name}
                                                 className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                                             />
@@ -94,10 +98,10 @@ const PsychologistsList = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                            <div 
+                                            <Link to={`/therapist/details/${psychologist.id}`}
                                             className='w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-serif font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl block text-center'>
                                         See profile
-                                        </div>
+                                        </Link>
                         
                                     </div>
                                 </div>
@@ -116,6 +120,7 @@ const PsychologistsList = () => {
             )}
             <Footer/>
         </div>
+        </Loading>
     );
 };
 

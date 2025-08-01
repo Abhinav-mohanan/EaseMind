@@ -28,3 +28,23 @@ export const FetchPsychologistApi = async(page) =>{
     const response = await axiosInstance.get(`/psychologit/list/?page=${page}`)
     return response.data
 }
+
+export const PsychologistDetailApi = async(psychologist_id) =>{
+    const response = await axiosInstance.get(`/psychologist/details/${psychologist_id}/`)
+    return  response.data
+}
+
+export const CreateRazorpayOrderApi = async(data)=>{
+    const response = await axiosInstance.post('/create-order/',data)
+    return response.data
+}
+
+export const BookSlotApi = async(data)=>{
+    const response = await axiosInstance.post('/book-slot/',data)
+    return response.data
+}
+
+export const LockSlotApi = async(slot_id) =>{
+    const response = await axiosInstance.post('/lock-slot/',{slot_id})
+    return response.data
+}
