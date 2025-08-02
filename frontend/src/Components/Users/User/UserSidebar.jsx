@@ -12,7 +12,7 @@ const UserSidebar = () => {
       icon: User,
     },
     {
-      path: '#',
+      path: '/user/appointments',
       label: 'Appointments',
       icon: Calendar,
     },

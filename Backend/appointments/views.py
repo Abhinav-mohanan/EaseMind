@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from authentication_app.permissions import IsVerifiedAndUnblock,IsUser
+from authentication_app.permissions import IsVerifiedAndUnblock,IsUser,IsAdmin
 from authentication_app.models import PsychologistProfile
-from .models import PsychologistAvailability
+from .models import PsychologistAvailability,Appointment
 from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,
-                         PsychologistDetailSerializer,AppointmentWriterSerializer)
+                         PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,)
 from datetime import date,datetime
 from django.conf import settings
 from django.utils import timezone
@@ -82,10 +82,7 @@ class LockSlotView(APIView):
             
             if slot.is_booked:
                 return Response({"error":"Slot already booked"},status=status.HTTP_400_BAD_REQUEST)
-            if slot.locked_until and slot.locked_until > timezone.now():
-                slot.locked_until = None
-                slot.save()
-            if slot.locked_until:
+            if slot.locked_until and slot.locked_until >timezone.now():
                 return Response({'error':"slot is temporarily locked please try agian after some time"},
                                 status=status.HTTP_400_BAD_REQUEST)
             slot.locked_until = timezone.now() + timedelta(minutes=7)
@@ -164,5 +161,44 @@ class BookSlotView(APIView):
                 serializer.save()
                 return Response({'message':"Payment completed.slot booked successfully"},status=status.HTTP_200_OK)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({"error":"Payment verification failed"},status=status.HTTP_400_BAD_REQUEST)
+        except razorpay.errors.SignatureVerificationError as e:
+            return Response({"error":"Payment verification failed",},status=status.HTTP_400_BAD_REQUEST)
+
+
+class BaseAppointmentView(APIView):
+    role = None
+    def get(self,request):
+        user = request.user
+        status_filter = request.query_params.get('status','booked')
+        if self.role == 'psychologist':
+            appointments = Appointment.objects.filter(psychologist__user=user).select_related(
+                'user','psychologist__user','availability'
+            ).order_by('availability__date')
+        elif self.role == 'admin':
+            appointments = Appointment.objects.all().order_by('availability__date')
+        else:
+            appointments = Appointment.objects.filter(user=user).select_related(
+                'user','psychologist__user','availability'
+            ).order_by('availability__date')
+        if status_filter:
+            appointments = appointments.filter(status=status_filter)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(appointments,request)
+        serializer = AppointmentSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
+
+class PsychologitAppointmentView(BaseAppointmentView):
+    permission_classes = [IsVerifiedAndUnblock]
+    role = 'psychologist'
+
+
+
+class UserAppointmentView(BaseAppointmentView):
+    permission_classes = [IsUser]
+    role = 'user'
+
+class AdminAppointmentView(BaseAppointmentView):
+    permission_classes = [IsAdmin]
+    role = 'admin'

@@ -17,7 +17,7 @@ const PsychologistSidebar = () => {
       icon: NotebookPen,
     },
     {
-      path: '#',
+      path: '/psychologist/appointments/',
       label: 'Appointments',
       icon: Calendar,
     },

@@ -43,7 +43,7 @@ const AdminSidebar = () => {
       icon: FileText
     },
     {
-      path: '#s',
+      path: '/admin/appointments',
       label: 'View Appointments',
       icon: Calendar
     }

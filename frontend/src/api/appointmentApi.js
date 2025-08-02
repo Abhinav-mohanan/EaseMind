@@ -48,3 +48,25 @@ export const LockSlotApi = async(slot_id) =>{
     const response = await axiosInstance.post('/lock-slot/',{slot_id})
     return response.data
 }
+
+export const PsychologistAppointmentApi = async(page,status) =>{
+    const response = await axiosInstance.get(`/psychologist/appointments/`,{
+        params:{page:page,status:status}
+    }
+    )
+    return response.data
+}
+
+export const UserAppointmentsApi = async(page,status) =>{
+    const response = await axiosInstance.get('/user/appointments/?page=${page}',{
+        params:{page:page,status:status}
+    })
+    return response.data
+}
+
+export const AdminAppointmentsApi = async(page,status) =>{
+    const response = await axiosInstance.get('/admin/appointments/',{
+        params:{page:page,status:status}
+    })
+    return response.data
+}

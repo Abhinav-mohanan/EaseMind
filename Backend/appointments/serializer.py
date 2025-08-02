@@ -97,3 +97,21 @@ class AppointmentWriterSerializer(serializers.ModelSerializer):
      
     def create(self, validated_data):
         return Appointment.objects.create(**validated_data)
+    
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    psychologist_name = serializers.SerializerMethodField()
+    user_name = serializers.SerializerMethodField()
+    payment_amount = serializers.CharField(source='availability.payment_amount',read_only=True)
+    slot_date = serializers.DateField(source='availability.date',read_only=True)
+    slot_time = serializers.TimeField(source='availability.start_time',read_only=True)
+    class Meta:
+        model = Appointment
+        fields = ['id','psychologist_name','user_name','slot_date','slot_time','payment_amount','status']
+    
+    def get_psychologist_name(self,obj):
+        user = obj.psychologist.user
+        return f'{user.first_name} {user.last_name}'
+    
+    def get_user_name(self,obj):
+        return f'{obj.user.first_name} {obj.user.last_name}'

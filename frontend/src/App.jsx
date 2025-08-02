@@ -21,6 +21,9 @@ import ArticlesManage from './Pages/Admin/ArticlesManage'
 import PsychologistAvailability from './Pages/Users/Psychologist/PsychologistAvailability'
 import PsychologistsList from './Pages/Users/Psychologists'
 import PsychologistDetail from './Pages/Users/User/PsychologistDetail'
+import PsychologistAppointments from './Pages/Users/Psychologist/PsychologistAppointments'
+import UserAppointments from './Pages/Users/User/UserAppointments'
+import ViewAppointments from './Pages/Admin/ViewAppointments'
 
 
 function App() {
@@ -60,6 +63,9 @@ function App() {
         <Route path='/admin/aritcles' element={<ArticlesManage />} />
         <Route path='/therapist' element={<PsychologistsList />} />
         <Route path='/therapist/details/:psychologist_id' element={<PsychologistDetail />} />
+        <Route path='/psychologist/appointments' element={<PsychologistAppointments />} />
+        <Route path='/user/appointments' element={<UserAppointments />} />
+        <Route path='/admin/appointments' element={<ViewAppointments />} />
       </Routes>
     </Router>
   );
