@@ -70,3 +70,13 @@ export const AdminAppointmentsApi = async(page,status) =>{
     })
     return response.data
 }
+
+export const UserAppointmentDetailsApi = async(appointment_id) =>{
+    const response = await axiosInstance.get(`/user/appointment/details/${appointment_id}`)
+    return response.data
+}
+
+export const PsychologistAppointmentDetailsApi = async(appointment_id) =>{
+    const response = await axiosInstance.get(`/psychologist/appointments/details/${appointment_id}/`)
+    return response.data
+}

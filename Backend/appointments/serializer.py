@@ -97,17 +97,18 @@ class AppointmentWriterSerializer(serializers.ModelSerializer):
      
     def create(self, validated_data):
         return Appointment.objects.create(**validated_data)
-    
 
-class AppointmentSerializer(serializers.ModelSerializer):
+
+class AppointmentListSerializer(serializers.ModelSerializer):
     psychologist_name = serializers.SerializerMethodField()
     user_name = serializers.SerializerMethodField()
     payment_amount = serializers.CharField(source='availability.payment_amount',read_only=True)
     slot_date = serializers.DateField(source='availability.date',read_only=True)
     slot_time = serializers.TimeField(source='availability.start_time',read_only=True)
+
     class Meta:
         model = Appointment
-        fields = ['id','psychologist_name','user_name','slot_date','slot_time','payment_amount','status']
+        fields = ['id','psychologist_name','user_name','slot_date','payment_amount','slot_time','status']
     
     def get_psychologist_name(self,obj):
         user = obj.psychologist.user
@@ -115,3 +116,39 @@ class AppointmentSerializer(serializers.ModelSerializer):
     
     def get_user_name(self,obj):
         return f'{obj.user.first_name} {obj.user.last_name}'
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    user_profile_pic = serializers.SerializerMethodField()
+    user_email = serializers.EmailField(source='user.email',read_only=True)
+    user_phone_number = serializers.CharField(source='user.phone_number',read_only=True)
+    psychologist_name = serializers.SerializerMethodField()
+    psychologist_profile_pic = serializers.SerializerMethodField()
+    psychologist_phone = serializers.CharField(source='psychologist.user.phone_number',read_only=True)
+    psychologist_email = serializers.CharField(source='psychologist.user.email',read_only=True)
+    specialization = serializers.CharField(source='psychologist.specialization')
+    slot_time = serializers.TimeField(source='availability.start_time',read_only=True)
+    slot_date = serializers.DateField(source='availability.date',read_only=True)
+    payment_amount = serializers.CharField(source='availability.payment_amount',read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = ['id','psychologist_name','user_name','slot_date','slot_time','payment_amount',
+                  'specialization','user_email','user_phone_number','status','psychologist_profile_pic',
+                  'user_profile_pic','psychologist_phone','psychologist_email']
+    
+    def get_psychologist_name(self,obj):
+        user = obj.psychologist.user
+        return f'{user.first_name} {user.last_name}'
+    
+    def get_user_name(self,obj):
+        return f'{obj.user.first_name} {obj.user.last_name}'
+    
+    def get_psychologist_profile_pic(self,obj):
+        user = obj.psychologist.user
+        return user.profile_picture.url if user.profile_picture else None
+           
+    def get_user_profile_pic(self,obj):    
+        return obj.user.profile_picture.url if obj.user.profile_picture else None
+        

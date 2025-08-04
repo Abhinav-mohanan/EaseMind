@@ -6,8 +6,10 @@ import Navbar from '../../../Components/Users/Navbar';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import { Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';
+import { useNavigate } from 'react-router-dom';
 
 const PsychologistAppointments = () => {
+    const navigate = useNavigate()
     const [appointments,setAppointments] = useState([])
     const [currentPage,setCurrentPage] = useState(1)
     const [totalPages,setTotalPages] = useState(1)
@@ -72,6 +74,8 @@ const PsychologistAppointments = () => {
                                             <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Time</th>
                                             <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Amount</th>
                                             <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+
                                         </tr>
                                     </thead>
                                     <tbody className='divide-y divide-gray-200'>
@@ -108,6 +112,15 @@ const PsychologistAppointments = () => {
                                                     }`}>
                                                         {appointment.status}
                                                     </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <button
+                                                        onClick={()=>navigate(`/psychologist/appointment/${appointment.id}`)}
+                                                        className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 
+                                                        focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out"
+                                                    >
+                                                        View Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}

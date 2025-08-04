@@ -6,8 +6,10 @@ import Navbar from '../../../Components/Users/Navbar';
 import { Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
+import { useNavigate } from 'react-router-dom';
 
 const UserAppointments = () => {
+    const navigate = useNavigate()
     const [appointments, setAppointments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -114,6 +116,7 @@ const UserAppointments = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <button
+                                                            onClick={()=>navigate(`/user/appointment/${appointment.id}`)}
                                                             className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 
                                                             focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out"
                                                         >

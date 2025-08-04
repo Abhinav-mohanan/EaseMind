@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from authentication_app.permissions import IsVerifiedAndUnblock,IsUser,IsAdmin
 from authentication_app.models import PsychologistProfile
 from .models import PsychologistAvailability,Appointment
-from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,
+from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,AppointmentListSerializer,
                          PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,)
 from datetime import date,datetime
 from django.conf import settings
@@ -184,7 +184,7 @@ class BaseAppointmentView(APIView):
             appointments = appointments.filter(status=status_filter)
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(appointments,request)
-        serializer = AppointmentSerializer(page,many=True)
+        serializer = AppointmentListSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
 
 
@@ -202,3 +202,30 @@ class UserAppointmentView(BaseAppointmentView):
 class AdminAppointmentView(BaseAppointmentView):
     permission_classes = [IsAdmin]
     role = 'admin'
+
+
+class BaseAppointmentDetailView(APIView):
+    role = None
+    def get(self,request,appointment_id):
+        user = request.user
+        try:
+            if self.role == 'user':
+                appointment = Appointment.objects.select_related(
+                    'user','psychologist__user','availability').get(id=appointment_id,user=user)
+            else:
+                appointment = Appointment.objects.select_related(
+                    'user','psychologist__user','availability').get(id=appointment_id,psychologist__user=user)
+            serializer = AppointmentSerializer(appointment)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Appointment.DoesNotExist:
+            return Response({"error":"Appointment Not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class UserAppointmentDetails(BaseAppointmentDetailView):
+    permission_classes = [IsUser]
+    role = 'user'
+
+
+class PsychologistAppointmentDetails(BaseAppointmentDetailView):
+    permission_classes = [IsVerifiedAndUnblock]
+    role = 'psychologist'
