@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PsychologistAppointmentDetailsApi } from '../../../api/appointmentApi'
+import { CancelPsychologistAppointmentApi, PsychologistAppointmentDetailsApi } from '../../../api/appointmentApi'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
@@ -8,11 +8,13 @@ import Navbar from '../../../Components/Users/Navbar';
 import { AlertTriangle, Calendar, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
   MessageCircle, Phone, Video, XCircle } from 'lucide-react';
 import default_img from '../../../assets/default_image.png'
+import CancellationModal from '../../../Components/Layouts/CancellationModal';
 
 const PsychologistAppointmentDetails = () => {
     const {appointment_id} = useParams()
     const [appointment,setAppointment] = useState(null)
     const [isLoading,setIsLoading] = useState(false)
+    const [ismodalopen,setIsmodalOpen] = useState(false)
 
     const FetchAppointment = async() =>{
         setIsLoading(true)
@@ -63,6 +65,13 @@ const PsychologistAppointmentDetails = () => {
         FetchAppointment()
     },[appointment_id])
 
+    const handleCancel = () =>{
+      setIsmodalOpen(true)
+    }
+
+    const onModalClose = () =>{
+      setIsmodalOpen(false)
+    }
 
   return (
     <Loading isLoading={isLoading}>
@@ -154,6 +163,7 @@ const PsychologistAppointmentDetails = () => {
                       </div>
                       {appointment.status === 'booked' &&(
                         <button
+                        onClick={handleCancel}
                          className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200'>
                             <XCircle className='w-4 h-4 mr-2'/>
                             Cancel Appointment
@@ -195,7 +205,11 @@ const PsychologistAppointmentDetails = () => {
                             <div>
                               <h4 className="font-semibold text-gray-800 mb-1">Payment</h4>
                               <p className="text-gray-600">₹{appointment.payment_amount}</p>
+                              {appointment.status === 'cancelled' ?(
+                              <p className="text-sm text-yellow-600 font-medium">Refund</p>
+                              ):(
                               <p className="text-sm text-green-600 font-medium">✓ Paid</p>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-start space-x-4">
@@ -212,8 +226,9 @@ const PsychologistAppointmentDetails = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-8 border border-teal-100">
+                  {appointment.status === 'booked' &&(
+
+                    <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-8 border border-teal-100">
                     <div className="flex items-center mb-4">
                       <Heart className="h-6 w-6 text-teal-600 mr-3" />
                       <h3 className="text-lg font-bold text-gray-800">Session Guidelines</h3>
@@ -237,6 +252,7 @@ const PsychologistAppointmentDetails = () => {
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12">
@@ -250,6 +266,13 @@ const PsychologistAppointmentDetails = () => {
           </div>
         </div>
       </div>
+      <CancellationModal
+      isOpen={ismodalopen}
+      onClose={onModalClose}
+      appointment_id={appointment_id}
+      cancelApi={CancelPsychologistAppointmentApi}
+      refetch={FetchAppointment}
+      />
     </Loading>
   );
 };

@@ -6,13 +6,18 @@ from authentication_app.permissions import IsVerifiedAndUnblock,IsUser,IsAdmin
 from authentication_app.models import PsychologistProfile
 from .models import PsychologistAvailability,Appointment
 from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,AppointmentListSerializer,
-                         PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,)
+                         PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,
+                         AppointmentCancelSerializer)
+from rest_framework import serializers
 from datetime import date,datetime
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import razorpay
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 
 class PsychologistAvailabilityView(APIView):
@@ -219,6 +224,24 @@ class BaseAppointmentDetailView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Appointment.DoesNotExist:
             return Response({"error":"Appointment Not found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self,request,appointment_id):
+        serializer = AppointmentCancelSerializer(
+            data = request.data,
+            context={'request':request,'role':self.role,'appointment_id':appointment_id}
+        )
+
+        if not serializer.is_valid():
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            appointment = serializer.cancel_appointment()
+            response_serializer = AppointmentSerializer(appointment)
+            return Response({"message":"Appointment cancelled successfully",'appointment':response_serializer.data},
+                            status=status.HTTP_200_OK)
+        except serializers.ValidationError as e:
+            logger.error(f"failed to cancel the appointment reasong {str(e)}")
+            return Response({"error":"An error occurred while canceling the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserAppointmentDetails(BaseAppointmentDetailView):

@@ -2,7 +2,15 @@ from rest_framework import serializers
 from datetime import datetime,timedelta
 from .models import PsychologistAvailability,Appointment
 from authentication_app.models import PsychologistProfile
-from django.utils.timezone import now
+from django.utils import timezone
+from django.db import transaction
+import logging
+from wallet.models import Wallet
+from django.utils.dateformat import format
+
+
+logger = logging.getLogger(__name__)
+
 
 class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
     end_time = serializers.SerializerMethodField()
@@ -151,4 +159,93 @@ class AppointmentSerializer(serializers.ModelSerializer):
            
     def get_user_profile_pic(self,obj):    
         return obj.user.profile_picture.url if obj.user.profile_picture else None
+        
+
+class AppointmentCancelSerializer(serializers.Serializer):
+    description = serializers.CharField(max_length=255,required=True)
+
+    def validate(self, data):
+        request = self.context['request']
+        user = request.user
+        role = self.context['role']
+        appointment_id = self.context['appointment_id']
+        now = timezone.now() 
+
+        try:
+            if role == 'user':
+                self.appointment = Appointment.objects.select_related(
+                    'availability','user').get(id=appointment_id,user=user)
+            else:
+                self.appointment = Appointment.objects.select_related(
+                    'availability','psychologist').get(id=appointment_id,psychologist__user=user)
+        except Appointment.DoesNotExist:
+            raise serializers.ValidationError({"error":"Appointment not found"})
+        
+        if self.appointment.status != 'booked':
+            raise serializers.ValidationError({"error":"Cannot cancel this appointment"})
+        
+        appointment_datetime = timezone.make_aware(
+            datetime.combine(self.appointment.availability.date, self.appointment.availability.start_time)
+        )
+
+        if appointment_datetime < now:
+            raise serializers.ValidationError({"error":"Cannot cancel past appointment"})
+        
+        return data
+    
+    
+    def cancel_appointment(self):
+        user = self.context['request'].user
+        role = self.context['role']
+        description = self.validated_data['description']
+
+        appointment_datetime = timezone.make_aware(
+            datetime.combine(
+                self.appointment.availability.date,
+                self.appointment.availability.start_time
+            )
+        )
+
+        now = timezone.now()
+        refund_allowed = False
+
+        if role == 'psychologist':
+            refund_allowed = True
+        elif role == 'user':
+            if appointment_datetime - now >= timedelta(hours=1):
+                refund_allowed = True
+
+        try:
+            with transaction.atomic():
+                # update availability
+                self.appointment.availability.is_booked = False
+                self.appointment.availability.locked_until = None
+                self.appointment.availability.save()
+
+                #update appointment
+                self.appointment.status = 'cancelled'
+                self.appointment.cancellation_description = description
+                self.appointment.cancelled_by = role
+                self.appointment.save()
+
+                if refund_allowed and self.appointment.availability.payment_amount > 0:
+                    wallet,_ = Wallet.objects.get_or_create(user=user)
+                    psychologist_name = self.appointment.psychologist.user.get_full_name()
+                    session_date = self.appointment.availability.date.strftime('%Y-%m-%d')
+                    session_time = format(self.appointment.availability.start_time,'h:i A')
+                    redable_description = f'Refund credited by {psychologist_name} on {session_date} for session at {session_time}'
+                    wallet.credit(
+                        amount=self.appointment.availability.payment_amount,
+                        initiated_by=user,
+                        appointment=self.appointment,
+                        description = redable_description
+                    )
+            logger.info(
+                f'appointment {self.appointment.id} cancelled by{role} description {redable_description}'
+            )
+            return self.appointment
+        except Exception as e:
+            logger.error(f'error cancelled appointment {self.appointment.id} description:{str(e)}')
+            raise serializers.ValidationError({"error":"An error occur while cancelling the appointment"})
+        
         

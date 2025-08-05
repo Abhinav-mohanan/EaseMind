@@ -9,6 +9,8 @@ urlpatterns = [
     path('api/',include('admin_app.urls')),
     path('api/',include('articles.urls')),
     path('api/',include('appointments.urls')),
+    path('api/',include('wallet.urls')),
+    
 ]
 
 if settings.DEBUG:

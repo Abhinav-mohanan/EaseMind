@@ -1,4 +1,4 @@
-import { Calendar, ChevronRight, icons, User } from 'lucide-react';
+import { Calendar, ChevronRight, icons, User, Wallet } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -15,6 +15,11 @@ const UserSidebar = () => {
       path: '/user/appointments',
       label: 'Appointments',
       icon: Calendar,
+    },
+    {
+      path: '/wallet/transaction',
+      label: 'Wallet',
+      icon: Wallet,
     },
   ];
 

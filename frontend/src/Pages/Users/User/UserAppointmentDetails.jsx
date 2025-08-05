@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { UserAppointmentDetailsApi } from '../../../api/appointmentApi'
+import { CancelUserAppointmentApi, UserAppointmentDetailsApi } from '../../../api/appointmentApi'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import { AlertTriangle, Calendar, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
     MessageCircle, Phone,Video, XCircle } from 'lucide-react';
@@ -8,11 +8,13 @@ import Loading from '../../../Components/Layouts/Loading';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
 import Navbar from '../../../Components/Users/Navbar';
 import default_img from '../../../assets/default_image.png'
+import CancellationModal from '../../../Components/Layouts/CancellationModal';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
     const [appointment,setAppointment] = useState(null)
     const [isLoading,setIsLoading] = useState(false)
+    const [ismodalopen,setismodalOpen] = useState(false)
     
     const FetchAppointment = async() =>{
         setIsLoading(true)
@@ -64,7 +66,13 @@ const UserAppointmentDetails = () => {
         }
     }
 
-    
+    const handleCancel = () =>{
+      setismodalOpen(true)
+    }
+
+    const onModalClose = () =>{
+      setismodalOpen(false)
+    }
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -151,13 +159,15 @@ const UserAppointmentDetails = () => {
                             Start Chat
                           </button>
                         
-                        <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200">
-                          <Video className="h-5 w-5 mr-2" />
+                        <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                        disabled={appointment.status !== 'booked'}>
+                          <Video className="h-5 w-5 mr-2"/>
                           Video Call
                         </button>
                       </div>
                       {appointment.status === 'booked' &&(
                         <button
+                        onClick={handleCancel}
                          className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200'>
                             <XCircle className='w-4 h-4 mr-2'/>
                             Cancel Appointment
@@ -203,7 +213,11 @@ const UserAppointmentDetails = () => {
                             <div>
                               <h4 className="font-semibold text-gray-800 mb-1">Payment</h4>
                               <p className="text-gray-600">₹{appointment.payment_amount}</p>
+                              {appointment.status === 'cancelled' ?(
+                                <p className='text-sm text-yellow-600 font-medium'>Refund</p>
+                              ):(
                               <p className="text-sm text-green-600 font-medium">✓ Paid</p>
+                              )}
                             </div>
                           </div>
                           
@@ -221,8 +235,8 @@ const UserAppointmentDetails = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-8 border border-teal-100">
+                  {appointment.status ==='booked'&&(
+                    <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-8 border border-teal-100">
                     <div className="flex items-center mb-4">
                       <Heart className="h-6 w-6 text-teal-600 mr-3" />
                       <h3 className="text-lg font-bold text-gray-800">Session Guidelines</h3>
@@ -246,6 +260,7 @@ const UserAppointmentDetails = () => {
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12">
@@ -259,6 +274,12 @@ const UserAppointmentDetails = () => {
           </div>
         </div>
       </div>
+      <CancellationModal
+      isOpen={ismodalopen}
+      onClose={onModalClose}
+      appointment_id={appointment_id}
+      cancelApi={CancelUserAppointmentApi}
+      refetch={FetchAppointment}/>
     </Loading>
   );
 };

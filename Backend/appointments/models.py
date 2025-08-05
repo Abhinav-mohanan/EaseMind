@@ -36,10 +36,18 @@ class Appointment(models.Model):
         ('completed','Completed'),
         ('cancelled','Cancelled')
     )
+
+    CANCELLED_BY = (
+        ('user','User'),
+        ('psychologist','Psychologist'),
+        ('','None'),
+    )
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     psychologist = models.ForeignKey(PsychologistProfile,on_delete=models.CASCADE)
     availability = models.ForeignKey(PsychologistAvailability,on_delete=models.CASCADE)
     status = models.CharField(max_length=25,choices=STATUS_CHOICES,default='booked')
+    cancelled_by = models.CharField(max_length=25,choices=CANCELLED_BY,blank=True,default='')
+    cancellation_reason = models.TextField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

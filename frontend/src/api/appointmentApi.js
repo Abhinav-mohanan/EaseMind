@@ -1,4 +1,5 @@
 
+import { data } from "react-router-dom"
 import axiosInstance from "./axiosInstance"
 
 
@@ -78,5 +79,14 @@ export const UserAppointmentDetailsApi = async(appointment_id) =>{
 
 export const PsychologistAppointmentDetailsApi = async(appointment_id) =>{
     const response = await axiosInstance.get(`/psychologist/appointments/details/${appointment_id}/`)
+    return response.data
+}
+
+export const CancelUserAppointmentApi = async(appointment_id,data) =>{
+    const response = await axiosInstance.patch(`/user/appointment/details/${appointment_id}/`,data)
+    return response.data
+}
+export const CancelPsychologistAppointmentApi = async(appointment_id,data) =>{
+    const response = await axiosInstance.patch(`/psychologist/appointments/details/${appointment_id}/`,data)
     return response.data
 }
