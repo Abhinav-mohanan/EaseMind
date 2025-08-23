@@ -20,6 +20,7 @@ const Navbar = () => {
         const data = await AuthStatusApi();
         setIsAuthenticated(data.isAuthenticated);
         setRole(data.role);
+        localStorage.setItem('role',data.role)
       } catch (error) {
         setIsAuthenticated(false);
         setRole(null);
@@ -44,6 +45,7 @@ const Navbar = () => {
       const data = await LogoutApi();
       toast.success(data.message);
       navigate('/login');
+      localStorage.removeItem('role')
     } catch (error) {
       ErrorHandler(error);
       setIsModalOpen(false);

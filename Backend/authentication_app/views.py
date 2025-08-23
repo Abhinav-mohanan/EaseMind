@@ -107,7 +107,7 @@ class AuthStatusView(APIView):
         user = request.user
         if user.is_authenticated:
             role = user.role
-            return  Response({'isAuthenticated':True,'email':user.email,'role':role})
+            return  Response({'isAuthenticated':True,'role':role})
         return Response({'isAuthenticated':False})        
 
 

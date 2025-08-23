@@ -27,6 +27,7 @@ import ViewAppointments from './Pages/Admin/ViewAppointments'
 import UserAppointmentDetails from './Pages/Users/User/UserAppointmentDetails'
 import PsychologistAppointmentDetails from './Pages/Users/Psychologist/PsychologistAppointmentDetails'
 import WalletTransactionList from './Pages/Users/User/WalletTransactionList'
+import Chatpage from './Pages/Users/Chatpage'
 
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
         <Route path='/user/appointment/:appointment_id' element={<UserAppointmentDetails />} />
         <Route path='/psychologist/appointment/:appointment_id' element={<PsychologistAppointmentDetails />} />
         <Route path='/wallet/transaction' element={<WalletTransactionList />} />
+        <Route path='/chat' element={<Chatpage />} />
       </Routes>
     </Router>
   );

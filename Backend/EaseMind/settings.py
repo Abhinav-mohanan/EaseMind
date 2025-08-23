@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'articles',
     'appointments',
     'wallet',
+    'chat',
     
 
     'rest_framework',
@@ -55,7 +56,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'channels',
     
 
 
@@ -113,7 +115,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'EaseMind.wsgi.application'
-
+ASGI_APPLICATION = 'EaseMind.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -216,3 +218,12 @@ CELERY_RESULT_BACKEND  = os.getenv('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+CHANNEL_LAYERS = {
+    "default":{
+        "BACKEND":"channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.getenv('REDIS_HOST'),os.getenv('REDIS_PORT'))],
+        },
+    },
+}

@@ -16,6 +16,7 @@ const PsychologistsList = () => {
     const [totalPages,setTotalPages] = useState(1)
     const [isLoading,setIsLoading] = useState(false)
     const page_size = 6
+    const role = localStorage.getItem('role')
 
     const fetchpsychologist = async(page=1) =>{
         try{
@@ -98,10 +99,12 @@ const PsychologistsList = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                            <Link to={`/therapist/details/${psychologist.id}`}
-                                            className='w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-serif font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl block text-center'>
+                                        {role === 'user'&&(
+                                        <Link to={`/therapist/details/${psychologist.id}`}
+                                        className='w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-serif font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl block text-center'>
                                         See profile
                                         </Link>
+                                        )}
                         
                                     </div>
                                 </div>

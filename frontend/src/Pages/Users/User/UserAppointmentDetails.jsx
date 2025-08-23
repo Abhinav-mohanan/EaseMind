@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { CancelUserAppointmentApi, UserAppointmentDetailsApi } from '../../../api/appointmentApi'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import { AlertTriangle, Calendar, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
@@ -9,9 +9,11 @@ import UserSidebar from '../../../Components/Users/User/UserSidebar';
 import Navbar from '../../../Components/Users/Navbar';
 import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
+import { CreateConversationApi } from '../../../api/chatApi';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
+    const navigate = useNavigate()
     const [appointment,setAppointment] = useState(null)
     const [isLoading,setIsLoading] = useState(false)
     const [ismodalopen,setismodalOpen] = useState(false)
@@ -72,6 +74,15 @@ const UserAppointmentDetails = () => {
 
     const onModalClose = () =>{
       setismodalOpen(false)
+    }
+
+    const handleStartChat = async() =>{
+      try{
+        const data = await CreateConversationApi(appointment_id)
+        navigate('/chat',{state:{conversationId:data.room_id}})
+      }catch(error){
+        ErrorHandler(error)
+      }
     }
   return (
     <Loading isLoading={isLoading}>
@@ -152,6 +163,7 @@ const UserAppointmentDetails = () => {
                       <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
                       <div className="space-y-3">
                           <button
+                          onClick={handleStartChat}
                             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-lg hover:from-teal-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={appointment.status !== 'booked'}
                           >

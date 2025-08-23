@@ -1,5 +1,5 @@
-import { Calendar, ChevronRight, icons, User, Wallet } from 'lucide-react';
 import React from 'react';
+import { Calendar, ChevronRight, MessageCircle, User, Wallet } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const UserSidebar = () => {
@@ -20,6 +20,11 @@ const UserSidebar = () => {
       path: '/wallet/transaction',
       label: 'Wallet',
       icon: Wallet,
+    },
+    {
+      path: '/chat',
+      label: 'Chat',
+      icon: MessageCircle,
     },
   ];
 
