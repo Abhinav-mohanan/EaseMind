@@ -84,6 +84,10 @@ const PsychologistAppointmentDetails = () => {
       }
     }
 
+    const handleStartVideoCall = () =>{
+        navigate(`/video-call/${appointment_id}`)
+    }
+
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -166,6 +170,7 @@ const PsychologistAppointmentDetails = () => {
                             Start Chat
                           </button>
                           <button
+                          onClick={handleStartVideoCall}
                             className="w-full flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={appointment?.status !== 'booked'}
                           >

@@ -10,6 +10,7 @@ import Navbar from '../../../Components/Users/Navbar';
 import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
+import { GetZegoTokenApi } from '../../../api/videocallApi';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -80,6 +81,15 @@ const UserAppointmentDetails = () => {
       try{
         const data = await CreateConversationApi(appointment_id)
         navigate('/chat',{state:{conversationId:data.room_id}})
+      }catch(error){
+        ErrorHandler(error)
+      }
+    }
+
+    const handleJoinVideoCall = async() =>{
+      try{
+        const data = await GetZegoTokenApi(appointment_id)
+        navigate(`/video-call/${appointment_id}`)
       }catch(error){
         ErrorHandler(error)
       }
@@ -171,7 +181,9 @@ const UserAppointmentDetails = () => {
                             Start Chat
                           </button>
                         
-                        <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                        <button
+                        onClick={handleJoinVideoCall}
+                        className="w-full flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed" 
                         disabled={appointment.status !== 'booked'}>
                           <Video className="h-5 w-5 mr-2"/>
                           Video Call

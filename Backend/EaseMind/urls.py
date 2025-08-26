@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/',include('appointments.urls')),
     path('api/',include('wallet.urls')),
     path('api/',include('chat.urls')),
+    path('api/',include('videocall.urls')),
+    
     
 ]
 
