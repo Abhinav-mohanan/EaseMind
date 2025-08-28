@@ -144,6 +144,10 @@ const PublishedArticles = () => {
                                                     <User className="w-4 h-4" />
                                                     <span>{article.author_name || 'Author'}</span>
                                                 </div>
+                                                <div className="flex items-center space-x-1">
+                                                    <BookOpen className="w-4 h-4" />
+                                                    <span>{article.total_readers || '0'}</span>
+                                                </div>
                                             </div>
 
                                             {/* Status Badge */}

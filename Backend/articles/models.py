@@ -22,3 +22,11 @@ class Article(models.Model):
     
     def __str__(self):
         return self.title
+
+class ArticleRead(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='article_read')
+    article = models.ForeignKey(Article,on_delete=models.CASCADE,related_name='reads')
+    read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user','article')

@@ -5,8 +5,8 @@ from rest_framework import status
 from authentication_app.permissions import IsVerifiedAndUnblock
 from authentication_app.permissions import IsAdmin
 from .serializer import ArticleListSerializer,ArticleCreateSerializer
-from .models import Article
-from django.db.models import Q
+from .models import Article,ArticleRead
+from django.db.models import Q,Count
 # Create your views here.
 
 class CreateArticleView(APIView):
@@ -62,7 +62,7 @@ class CreateArticleView(APIView):
 class ArticleListView(APIView):    
     def get(self,request):
         search_query = request.query_params.get('search')
-        articles = Article.objects.filter(status='published')
+        articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads'))
         if search_query:
             articles = articles.filter(
                 Q(title__icontains=search_query)|
@@ -74,8 +74,11 @@ class ArticleListView(APIView):
 
 class ArticleDetailView(APIView):
     def get(self,request,article_id):
+        user = request.user
         try:
-            article = Article.objects.get(id=article_id)
+            article = Article.objects.annotate(total_readers=Count('reads')).get(id=article_id,status='published')
+            if user.is_authenticated:
+                ArticleRead.objects.get_or_create(user=user,article=article)
             serializer = ArticleListSerializer(article)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:

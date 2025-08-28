@@ -4,6 +4,7 @@ from .models import Article
 class ArticleListSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
     cover_image = serializers.SerializerMethodField()
+    total_readers = serializers.IntegerField(read_only=True)
 
     class Meta: 
         model = Article
