@@ -4,7 +4,7 @@ import { ArticleDetailsApi } from '../../api/articlesApi'
 import ErrorHandler from '../../Components/Layouts/ErrorHandler'
 import Loading from '../../Components/Layouts/Loading';
 import Navbar from '../../Components/Users/Navbar';
-import { Calendar, ImageIcon, User } from 'lucide-react';
+import { BookOpen, Calendar, ImageIcon, User } from 'lucide-react';
 import Footer from '../../Components/Users/Footer';
 
 const ArticleDetails = () => {
@@ -64,6 +64,10 @@ const ArticleDetails = () => {
                                     <div className="flex items-center space-x-2">
                                         <User className="w-5 h-5 text-blue-500" />
                                         <span>{article.author_name || 'Author'}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <BookOpen className="w-5 h-5 text-blue-500" />
+                                        <span>{article.total_readers || '0'}</span>
                                     </div>
                                 </div>
 
