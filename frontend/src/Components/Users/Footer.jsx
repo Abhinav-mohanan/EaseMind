@@ -3,7 +3,9 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="bg-teal-500 text-black py-12 mt-16">
+    <footer className="bg-white-50 text-black py-12 mt-16">
+      <div className="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-black">
+        </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -20,17 +22,17 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm text-black">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Find a Therapist
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Online Therapy
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Group Sessions
                 </a>
               </li>
@@ -40,17 +42,17 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm text-black">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Mental Health Guide
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Support Groups
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-black transition-colors">
                   Crisis Resources
                 </a>
               </li>
@@ -65,7 +67,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="border-t border-teal-500 mt-8 pt-8 text-center text-sm text-black">
+        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-black">
           <p>&copy; 2025 EaseMind. All rights reserved.</p>
         </div>
       </div>

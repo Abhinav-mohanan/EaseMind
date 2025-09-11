@@ -3,7 +3,7 @@ import { AuthStatusApi, LogoutApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../Layouts/ErrorHandler';
 import { useEffect, useRef, useState } from 'react';
-import { LogIn, LogOut, User, UserCircle } from 'lucide-react';
+import { LogIn, LogOut, Menu, User, X } from 'lucide-react';
 import ConfirmationModal from '../Layouts/Confirmationmodal';
 
 const Navbar = () => {
@@ -13,6 +13,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [role, setRole] = useState(null);
+  const [menubarOpen,setMenubarOpen] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -71,27 +72,32 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-md p-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-teal-500">EaseMind</div>
-        <div className="flex items-center space-x-6">
-          <Link to="/" className="text-gray-700 hover:text-teal-700">
+      <nav className="bg-white shadow-md p-4 flex items-center justify-between relative">
+        <div className="text-2xl font-bold text-customBlue">EaseMind</div>
+        <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2 ">
+          <Link to="/" className="text-gray-700 font-medium  hover:text-customBlue">
             Home
           </Link>
-          <Link to="/articles" className="text-gray-700 hover:text-teal-700">
+          <Link to="/articles" className="text-gray-700 font-medium hover:text-customBlue">
             Articles
           </Link>
-          <Link to="/therapist" className="text-gray-700 hover:text-teal-700">
-            Therapyist
+          <Link to="/therapist" className="text-gray-700 font-medium hover:text-customBlue">
+            Therapist
           </Link>
-          <Link to="#" className="text-gray-700 hover:text-teal-700">
-            Contact us
+          <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
+            About
           </Link>
+          <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
+            Contact
+          </Link>
+           </div>
+           <div className='flex items-center'>
 
           <div className="relative" ref={dropdwonRef}>
-            <UserCircle
+            <User
               size={24}
               onClick={handleUserProfile}
-              className="text-gray-700 hover:text-green-700 cursor-pointer"
+              className="text-customBlue hover:text-green-700 cursor-pointer mr-5"
             />
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-50 border">
@@ -109,7 +115,7 @@ const Navbar = () => {
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 p-1.5 hover:bg-red-50 rounded-lg text-red-600 hover:text-red-700 transition-colors"
-                      >
+                        >
                         <LogOut className="h-4 w-4" />
                         <span className="text-md">Logout</span>
                       </button>
@@ -117,8 +123,8 @@ const Navbar = () => {
                   </>
                 ) : (
                   <button
-                    onClick={() => navigate('/login')}
-                    className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-700 rounded-lg"
+                  onClick={() => navigate('/login')}
+                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-700 rounded-lg"
                   >
                     <LogIn className="h-4 w-4" />
                     <span className="text-md">Login</span>
@@ -127,7 +133,31 @@ const Navbar = () => {
               </div>
             )}
           </div>
+          <button
+          className='md:hidden text-customBlue'
+          onClick={()=>setMenubarOpen(!menubarOpen)}>
+            {menubarOpen? <X className='h-4 w-4'/>:<Menu className='h-4 w-4'/>}
+          </button>
         </div>
+        {menubarOpen&&(
+          <div className='absolute top-16 left-0 w-full bg-white shadow-md border-t flex flex-col space-y-4 p-4 md:hidden z-40'>
+            <Link to="/" className="text-gray-700 font-medium hover:text-customBlue">
+              Home
+            </Link>
+            <Link to="/articles" className="text-gray-700 font-medium hover:text-customBlue">
+              Articles
+            </Link>
+            <Link to="/therapist" className="text-gray-700 font-medium hover:text-customBlue">
+              Therapist
+            </Link>
+            <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
+              About
+            </Link>
+            <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
+              Contact
+            </Link>
+          </div>
+        )}
       </nav>
       <ConfirmationModal
         isOpen={isModalOpen}
