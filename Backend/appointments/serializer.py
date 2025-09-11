@@ -179,17 +179,17 @@ class AppointmentCancelSerializer(serializers.Serializer):
                 self.appointment = Appointment.objects.select_related(
                     'availability','psychologist').get(id=appointment_id,psychologist__user=user)
         except Appointment.DoesNotExist:
-            raise serializers.ValidationError({"error":"Appointment not found"})
+            raise serializers.ValidationError("Appointment not found")
         
         if self.appointment.status != 'booked':
-            raise serializers.ValidationError({"error":"Cannot cancel this appointment"})
+            raise serializers.ValidationError("Cannot cancel this appointment")
         
         appointment_datetime = timezone.make_aware(
             datetime.combine(self.appointment.availability.date, self.appointment.availability.start_time)
         )
 
         if appointment_datetime < now:
-            raise serializers.ValidationError({"error":"Cannot cancel past appointment"})
+            raise serializers.ValidationError("Cannot cancel past appointment")
         
         return data
     
@@ -246,6 +246,30 @@ class AppointmentCancelSerializer(serializers.Serializer):
             return self.appointment
         except Exception as e:
             logger.error(f'error cancelled appointment {self.appointment.id} description:{str(e)}')
-            raise serializers.ValidationError({"error":"An error occur while cancelling the appointment"})
+            raise serializers.ValidationError("An error occur while cancelling the appointment")
         
-        
+
+class AppointmentCompleteSerializer(serializers.Serializer):
+    def validate(self, data):
+        appointment_id = self.context.get('appointment_id')
+        request = self.context.get('request')
+        user = request.user
+        now = timezone.now()
+        try:
+            self.appointment = Appointment.objects.select_related(''
+            'availability','psychologist').get(id=appointment_id,psychologist__user=user)
+            if self.appointment.status != 'booked':
+                raise serializers.ValidationError("Only booked appointments can be marked as completed")
+            appointment_datetime = timezone.make_aware(
+                datetime.combine(self.appointment.availability.date,self.appointment.availability.end_time)
+            )
+            if now < appointment_datetime:
+                raise serializers.ValidationError("Only mark complete after the end time")
+        except Appointment.DoesNotExist:
+            raise serializers.ValidationError("Appointment does not exist")
+        return data
+    
+    def complete_appointment(self):
+        self.appointment.status = 'completed'
+        self.appointment.save()
+        return self.appointment

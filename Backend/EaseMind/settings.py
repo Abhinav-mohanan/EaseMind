@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'wallet',
     'chat',
     'videocall',
+    'prescription',
+    
     
 
     'rest_framework',

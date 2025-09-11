@@ -7,7 +7,7 @@ from authentication_app.models import PsychologistProfile
 from .models import PsychologistAvailability,Appointment
 from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,AppointmentListSerializer,
                          PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,
-                         AppointmentCancelSerializer)
+                         AppointmentCancelSerializer,AppointmentCompleteSerializer)
 from rest_framework import serializers
 from datetime import date,datetime
 from django.conf import settings
@@ -172,9 +172,10 @@ class BookSlotView(APIView):
 
 class BaseAppointmentView(APIView):
     role = None
+    status_filter = None
     def get(self,request):
         user = request.user
-        status_filter = request.query_params.get('status','booked')
+        status_filter = self.status_filter or request.query_params.get('status','booked')
         if self.role == 'psychologist':
             appointments = Appointment.objects.filter(psychologist__user=user).select_related(
                 'user','psychologist__user','availability'
@@ -226,22 +227,39 @@ class BaseAppointmentDetailView(APIView):
             return Response({"error":"Appointment Not found"},status=status.HTTP_404_NOT_FOUND)
     
     def patch(self,request,appointment_id):
-        serializer = AppointmentCancelSerializer(
-            data = request.data,
-            context={'request':request,'role':self.role,'appointment_id':appointment_id}
-        )
+        action = request.data.get('action')
+        if action == 'cancel':
+            serializer = AppointmentCancelSerializer(
+                data = request.data,
+                context={'request':request,'role':self.role,'appointment_id':appointment_id}
+            )
 
-        if not serializer.is_valid():
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            appointment = serializer.cancel_appointment()
-            response_serializer = AppointmentSerializer(appointment)
-            return Response({"message":"Appointment cancelled successfully",'appointment':response_serializer.data},
-                            status=status.HTTP_200_OK)
-        except serializers.ValidationError as e:
-            logger.error(f"failed to cancel the appointment reasong {str(e)}")
-            return Response({"error":"An error occurred while canceling the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if not serializer.is_valid():
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                appointment = serializer.cancel_appointment()
+                response_serializer = AppointmentSerializer(appointment)
+                return Response({"message":"Appointment cancelled successfully",'appointment':response_serializer.data},
+                                status=status.HTTP_200_OK)
+            except Exception as e:
+                logger.error(f"failed to cancel the appointment reasong {str(e)}")
+                return Response({"error":"An error occurred while canceling the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        elif action == 'complete':
+            serializer = AppointmentCompleteSerializer(
+                data = request.data,
+                context ={'request':request,'appointment_id':appointment_id}
+            )
+            if not serializer.is_valid():
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            try:
+                appointment = serializer.complete_appointment()
+                response_serializer = AppointmentSerializer(appointment)
+                return Response({"message":"Appointment completed successfully",'appointment':response_serializer.data},
+                                status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error":"An error occured while complete the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)                                
 
 
 class UserAppointmentDetails(BaseAppointmentDetailView):
