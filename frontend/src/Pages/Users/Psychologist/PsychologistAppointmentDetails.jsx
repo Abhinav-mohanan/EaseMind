@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { CancelPsychologistAppointmentApi, PsychologistAppointmentDetailsApi } from '../../../api/appointmentApi'
+import { CancelPsychologistAppointmentApi, CompleteAppointmentApi, PsychologistAppointmentDetailsApi } from '../../../api/appointmentApi'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import Navbar from '../../../Components/Users/Navbar';
-import { AlertTriangle, Calendar, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
-  MessageCircle, Phone, Video, XCircle } from 'lucide-react';
+import { AlertTriangle, Calendar, CarTaxiFront, Check, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
+  MessageCircle, Phone, Pill, Video, XCircle } from 'lucide-react';
 import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
@@ -88,6 +88,18 @@ const PsychologistAppointmentDetails = () => {
         navigate(`/video-call/${appointment_id}`)
     }
 
+    const handleComplete = async() =>{
+      setIsLoading(true)
+      try{
+        const data = await CompleteAppointmentApi(appointment_id);
+        setAppointment(data.appointment)
+      }catch(error){
+        ErrorHandler(error)
+      }finally{
+        setIsLoading(false)
+      }
+    }
+
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -135,8 +147,8 @@ const PsychologistAppointmentDetails = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-white shadow-lg rounded-2xl p-8">
-                      <div className="flex items-start space-x-6">
+                    <div className="lg:col-span-2 bg-white shadow-lg rounded-2xl  p-10">
+                      <div className="flex items-start space-x-6 mt-5 p-5">
                         <img src={appointment.user_profile_pic || default_img} alt={appointment.user_name} 
                         className='h-20 w-20 '/>
                         <div className="flex-1">
@@ -180,10 +192,26 @@ const PsychologistAppointmentDetails = () => {
                       </div>
                       {appointment.status === 'booked' &&(
                         <button
+                        onClick={handleComplete}
+                         className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors duration-200 border border-green-200'>
+                            <Check className='w-4 h-4 mr-2'/>
+                            Complete Appointment
+                        </button>
+                      )}
+                      {appointment.status === 'booked' &&(
+                        <button
                         onClick={handleCancel}
                          className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200'>
                             <XCircle className='w-4 h-4 mr-2'/>
                             Cancel Appointment
+                        </button>
+                      )}
+                      {appointment.status === 'completed' &&(
+                        <button
+                        
+                         className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200'>
+                            <Pill className='w-4 h-4 mr-2'/>
+                            Add prescription
                         </button>
                       )}
                     </div>

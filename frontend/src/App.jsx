@@ -29,6 +29,10 @@ import PsychologistAppointmentDetails from './Pages/Users/Psychologist/Psycholog
 import WalletTransactionList from './Pages/Users/User/WalletTransactionList'
 import Chatpage from './Pages/Users/Chatpage'
 import VideoCall from './Pages/Users/VideoCall'
+import PsychologistCompletedAppointments from './Pages/Users/Psychologist/PsychologistCompletedAppointments'
+import UserCompletedAppointments from './Pages/Users/User/UserCompletedAppointments '
+import PsychologistPrescription from './Pages/Users/Psychologist/PsychologistPrescription'
+import UserPrescription from './Pages/Users/User/Userprescription'
 
 
 function App() {
@@ -76,6 +80,10 @@ function App() {
         <Route path='/wallet/transaction' element={<WalletTransactionList />} />
         <Route path='/chat' element={<Chatpage />} />
         <Route path='/video-call/:appointment_id' element={<VideoCall />} />
+        <Route path='/psychologist/consultations' element={<PsychologistCompletedAppointments />} />
+        <Route path='/user/consultations' element={<UserCompletedAppointments />} />
+        <Route path='/psychologist/prescription/:appointment_id' element={<PsychologistPrescription />} />
+        <Route path='/user/prescription/:appointment_id' element={<UserPrescription />} />
       </Routes>
     </Router>
   );

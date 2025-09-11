@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Calendar, ChevronRight, MessageCircle, NotebookPen, User } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, ClipboardList, MessageCircle, NotebookPen, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const PsychologistSidebar = () => {
@@ -22,6 +22,11 @@ const PsychologistSidebar = () => {
       icon: Calendar,
     },
     {
+      path:'/psychologist/consultations',
+      label: 'Consultations',
+      icon: ClipboardList,
+    },
+    {
       path:'/psychologist/articles',
       label: 'Articles',
       icon: BookOpen,
@@ -42,7 +47,7 @@ const PsychologistSidebar = () => {
             <h2 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
               EaseMind
             </h2>
-            <p className="text-xs text-gray-500 font-medium">Psychologist sidebar</p>
+            <p className="text-xs text-gray-500 font-medium">Psychologist</p>
           </div>
         </div>
       </div>

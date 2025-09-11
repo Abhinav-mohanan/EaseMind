@@ -1,6 +1,6 @@
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { GetZegoTokenApi } from '../../api/videocallApi';
 import ErrorHandler from '../../Components/Layouts/ErrorHandler';
 import Loading from '../../Components/Layouts/Loading';
@@ -8,6 +8,7 @@ import Loading from '../../Components/Layouts/Loading';
 
 export default function VideoCall() {
   const { appointment_id } = useParams();
+  const navigate = useNavigate()
   const containerRef = useRef(null);
   const zpRef = useRef(null)
   const [isLoading,setIsLoading] = useState(false)
@@ -45,6 +46,13 @@ export default function VideoCall() {
           showAudioVideoSettingsButton: true,
           showScreenSharingButton: true,
           showTextChat: true,
+          onLeaveRoom: ()=>{
+            if (zpRef.current){
+              zpRef.current.destroy();
+              zpRef.current = null;
+            }
+            navigate(`/psychologist/appointment/${appointment_id}`);
+          }
         });
       }
       }catch(error){

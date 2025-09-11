@@ -87,6 +87,11 @@ export const CancelUserAppointmentApi = async(appointment_id,data) =>{
     return response.data
 }
 export const CancelPsychologistAppointmentApi = async(appointment_id,data) =>{
-    const response = await axiosInstance.patch(`/psychologist/appointments/details/${appointment_id}/`,data)
+    const response = await axiosInstance.patch(`/psychologist/appointments/details/${appointment_id}/`,{...data,action:'cancel'})
+    return response.data
+}
+
+export const CompleteAppointmentApi = async(appointment_id,data) =>{
+    const response = await axiosInstance.patch(`/psychologist/appointments/details/${appointment_id}/`,{...data,action:'complete'})
     return response.data
 }
