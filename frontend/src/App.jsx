@@ -33,6 +33,8 @@ import PsychologistCompletedAppointments from './Pages/Users/Psychologist/Psycho
 import UserCompletedAppointments from './Pages/Users/User/UserCompletedAppointments '
 import PsychologistPrescription from './Pages/Users/Psychologist/PsychologistPrescription'
 import UserPrescription from './Pages/Users/User/Userprescription'
+import UserHealthTracking from './Pages/Users/User/UserHealthTracking'
+import UserHealthTrackingDetail from './Pages/Users/User/UserHealthTrackingDetail'
 
 
 function App() {
@@ -84,6 +86,8 @@ function App() {
         <Route path='/user/consultations' element={<UserCompletedAppointments />} />
         <Route path='/psychologist/prescription/:appointment_id' element={<PsychologistPrescription />} />
         <Route path='/user/prescription/:appointment_id' element={<UserPrescription />} />
+        <Route path='/user/health-tracking' element={<UserHealthTracking />} />
+        <Route path='/user/health-tracking/:health_tracking_id' element={<UserHealthTrackingDetail />} />
       </Routes>
     </Router>
   );

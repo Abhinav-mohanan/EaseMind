@@ -28,7 +28,7 @@ const CompletedAppointmentList = ({role, fetchApi}) => {
 
     useEffect(() => {
         completedAppointments()
-    }, [])
+    }, [currentPage])
 
     const handlePageChange=(pageNum) =>{
         if(pageNum > 0 && pageNum <= totalPages){

@@ -1,13 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from appointments.views import BaseAppointmentView
 from appointments.models import Appointment
 from appointments.serializer import AppointmentListSerializer
 from authentication_app.permissions import IsPsychologist,IsUser
-from .serializer import PrescriptionSerializer,PrescriptionCreateUpdateSerializer
+from .models import HealthTracking
+from .serializer import (PrescriptionSerializer,PrescriptionCreateUpdateSerializer,
+                         HealthTrackingCreateUpdateSerializer,HealthTrackingSerializer)
+import logging
 
 # Create your views here.
+
+logger = logging.getLogger(__name__)
 
 class PsychologistCompletedAppointmentsListView(BaseAppointmentView):
     role = 'psychologist'
@@ -100,3 +106,76 @@ class UserPrescriptionView(APIView):
             return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": "An error occurred while fetching prescription"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UserHealthTrackingListCreateView(APIView):
+    permission_classes = [IsUser]
+
+    def get(self,request):
+        user = request.user
+        try:
+            entries = HealthTracking.objects.filter(user=user).order_by('-date')
+            paginator = PageNumberPagination()
+            page = paginator.paginate_queryset(entries,request)
+            serializer = HealthTrackingSerializer(page,many=True)
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            return Response({"error":"An error occurred while fetching health tracking data"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self,request):
+        data = request.data
+        user = request.user
+        try:
+            serializer = HealthTrackingCreateUpdateSerializer(data=data,context={'request':request})
+            if serializer.is_valid():
+                serializer.save(user=user)
+                entries = HealthTracking.objects.filter(user=user).order_by('-date')
+                paginator = PageNumberPagination()
+                page = paginator.paginate_queryset(entries,request)
+                response_serializer = HealthTrackingSerializer(page,many=True)
+                return paginator.get_paginated_response(response_serializer.data)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f'error creating health tracker : {str(e)}')
+            return Response({"error":"An error occurred while creating health tracking entry"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class UserHealthTrackingDetailView(APIView):
+    permission_classes = [IsUser]
+
+    def get_object(self, user, health_tracking_id):
+        try:
+            return HealthTracking.objects.get(id=health_tracking_id, user=user)
+        except HealthTracking.DoesNotExist:
+            raise ValueError("Health tracking entry not found")
+
+    def get(self, request, health_tracking_id):
+        try:
+            entry = self.get_object(request.user, health_tracking_id)
+            serializer = HealthTrackingSerializer(entry)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error fetching health tracking entry: {str(e)}")
+            return Response({"error": "An error occurred while fetching health tracking entry"}, 
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request, health_tracking_id):
+        try:
+            entry = self.get_object(request.user, health_tracking_id)
+            serializer = HealthTrackingCreateUpdateSerializer(
+                entry,data=request.data, context={'request': request}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                response_serializer = HealthTrackingSerializer(entry)
+                return Response(response_serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error updating health tracking entry: {str(e)}")
+            return Response({"error": "An error occurred while updating health tracking entry"}, 
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

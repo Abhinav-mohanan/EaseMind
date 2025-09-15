@@ -108,7 +108,7 @@ const UserPrescription = () => {
                           <User className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500">Patient Name</p>
+                          <p className="text-sm text-gray-500"> Name</p>
                           <p className="font-medium text-gray-900">
                             {prescription.appointment?.user_name || 'N/A'}
                           </p>
