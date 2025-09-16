@@ -60,7 +60,7 @@ const UserHealthTracking = () => {
         e.preventDefault()
         setIsLoading(true)
         try{
-            const data = await CreateUserHealthTrackerApi()
+            const data = await CreateUserHealthTrackerApi(formData)
             setEntries(data.results)
             setFormData({
                 stress_level: 10,

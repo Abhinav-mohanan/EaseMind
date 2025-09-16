@@ -179,3 +179,22 @@ class UserHealthTrackingDetailView(APIView):
             logger.error(f"Error updating health tracking entry: {str(e)}")
             return Response({"error": "An error occurred while updating health tracking entry"}, 
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class PsychologistHealthTrackingView(APIView):
+    def get(self,request,user_id):
+        user = request.user
+        try:
+            if not Appointment.objects.filter(user=user_id,psychologist__user=user,
+                                          status__in =['completed','booked']).exists:
+                return Response({"error":"No appointment found with this user"},status=status.HTTP_400_BAD_REQUEST)
+            entries = HealthTracking.objects.filter(user=user_id,is_shared_with_psychologist=True)
+            paginator = PageNumberPagination()
+            page = paginator.paginate_queryset(entries,request)
+            serializer = HealthTrackingSerializer(page,many=True)
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            logger.error(f'Error while listing the health tracker of user for psychologist: {str(e)}')
+            return Response({'error':"An error occured while fetching health tracking details"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                

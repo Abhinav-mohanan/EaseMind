@@ -5,7 +5,7 @@ import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import Navbar from '../../../Components/Users/Navbar';
-import { ArrowLeft, Edit, FileText, Save, User, Calendar, Clock, Plus } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, Save, User, Calendar, Clock, Plus, Eye } from 'lucide-react';
 
 const PsychologistPrescription = () => {
     const { appointment_id } = useParams()
@@ -175,7 +175,14 @@ const PsychologistPrescription = () => {
                                         </div>
                                     </div>
                                 </div>
-
+                                <div className='flex'>
+                                <button
+                                onClick={()=>navigate('/psychologist/user/health-status',{state:{userID:prescription.appointment?.user_id}})} 
+                                className='font-medium text-gray-600 flex items-center gap-1 ml-auto hover:text-textBlue'>
+                                    <Eye className='h-5 w-5 text-customBlue'/>
+                                    View user health status
+                                </button>
+                                </div>
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                                     <div className="bg-gradient-to-r from-teal-50 to-cyan-50 px-6 py-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between">

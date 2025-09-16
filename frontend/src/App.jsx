@@ -35,6 +35,7 @@ import PsychologistPrescription from './Pages/Users/Psychologist/PsychologistPre
 import UserPrescription from './Pages/Users/User/Userprescription'
 import UserHealthTracking from './Pages/Users/User/UserHealthTracking'
 import UserHealthTrackingDetail from './Pages/Users/User/UserHealthTrackingDetail'
+import UserHealthStatus from './Pages/Users/Psychologist/UserHealthStatus'
 
 
 function App() {
@@ -88,6 +89,7 @@ function App() {
         <Route path='/user/prescription/:appointment_id' element={<UserPrescription />} />
         <Route path='/user/health-tracking' element={<UserHealthTracking />} />
         <Route path='/user/health-tracking/:health_tracking_id' element={<UserHealthTrackingDetail />} />
+        <Route path='/psychologist/user/health-status' element={<UserHealthStatus />} />
       </Routes>
     </Router>
   );

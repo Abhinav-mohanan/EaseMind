@@ -113,10 +113,11 @@ class AppointmentListSerializer(serializers.ModelSerializer):
     payment_amount = serializers.CharField(source='availability.payment_amount',read_only=True)
     slot_date = serializers.DateField(source='availability.date',read_only=True)
     slot_time = serializers.TimeField(source='availability.start_time',read_only=True)
+    user_id = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Appointment
-        fields = ['id','psychologist_name','user_name','slot_date','payment_amount','slot_time','status']
+        fields = ['id','psychologist_name','user_name','slot_date','payment_amount','slot_time','status','user_id']
     
     def get_psychologist_name(self,obj):
         user = obj.psychologist.user
@@ -124,6 +125,9 @@ class AppointmentListSerializer(serializers.ModelSerializer):
     
     def get_user_name(self,obj):
         return f'{obj.user.first_name} {obj.user.last_name}'
+    
+    def get_user_id(self,obj):
+        return obj.user.id
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
