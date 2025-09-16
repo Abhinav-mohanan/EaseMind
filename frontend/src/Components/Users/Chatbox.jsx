@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FetchMessagesApi, GetWebsocketTokenApi } from "../../api/chatApi";
 import ErrorHandler from "../Layouts/ErrorHandler";
 import { MessageCircle, Send } from "lucide-react";
@@ -10,6 +10,7 @@ const ChatBox = ({conversationId}) => {
   const [socket, setSocket] = useState(null);
   const [token,setToken] = useState(null)
   const [currentUser,setCurrentUser] = useState('')
+  const messageEndRef = useRef(null)
 
   useEffect(()=>{
     const fetchToken = async() =>{
@@ -62,6 +63,10 @@ const ChatBox = ({conversationId}) => {
     return () => ws.close();
   }, [conversationId,token]);
 
+  useEffect(()=>{
+    messageEndRef.current?.scrollIntoView({behavior:"smooth"})
+  },[messages])
+
   const sendMessage = () => {
     if (socket && newmessage.trim()) {
       socket.send(JSON.stringify({ message: newmessage}));
@@ -103,6 +108,7 @@ const ChatBox = ({conversationId}) => {
                   </div>
                 </div>
               ))}
+              <div ref={messageEndRef}/>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-gray-500 py-16">

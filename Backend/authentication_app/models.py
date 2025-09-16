@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager
 from cloudinary.models import CloudinaryField
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
 
 # Create your models here.
@@ -94,7 +95,8 @@ class EmailOTP(models.Model):
     purpose = models.CharField(max_length=50,null=True,blank=True)
 
     def is_expired(self):
-        return timezone.now() > self.created_at + timedelta(minutes=5)
+        return timezone.now() > self.created_at + timedelta(
+            minutes=settings.OTP_EXPIRY_MINUTES)
     
     def __str__(self):
         return f'{self.user.email} - {self.otp}'
