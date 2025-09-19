@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import WalletTransaction
+from .models import WalletTransaction,Wallet
 
 
 class WalletTransactionSerializer(serializers.ModelSerializer):
@@ -15,3 +15,11 @@ class WalletTransactionSerializer(serializers.ModelSerializer):
     
     def get_name(self,obj):
         return f'{obj.wallet.user.first_name} {obj.wallet.user.last_name}'
+
+
+class WalletBalanceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Wallet
+        fields = ['balance','locked_balance']
+        read_only_fields = fields

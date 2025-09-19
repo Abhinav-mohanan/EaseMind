@@ -26,7 +26,6 @@ import UserAppointments from './Pages/Users/User/UserAppointments'
 import ViewAppointments from './Pages/Admin/ViewAppointments'
 import UserAppointmentDetails from './Pages/Users/User/UserAppointmentDetails'
 import PsychologistAppointmentDetails from './Pages/Users/Psychologist/PsychologistAppointmentDetails'
-import WalletTransactionList from './Pages/Users/User/WalletTransactionList'
 import Chatpage from './Pages/Users/Chatpage'
 import VideoCall from './Pages/Users/VideoCall'
 import PsychologistCompletedAppointments from './Pages/Users/Psychologist/PsychologistCompletedAppointments'
@@ -36,6 +35,8 @@ import UserPrescription from './Pages/Users/User/Userprescription'
 import UserHealthTracking from './Pages/Users/User/UserHealthTracking'
 import UserHealthTrackingDetail from './Pages/Users/User/UserHealthTrackingDetail'
 import UserHealthStatus from './Pages/Users/Psychologist/UserHealthStatus'
+import UserWalletTransactionList from './Pages/Users/User/UserWalletTransactionList'
+import PsychologistWallet from './Pages/Users/Psychologist/PsychologistWallet'
 
 
 function App() {
@@ -80,7 +81,8 @@ function App() {
         <Route path='/admin/appointments' element={<ViewAppointments />} />
         <Route path='/user/appointment/:appointment_id' element={<UserAppointmentDetails />} />
         <Route path='/psychologist/appointment/:appointment_id' element={<PsychologistAppointmentDetails />} />
-        <Route path='/wallet/transaction' element={<WalletTransactionList />} />
+        <Route path='/user/wallet/transaction' element={<UserWalletTransactionList />} />
+        <Route path='/psychologist/wallet/transaction' element={<PsychologistWallet />} />
         <Route path='/chat' element={<Chatpage />} />
         <Route path='/video-call/:appointment_id' element={<VideoCall />} />
         <Route path='/psychologist/consultations' element={<PsychologistCompletedAppointments />} />

@@ -27,7 +27,7 @@ const UserSidebar = () => {
       icon: HeartPlus,
     },
     {
-      path: '/wallet/transaction',
+      path: '/user/wallet/transaction',
       label: 'Wallet',
       icon: Wallet,
     },
@@ -47,7 +47,7 @@ const UserSidebar = () => {
             <h2 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
               EaseMind
             </h2>
-            <p className="text-xs text-gray-500 font-medium">User sidebar</p>
+            <p className="text-xs text-gray-500 font-medium">User</p>
           </div>
         </div>
       </div>

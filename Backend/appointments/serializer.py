@@ -4,8 +4,9 @@ from .models import PsychologistAvailability,Appointment
 from authentication_app.models import PsychologistProfile
 from django.utils import timezone
 from django.db import transaction
+from decimal import Decimal
 import logging
-from wallet.models import Wallet
+from wallet.models import Wallet,WalletTransaction
 from django.utils.dateformat import format
 
 
@@ -228,24 +229,36 @@ class AppointmentCancelSerializer(serializers.Serializer):
 
                 #update appointment
                 self.appointment.status = 'cancelled'
-                self.appointment.cancellation_description = description
+                self.appointment.cancellation_reason = description
                 self.appointment.cancelled_by = role
                 self.appointment.save()
 
                 if refund_allowed and self.appointment.availability.payment_amount > 0:
-                    wallet,_ = Wallet.objects.get_or_create(user=user)
+                    total_amount = self.appointment.availability.payment_amount
+                    admin_commission = total_amount * Decimal('0.20')
+                    psychologist_amount = total_amount - admin_commission
+                    transactions = WalletTransaction.objects.filter(
+                        appointment=self.appointment,transaction_type='credit',status='pending'
+                    )
+
+                    for txn in transactions:
+                        wallet = txn.wallet
+                        if not wallet.refund_locked(txn.amount,txn,user):
+                            raise ValueError("Insufficient locked balance for refund")
+                                    
+                    user_wallet,_ = Wallet.objects.get_or_create(user=user)
                     psychologist_name = self.appointment.psychologist.user.get_full_name()
                     session_date = self.appointment.availability.date.strftime('%Y-%m-%d')
                     session_time = format(self.appointment.availability.start_time,'h:i A')
                     redable_description = f'Refund credited by {psychologist_name} on {session_date} for session at {session_time}'
-                    wallet.credit(
-                        amount=self.appointment.availability.payment_amount,
+                    user_wallet.credit(
+                        amount=total_amount,
                         initiated_by=user,
                         appointment=self.appointment,
                         description = redable_description
                     )
             logger.info(
-                f'appointment {self.appointment.id} cancelled by{role} description {redable_description}'
+                f'appointment {self.appointment.id} cancelled by{role}'
             )
             return self.appointment
         except Exception as e:
@@ -274,6 +287,18 @@ class AppointmentCompleteSerializer(serializers.Serializer):
         return data
     
     def complete_appointment(self):
-        self.appointment.status = 'completed'
-        self.appointment.save()
-        return self.appointment
+        try:
+            with transaction.atomic():
+                self.appointment.status = 'completed'
+                self.appointment.save()
+                
+                transactions = WalletTransaction.objects.filter(appointment=self.appointment,
+                                                            transaction_type='credit',status='pending')
+                for txn in transactions:
+                    wallet = txn.wallet
+                    wallet.release_locked(txn.amount,txn)
+            return self.appointment
+        except Exception as e:
+            logger.error(f"error at appointment cancelation:{str(e)}")
+            raise serializers.ValidationError("An error occurred while completing the appointment")
+        

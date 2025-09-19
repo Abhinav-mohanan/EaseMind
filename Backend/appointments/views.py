@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from authentication_app.permissions import IsVerifiedAndUnblock,IsUser,IsAdmin
 from authentication_app.models import PsychologistProfile
-from .models import PsychologistAvailability,Appointment
+from wallet.models import Wallet
+from .models import PsychologistAvailability,Appointment,Payment
 from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,AppointmentListSerializer,
                          PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,
                          AppointmentCancelSerializer,AppointmentCompleteSerializer)
@@ -12,7 +13,9 @@ from rest_framework import serializers
 from datetime import date,datetime
 from django.conf import settings
 from django.utils import timezone
+from django.db import transaction
 from datetime import timedelta
+from decimal import Decimal
 import razorpay
 import logging
 
@@ -150,24 +153,55 @@ class BookSlotView(APIView):
         }
         try:
             client.utility.verify_payment_signature(params_dict)
-            slot = PsychologistAvailability.objects.get(id=slot_id)
-            if not slot.is_booked:
+            with transaction.atomic():
+                slot = PsychologistAvailability.objects.get(id=slot_id)
+                if slot.is_booked:
+                    return Response({"error":"Slot is booked"},status=status.HTTP_400_BAD_REQUEST)
                 slot.is_booked = True
                 slot.locked_until = None
                 slot.save()
-            appointment_data = {
-                'user':request.user.id,
-                'psychologist':slot.psychologist.id,
-                'availability':slot.id,
-                'status':'booked'
-            }
-            serializer = AppointmentWriterSerializer(data=appointment_data)
-            if serializer.is_valid():
-                serializer.save()
+
+                appointment_data = {
+                    'user':request.user.id,
+                    'psychologist':slot.psychologist.id,
+                    'availability':slot.id,
+                    'status':'booked'
+                }
+                serializer = AppointmentWriterSerializer(data=appointment_data)
+                serializer.is_valid(raise_exception=True)
+                appointment = serializer.save()
+
+                total_amount = slot.payment_amount
+                admin_commission = total_amount * Decimal('0.20')
+                psychologist_amount = total_amount - admin_commission
+
+                Payment.objects.create(
+                    appointment=appointment,
+                    razorpay_order_id=order_id,
+                    razorpay_payment_id=payment_id,
+                    amount=total_amount,
+                    commission_amount=admin_commission,
+                    psychologist_share=psychologist_amount,
+                    status = 'success'
+                )
+                admin_wallet,_ = Wallet.objects.get_or_create(is_admin_wallet=True)
+                admin_wallet.credit_locked(amount=admin_commission,
+                                    description=f'Locked amount {admin_commission} for appointment: {appointment.id}',
+                                    appointment=appointment)
+                psychologist_user = appointment.psychologist.user
+                psychologist_wallet,_ = Wallet.objects.get_or_create(user=psychologist_user)
+                psychologist_wallet.credit_locked(
+                    amount=psychologist_amount,
+                    description=f'Locked amount {psychologist_amount} for Appointment :{appointment.id}',
+                    appointment=appointment
+                )
                 return Response({'message':"Payment completed.slot booked successfully"},status=status.HTTP_200_OK)
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+                
         except razorpay.errors.SignatureVerificationError as e:
             return Response({"error":"Payment verification failed",},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f'error occure when book the slot:{str(e)}')
+            return Response({"error":"An error occured please try again after some time"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BaseAppointmentView(APIView):
@@ -179,13 +213,13 @@ class BaseAppointmentView(APIView):
         if self.role == 'psychologist':
             appointments = Appointment.objects.filter(psychologist__user=user).select_related(
                 'user','psychologist__user','availability'
-            ).order_by('availability__date')
+            ).order_by('-availability__date')
         elif self.role == 'admin':
-            appointments = Appointment.objects.all().order_by('availability__date')
+            appointments = Appointment.objects.all().order_by('-availability__date')
         else:
             appointments = Appointment.objects.filter(user=user).select_related(
                 'user','psychologist__user','availability'
-            ).order_by('availability__date')
+            ).order_by('-availability__date')
         if status_filter:
             appointments = appointments.filter(status=status_filter)
         paginator = PageNumberPagination()
@@ -228,6 +262,7 @@ class BaseAppointmentDetailView(APIView):
     
     def patch(self,request,appointment_id):
         action = request.data.get('action')
+        print('action',action)
         if action == 'cancel':
             serializer = AppointmentCancelSerializer(
                 data = request.data,
@@ -259,7 +294,8 @@ class BaseAppointmentDetailView(APIView):
                 return Response({"message":"Appointment completed successfully",'appointment':response_serializer.data},
                                 status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({"error":"An error occured while complete the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)                                
+                return Response({"error":"An error occured while complete the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+        return Response({"error":"Invalid action use cancel or complete"},status=status.HTTP_400_BAD_REQUEST)                             
 
 
 class UserAppointmentDetails(BaseAppointmentDetailView):

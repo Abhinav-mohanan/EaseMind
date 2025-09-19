@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Calendar, ChevronRight, ClipboardList, MessageCircle, NotebookPen, User } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, ClipboardList, MessageCircle, NotebookPen, User, Wallet } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const PsychologistSidebar = () => {
@@ -30,6 +30,11 @@ const PsychologistSidebar = () => {
       path:'/psychologist/articles',
       label: 'Articles',
       icon: BookOpen,
+    },
+    {
+      path:'/psychologist/wallet/transaction',
+      label: 'My Earnings',
+      icon: Wallet,
     },
     {
       path:'/chat',
