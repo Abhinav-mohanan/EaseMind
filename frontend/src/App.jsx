@@ -37,6 +37,7 @@ import UserHealthTrackingDetail from './Pages/Users/User/UserHealthTrackingDetai
 import UserHealthStatus from './Pages/Users/Psychologist/UserHealthStatus'
 import UserWalletTransactionList from './Pages/Users/User/UserWalletTransactionList'
 import PsychologistWallet from './Pages/Users/Psychologist/PsychologistWallet'
+import AdminDashboard from './Pages/Admin/AdminDashboard'
 
 
 function App() {
@@ -92,6 +93,7 @@ function App() {
         <Route path='/user/health-tracking' element={<UserHealthTracking />} />
         <Route path='/user/health-tracking/:health_tracking_id' element={<UserHealthTrackingDetail />} />
         <Route path='/psychologist/user/health-status' element={<UserHealthStatus />} />
+        <Route path='/admin/dashboard' element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

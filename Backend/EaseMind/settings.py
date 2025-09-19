@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'chat',
     'videocall',
     'prescription',
+    'dashboard',
     
     
 

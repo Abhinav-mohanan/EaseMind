@@ -18,7 +18,7 @@ const AdminSidebar = () => {
 
   const menuItems = [
     {
-      path: '#',
+      path: '/admin/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard
     },
