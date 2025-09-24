@@ -14,6 +14,9 @@ from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from django.core.exceptions import ObjectDoesNotExist
 import logging
 from .permissions import IsNotBlocked,IsPsychologist
+from django.utils import timezone
+from django.core.cache import cache
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +65,16 @@ class ResendOTPView(APIView):
             return Response({'error':'Invalid Purpose for OTP'},status=status.HTTP_400_BAD_REQUEST)
         try:
             user = CustomUser.objects.get(email=email)
+            cache_key = f'otp_resend_{email}_{purpose}'
+            last_request =cache.get(cache_key)
+            if last_request:
+                time_diff = (timezone.now() - last_request).total_seconds()
+                if time_diff < 60:
+                    return Response({"error":f"Please wait {int(60 - time_diff)} seconds before requesting again."},
+                                    status=status.HTTP_429_TOO_MANY_REQUESTS)
             send_otp_email(user,purpose=purpose)
+            otp_expire = settings.OTP_EXPIRY_MINUTES * 60
+            cache.set(cache_key,timezone.now(),timeout=otp_expire)
             return Response({"message":"OTP Resend Successfully"})
         except CustomUser.DoesNotExist:
             return Response({'error':'User with this email does not exists'},status=status.HTTP_404_NOT_FOUND)

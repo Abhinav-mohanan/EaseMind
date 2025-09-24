@@ -10,30 +10,43 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: initialEmail || '', otp: '' });
   const [timeLeft, setTimeLeft] = useState(300);
-  const [resendDisabled, setResendDisabled] = useState(true);
+  const [resendOTP,setResendOTP] = useState(false)
   const [otpError, setOtpError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const OTP_EXPIRY = parseInt(import.meta.env.VITE_OTP_EXPIRY || '300')
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      setResendDisabled(false);
-      return;
-    }
+    let expiryTime = localStorage.getItem('otp_expiry')
+    if(!expiryTime){
+      expiryTime = Date.now() + OTP_EXPIRY * 1000;
+      localStorage.setItem('otp_expiry',expiryTime)
+    } 
+    const remaining = Math.floor((expiryTime - Date.now()) / 1000)
+    setTimeLeft(remaining > 0 ? remaining:0);
+
     const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+      setTimeLeft((prev) =>{
+        if(prev <=1){
+          clearInterval(timer)
+          return 0
+        }
+        return prev - 1
+      })
+    },1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (otpError) setOtpError('');
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.otp || formData.otp.trim() === '') {
@@ -44,6 +57,7 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
       setIsLoading(true);
       const data = await verifyOTPApi(formData.email, formData.otp, purpose); // api call
       toast.success(data.message);
+      localStorage.removeItem('otp_expiry');
       navigate(purpose === 'password_reset' ? '/reset-password' : '/login', {
         state: { email: formData.email, otp: formData.otp },
         replace: true, // Prevent going back
@@ -51,18 +65,23 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
     } catch (error) {
       ErrorHandler(error, navigate);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
   const handleResend = async () => {
+    setResendOTP(true)
     try {
       const data = await resendOTPApi(formData.email, purpose);
       toast.success(data.message);
-      setTimeLeft(300);
-      setResendDisabled(true);
+      const expiryTime = Date.now() + OTP_EXPIRY * 1000
+      localStorage.setItem('otp_expiry',expiryTime)
+      const remaining = Math.floor((expiryTime - Date.now())/1000)
+      setTimeLeft(remaining > 0? remaining:0);
     } catch (error) {
       ErrorHandler(error);
+    }finally{
+      setResendOTP(false)
     }
   };
 
@@ -139,15 +158,12 @@ const VerifyOTP = ({ initialEmail, purpose, description }) => {
                 </div>
               </div>
               <button
+              disabled={resendOTP}
                 onClick={handleResend}
-                disabled={resendDisabled}
-                className={`w-full p-3 rounded-lg font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-                  resendDisabled
-                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                    : 'bg-teal-500 text-white hover:bg-teal-600'
-                }`}
+                className={'w-full p-3 rounded-lg font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 bg-teal-500 text-white hover:bg-teal-600 disabled:cursor-not-allowed'
+                }
               >
-                Resend OTP
+                {resendOTP?'Resending':'Resend OTP'}
               </button>
               <div className="text-center mt-4"></div>
             </div>

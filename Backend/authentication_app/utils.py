@@ -1,9 +1,9 @@
 from django.utils.crypto import get_random_string
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.utils import timezone
-from django.core.mail import send_mail
 from django.conf import settings
 from . models import EmailOTP 
+from .tasks import send_otp_email_task
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,13 +32,7 @@ def send_otp_email(user,purpose='email_verification'):
     Thank you,
     EaseMind Team
     """
-    send_mail(
-        subject=subject,
-        message=message,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[user.email],
-        fail_silently=False
-    )
+    send_otp_email_task.delay(user.email,subject,message)
 
 # set jwt token in to http only cookie
 def set_token_cookies(response,access,refresh):
