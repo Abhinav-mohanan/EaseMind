@@ -96,15 +96,14 @@ const UserAppointmentDetails = () => {
     }
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <UserSidebar />
-        <div className="flex-1 lg:ml-64 transition-all duration-300">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
         <Navbar />
+        <div className="flex-1 lg:ml-64 transition-all duration-300">
+        <UserSidebar />
           <div className="flex-1 p-8">
             <div className="max-w-4xl mx-auto">
               {appointment ? (
                 <div className="space-y-6">
-                  {/* Header Card */}
                   <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
                     <div className="bg-gradient-to-r from-teal-500 to-blue-600 px-8 py-6">
                       <div className="flex items-center justify-between">
@@ -126,8 +125,6 @@ const UserAppointmentDetails = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Status Banner */}
                     <div className={`px-8 py-4 ${getStatusConfig(appointment.status).bgColor} border-l-4 border-teal-500`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -142,9 +139,7 @@ const UserAppointmentDetails = () => {
                       </div>
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Psychologist Info */}
                     <div className="lg:col-span-2 bg-white shadow-lg rounded-2xl p-8">
                       <div className="flex items-start space-x-6">
                         <img src={appointment.psychologist_profile_pic || default_img} alt={appointment.psychologist_name} 
@@ -154,7 +149,6 @@ const UserAppointmentDetails = () => {
                             Dr. {appointment.psychologist_name}
                           </h2>
                           <p className="text-gray-600 mb-4">{appointment.specialization}</p>
-                          
                           <div className="grid grid-cols-2 gap-4">
                             <div className="flex items-center text-gray-600">
                               <Mail className="h-4 w-4 mr-2 text-teal-500" />
@@ -168,7 +162,6 @@ const UserAppointmentDetails = () => {
                         </div>
                       </div>
                     </div>
-
                     <div className="bg-white shadow-lg rounded-2xl p-6">
                       <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
                       <div className="space-y-3">

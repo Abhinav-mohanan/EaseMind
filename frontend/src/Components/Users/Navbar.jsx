@@ -3,7 +3,7 @@ import { AuthStatusApi, LogoutApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../Layouts/ErrorHandler';
 import { useEffect, useRef, useState } from 'react';
-import { LogIn, LogOut, Menu, User, X } from 'lucide-react';
+import { ChevronsRight, LogIn, LogOut, Menu, User, X } from 'lucide-react';
 import ConfirmationModal from '../Layouts/Confirmationmodal';
 
 const Navbar = () => {
@@ -40,7 +40,6 @@ const Navbar = () => {
     setIsModalOpen(true);
   };
 
-  // logout
   const ConfirmLogout = async () => {
     try {
       const data = await LogoutApi();
@@ -56,23 +55,21 @@ const Navbar = () => {
   const onCloseModal = () => {
     setIsModalOpen(false);
   };
-
-  // dropdown menu automatically closes when the user clicks outside
   useEffect(() => {
     const handleClickoutside = (event) => {
       if (dropdwonRef.current && !dropdwonRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickoutside); // add eventlistener to check the mouse clicks
+    document.addEventListener('mousedown', handleClickoutside); 
     return () => {
-      document.removeEventListener('mousedown', handleClickoutside); // cleanup fun
+      document.removeEventListener('mousedown', handleClickoutside); 
     };
   }, []);
 
   return (
     <>
-      <nav className="bg-white shadow-md p-4 flex items-center justify-between relative">
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-md px-4 py-3 flex items-center justify-between h-16 z-50">
         <div className="text-2xl font-bold text-customBlue">EaseMind</div>
         <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2 ">
           <Link to="/" className="text-gray-700 font-medium  hover:text-customBlue">

@@ -42,10 +42,10 @@ const UserAppointments = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="min-h-screen bg-gray-100 flex"> 
-                <UserSidebar />
-                <div className="flex-1 lg:ml-64 transition-all duration-300">
+            <div className="min-h-screen bg-gray-50 pt-16"> 
                     <Navbar />
+                <div className="ml-0 lg:ml-64 transition-all duration-300">
+                <UserSidebar />
                     <div className="p-4 sm:p-6 md:p-8 lg:p-10"> 
                         <div className="max-w-7xl mx-auto"> 
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">Your Appointments</h2> 

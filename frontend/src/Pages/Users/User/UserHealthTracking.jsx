@@ -109,10 +109,10 @@ const UserHealthTracking = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <UserSidebar />
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pt-16">
+                <Navbar />
                 <div className="flex-1 lg:ml-64">
-                    <Navbar />
+                <UserSidebar />
                     <div className="p-4 sm:p-6 lg:p-8">
                         <div className="max-w-7xl mx-auto mb-8">
                             <div className="text-center mb-8">

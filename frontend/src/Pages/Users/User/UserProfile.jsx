@@ -215,10 +215,10 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserSidebar />
+    <div className="min-h-screen bg-gray-50 pt-16">
+        <Navbar/>
       <div className="ml-0 lg:ml-64 transition-all duration-300">
-        <Navbar />
+      <UserSidebar />
         <div className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Header Section */}

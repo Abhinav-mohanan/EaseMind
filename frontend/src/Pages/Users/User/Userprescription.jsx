@@ -56,9 +56,9 @@ const UserPrescription = () => {
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gray-50">
-        <UserSidebar />
-        <div className="flex-1 lg:ml-64">
           <Navbar />
+        <div className="flex-1 lg:ml-64">
+        <UserSidebar />
           <div className="p-6 max-w-5xl mx-auto">
             {/* Header */}
             <div className="flex items-center mb-8">

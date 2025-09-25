@@ -92,10 +92,10 @@ const UserHealthTrackingDetail = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <UserSidebar />
-                <div className="flex-1 lg:ml-64">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pt-16">
                     <Navbar />
+                <div className="ml-0 lg:ml-64 transition-all duration-300">
+                <UserSidebar />
                     <div className="p-4 sm:p-6 lg:p-8">
                         <div className="max-w-4xl mx-auto mb-8">
                             <div className="flex items-center mb-6">

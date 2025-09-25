@@ -73,10 +73,10 @@ const WalletComponent = ({ role, TransactionApi, WalletBalanceApi }) => {
 
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gray-50 flex">
-        {role === 'user' ? <UserSidebar /> : <PsychologistSidebar />}
-        <div className="flex-1 lg:ml-64">
+      <div className="min-h-screen bg-gray-50 pt-16">
           <Navbar />
+        <div className="ml-0 lg:ml-64 transition-all duration-300">
+        {role === 'user' ? <UserSidebar /> : <PsychologistSidebar />}
           <div className="p-6">
             <div className="max-w-4xl mx-auto space-y-6">
               

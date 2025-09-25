@@ -14,15 +14,14 @@ const Chatpage = () => {
     const role = localStorage.getItem('role')
 
  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
+        <Navbar />
+      <div className="lg:ml-64 transition-all duration-300">
       {role === 'psychologist' ? (
         <PsychologistSidebar/>
       ) : (
         <UserSidebar/>
       )}
-      
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <Navbar />
         <div className="p-6">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white shadow-xl rounded-2xl overflow-hidden border-2 border-gray-200" style={{ height: '80vh' }}>

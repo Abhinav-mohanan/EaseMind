@@ -54,7 +54,7 @@ const PublishedArticles = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="flex flex-col min-h-screen bg-gray-100">
+            <div className="flex flex-col min-h-screen bg-gray-100 pt-16">
                 <Navbar />
                 <div className="flex-1 p-8">
                     <div className="max-w-5xl mx-auto">

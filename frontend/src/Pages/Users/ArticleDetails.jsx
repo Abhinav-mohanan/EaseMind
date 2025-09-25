@@ -37,7 +37,7 @@ const ArticleDetails = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-white">
+            <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-white pt-16">
                 <Navbar />
                 <div className="flex-1 p-6 md:p-12">
                     <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-8 border border-gray-100">

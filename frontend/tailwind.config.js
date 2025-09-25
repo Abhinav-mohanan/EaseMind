@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors:{
-        customBlue: '#0B60D9',
+        customBlue: '#0B1263',
         textBlue:'#0B1263'
       },
       keyframes:{
