@@ -24,7 +24,7 @@ const ConfirmationModal = ({
             {cancelText}
           </button>
           <button
-            className="px-4 py-2 bg-teal-500 text-white font-serif rounded-sm hover:bg-teal-600 transition duration-200"
+            className={`px-4 py-2 ${confirmText === "Logout"?'bg-red-500':'bg-textBlue'} text-white font-serif rounded-sm ${confirmText==='Logout'&&'hover:bg-red-600'} transition duration-200`}
             onClick={onConfirm}
           >
             {confirmText}

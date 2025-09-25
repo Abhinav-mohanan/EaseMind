@@ -102,7 +102,7 @@ const UserHealthStatus = () => {
 
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex pt-16">
         <PsychologistSidebar />
         <div className="flex-1 ml-0 lg:ml-64 transition-all duration-300">
           <Navbar />

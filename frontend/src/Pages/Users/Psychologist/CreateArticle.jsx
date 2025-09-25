@@ -152,7 +152,7 @@ const CreateArticle = () => {
     if (isCreating) {
         return (
             <Loading isLoading={isLoading}>
-                <div className="min-h-screen bg-gray-50">
+                <div className="min-h-screen bg-gray-50 pt-16">
                     <PsychologistSidebar />
                     <div className="ml-0 lg:ml-64 transition-all duration-300">
                         <Navbar />
@@ -308,7 +308,7 @@ const CreateArticle = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 pt-16">
                 <PsychologistSidebar />
                 <div className="ml-0 lg:ml-64 transition-all duration-300">
                     <Navbar />

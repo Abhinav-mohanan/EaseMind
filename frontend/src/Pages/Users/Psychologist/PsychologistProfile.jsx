@@ -236,7 +236,7 @@ const PsychologistProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       <PsychologistSidebar />
       <div className="ml-0 lg:ml-64 transition-all duration-300">
         <Navbar />

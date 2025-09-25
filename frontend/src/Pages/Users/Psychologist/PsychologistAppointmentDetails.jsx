@@ -102,7 +102,7 @@ const PsychologistAppointmentDetails = () => {
 
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
           <PsychologistSidebar />
         <div className="flex-1 lg:ml-64 transition-all duration-300">
         <Navbar />

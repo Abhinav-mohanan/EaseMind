@@ -6,10 +6,10 @@ import { PsychologistCompletedAppointmentsListApi } from '../../../api/prescript
 
 const PsychologistCompletedAppointments = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <PsychologistSidebar/>
-        <div className='flex-1 lg:ml-64 transition-all duration-300'>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16 ">
             <Navbar/>
+        <div className='flex-1 lg:ml-64 transition-all duration-300'>
+        <PsychologistSidebar/>
             <CompletedAppointmentList
             role='psychologist'
             fetchApi={PsychologistCompletedAppointmentsListApi}/>
