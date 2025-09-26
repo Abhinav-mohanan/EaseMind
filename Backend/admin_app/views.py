@@ -97,7 +97,10 @@ class ManagePsychologistView(BaseAdminView):
         authorization_error = self.validate(request.user)
         if authorization_error:
             return authorization_error
-        psychologists = CustomUser.objects.filter(role ='psychologist').order_by('created_at')
+        psychologists = CustomUser.objects.filter(role ='psychologist').order_by('created_at').select_related(
+            'psychologist_profile'
+        )
+        psychologists = psychologists.filter(psychologist_profile__is_verified='verified')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(psychologists,request)
         psychologist_list = [
@@ -149,13 +152,12 @@ class PsychologistVerificationView(BaseAdminView):
         if authorization_error:
             return authorization_error
         
-        status_param = request.query_params.get('status','pending').lower()  # Default status is Pending
-
+        status_param = request.query_params.get('status','pending').lower()  
         if status_param not in ['pending','rejected']:
             return Response({"error":"Invalid status. Use pending or rejected"},
                             status=status.HTTP_400_BAD_REQUEST)
         
-        profiles = PsychologistProfile.objects.filter(is_verified=status_param)
+        profiles = PsychologistProfile.objects.filter(is_verified=status_param,is_submitted=True)
 
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(profiles,request)

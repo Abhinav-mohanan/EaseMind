@@ -374,7 +374,7 @@ const PsychologistVerification = () => {
                                                                                     </svg>
                                                                                     Verify & Approve
                                                                                 </button>
-                                                                                {filter === 'verify'?(
+                                                                                {filter === 'pending'?(
 
                                                                                   <button
                                                                                   onClick={() => handleVerification(profile.user.id, 'reject')}

@@ -21,6 +21,7 @@ const Navbar = () => {
         const data = await AuthStatusApi();
         setIsAuthenticated(data.isAuthenticated);
         setRole(data.role);
+        localStorage.setItem('is_verified',data.is_verified)
         localStorage.setItem('role',data.role)
       } catch (error) {
         setIsAuthenticated(false);
@@ -46,6 +47,7 @@ const Navbar = () => {
       toast.success(data.message);
       navigate('/login');
       localStorage.removeItem('role')
+      localStorage.removeItem('is_verified')
     } catch (error) {
       ErrorHandler(error);
       setIsModalOpen(false);

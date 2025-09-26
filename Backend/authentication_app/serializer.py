@@ -280,6 +280,13 @@ class PsychologistProfileWriterSerializer(serializers.ModelSerializer):
                     setattr(instance,attr,value)
             else:
                 setattr(instance,attr,value)
+        required_fields = [
+            instance.license_no,
+            instance.license_certificate,
+            instance.education_certificate
+        ]
+        if all(required_fields):
+            instance.is_submitted = True
         instance.save()
         return instance
 

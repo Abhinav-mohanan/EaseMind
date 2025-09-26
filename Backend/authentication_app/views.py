@@ -5,7 +5,7 @@ from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer,
                           ForgotPasswordSerializer,ResetPasswordSerializer,UserProfileSerializer,
                           UserProfileWriterSerializer,PsychologistProfileSerializer,
                           PsychologistProfileWriterSerializer)
-from . models import CustomUser
+from . models import CustomUser,PsychologistProfile
 from . utils import send_otp_email,set_token_cookies
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.decorators import permission_classes
@@ -119,7 +119,13 @@ class AuthStatusView(APIView):
         user = request.user
         if user.is_authenticated:
             role = user.role
-            return  Response({'isAuthenticated':True,'role':role})
+            is_verified = False
+            try:
+                profile = PsychologistProfile.objects.get(user=user)
+                is_verified = profile.is_verified == 'verified'
+            except PsychologistProfile.DoesNotExist:
+                is_verified = False
+            return  Response({'isAuthenticated':True,'role':role,'is_verified':is_verified})
         return Response({'isAuthenticated':False})        
 
 

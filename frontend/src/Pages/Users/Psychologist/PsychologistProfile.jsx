@@ -995,7 +995,7 @@ const PsychologistProfile = () => {
                                 : 'bg-teal-600 text-white hover:bg-teal-700'
                             }`}
                           >
-                            {isSubmitting ? 'Submitting...' : 'Submit'}
+                            {isVerified === 'rejected'? 'Resubmit':isSubmitting ? 'Submitting...' : 'Submit'}
                           </button>
                         </div>
                       </div>

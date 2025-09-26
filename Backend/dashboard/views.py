@@ -28,7 +28,7 @@ class AdminDashboardView(APIView):
     
     def get_dashboard_stats(self):
         total_users = CustomUser.objects.filter(role='user',is_blocked=False).count()
-        total_psychologists = PsychologistProfile.objects.filter(user__role='psychologist',user__is_blocked=False).count()
+        total_psychologists = PsychologistProfile.objects.filter(user__role='psychologist',user__is_blocked=False,is_verified='verified').count()
         total_appointments = Appointment.objects.count()
         total_cancelled_appointments = Appointment.objects.filter(status='cancelled').count()
         total_completed_appointments = Appointment.objects.filter(status='completed').count()

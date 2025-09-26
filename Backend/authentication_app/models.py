@@ -83,6 +83,7 @@ class PsychologistProfile(models.Model):
     experience_certificate = CloudinaryField('experience_certificate',null=True,blank=True)
     education_certificate = CloudinaryField('education_certificate',null=True,blank=True)
     is_verified = models.CharField(max_length=50,choices=VERIFICATION_STATUS,default='pending')
+    is_submitted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.user.first_name} Psychologist profile'

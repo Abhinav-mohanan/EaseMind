@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { BookOpen, Calendar, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, MessageCircle, NotebookPen, User, Wallet } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Lock, MessageCircle, NotebookPen, User, Wallet } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const PsychologistSidebar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredItem,setHoveredItem] = useState(null)
   
   const isActive = (path) => location.pathname === path;
 
@@ -12,43 +13,62 @@ const PsychologistSidebar = () => {
     setIsOpen(!isOpen);
   };
 
+  const isVerified = localStorage.getItem('is_verified') === 'true'
+  console.log(isVerified,'dd')
+
   const menuItems = [
     {
       path: '/psychologist/profile',
       label: 'My Profile',
       icon: User,
+      requiresVerification:false
     },
     {
       path: '/psychologist/availability',
       label: 'Availbilitly',
       icon: NotebookPen,
+      requiresVerification:true
     },
     {
       path: '/psychologist/appointments/',
       label: 'Appointments',
       icon: Calendar,
+      requiresVerification:true,
     },
     {
       path:'/psychologist/consultations',
       label: 'Consultations',
       icon: ClipboardList,
+      requiresVerification:true,
     },
     {
       path:'/psychologist/articles',
       label: 'Articles',
       icon: BookOpen,
+      requiresVerification:true,
     },
     {
       path:'/psychologist/wallet/transaction',
       label: 'My Earnings',
       icon: Wallet,
+      requiresVerification:true,
     },
     {
       path:'/chat',
       label: 'Chat',
       icon: MessageCircle,
+      requiresVerification:true,
     }
   ];
+
+  const handleMenuClick = (e,item) =>{
+    const isDisabled = item.requiresVerification && !isVerified;
+    if (isDisabled){
+      e.preventDefault();
+      return
+    }
+    setIsOpen(false)
+  }
 
   return (
     <>
@@ -78,30 +98,54 @@ const PsychologistSidebar = () => {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
+            const isDisabled = item.path !== '/psychologist/profile' && !isVerified
 
             return (
-              <Link
+              <div 
                 key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)} 
-                className={`group flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 relative ${
-                  active
-                    ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-textBlue shadow-sm border border-textBlue'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
+                className="relative"
+                onMouseEnter={() => setHoveredItem(item.path)}
+                onMouseLeave={() => setHoveredItem(null)}
               >
-                <Icon
-                  className={`h-5 w-5 transition-colors ${
-                    active ? 'text-textBlue' : 'text-gray-400 group-hover:text-gray-600'
+                <Link
+                  to={isDisabled ? '#' : item.path}
+                  onClick={(e) => handleMenuClick(e, item)}
+                  className={`group flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 relative ${
+                    active && !isDisabled
+                      ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-textBlue shadow-sm border border-textBlue'
+                      : isDisabled
+                      ? 'text-gray-400 cursor-not-allowed opacity-60'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
-                />
-                <span className="flex-1">{item.label}</span>
-                {active && <ChevronRight className="h-4 w-4 text-textBlue" />}
+                >
+                  <Icon
+                    className={`h-5 w-5 transition-colors ${
+                      active && !isDisabled 
+                        ? 'text-textBlue' 
+                        : isDisabled
+                        ? 'text-gray-300'
+                        : 'text-gray-400 group-hover:text-gray-600'
+                    }`}
+                  />
+                  <span className="flex-1">{item.label}</span>
+                  
+                  {isDisabled && <Lock className="h-4 w-4 text-gray-300" />}
+                  {active && !isDisabled && <ChevronRight className="h-4 w-4 text-textBlue" />}
 
-                {active && (
-                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-textBlue to-cyan-500 rounded-r-full" />
+                  {active && !isDisabled && (
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-textBlue to-cyan-500 rounded-r-full" />
+                  )}
+                </Link>
+                {isDisabled && hoveredItem === item.path && (
+                  <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50 shadow-lg">
+                    <div className="flex items-center gap-1">
+                      <Lock className="h-3 w-3" />
+                      Verification required
+                    </div>
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-800 rotate-45"></div>
+                  </div>
                 )}
-              </Link>
+              </div>
             );
           })}
         </nav>
