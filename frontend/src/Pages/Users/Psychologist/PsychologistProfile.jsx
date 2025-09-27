@@ -34,6 +34,7 @@ const PsychologistProfile = () => {
     license_certificate: null,
     experience_certificate: null,
     education_certificate: null,
+    rejection_reason:''
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +92,7 @@ const PsychologistProfile = () => {
         license_certificate: psychData.license_certificate || null,
         experience_certificate: psychData.experience_certificate || null,
         education_certificate: psychData.education_certificate || null,
+        rejection_reason:psychData.rejection_reason || null
       };
       setPersonalData(personal);
       setProfessionalData(professional);
@@ -329,21 +331,43 @@ const PsychologistProfile = () => {
                       </div>
                     )}
                     {isVerified === 'rejected' && (
-                      <div className="flex items-center text-red-600">
-                        <svg
+                      <div className="space-y-2">
+                        <div className="flex items-center text-red-600">
+                          <svg
                           className="w-4 h-4 mr-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
-                        >
+                          >
                           <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
                           />
-                        </svg>
-                        Profile was rejected
+                          </svg>
+                          Profile was rejected
+                          </div>
+                          {professionalData.rejection_reason && (
+                          <div className="flex items-start space-x-2 text-red-600">
+                          <svg
+                          className="w-4 h-4 mt-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          >
+                          <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z"
+                          />
+                          </svg>
+                            <span>
+                            <strong>Rejection Reason:</strong> {professionalData.rejection_reason}
+                            </span>
+                          </div>
+                          )}
                       </div>
                     )}
                     {isVerified === 'verified' && (

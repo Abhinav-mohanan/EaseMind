@@ -37,9 +37,9 @@ export const PsychologistVerificationDetailsApi = async(page,status) =>{
     return response.data
 }
 
-export const HandlePsychologistVerificationApi = async(psychologist_id,action) =>{
+export const HandlePsychologistVerificationApi = async(psychologist_id,action,rejection_reason = '') =>{
     const response = await axiosInstance.patch(`/admin/psychologist/verification/${psychologist_id}/`,
-        {action}
+        {action,...(action === 'reject' && {rejection_reason})}
     )
     return response.data
 }

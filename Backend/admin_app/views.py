@@ -170,6 +170,8 @@ class PsychologistVerificationView(BaseAdminView):
             return authorization_error
         
         action =request.data.get('action')
+        rejection_reason = request.data.get('rejection_reason','')
+
         if action not in ['reject','verify']:
             return Response({
                 'error': "Invalid action.User verify or Reject"
@@ -181,6 +183,16 @@ class PsychologistVerificationView(BaseAdminView):
             return Response({"error":"Psychologist profile not found"},status=status.HTTP_404_NOT_FOUND )
         
         psychologist_profile.is_verified = 'verified' if action == 'verify' else 'rejected'
+        if action == 'reject' and rejection_reason:
+            if len(rejection_reason) < 10:
+                return Response({'error':'Rejection reason must be at least 10 characters'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            psychologist_profile.rejection_reason = rejection_reason
+        elif action == 'reject' and not rejection_reason:
+            return Response({'error':"Rejection reason is required when rejecting a profile"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            psychologist_profile.rejection_reason = None
         psychologist_profile.save()
         serializer = PsychologistProfileSerializer(psychologist_profile)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response({'message':f"Profile {action}ed successfully",'data':serializer.data},status=status.HTTP_200_OK)

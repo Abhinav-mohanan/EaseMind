@@ -262,7 +262,6 @@ class BaseAppointmentDetailView(APIView):
     
     def patch(self,request,appointment_id):
         action = request.data.get('action')
-        print('action',action)
         if action == 'cancel':
             serializer = AppointmentCancelSerializer(
                 data = request.data,

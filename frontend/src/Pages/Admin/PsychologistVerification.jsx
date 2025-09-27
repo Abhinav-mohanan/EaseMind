@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import AdminSidebar from '../../Components/Admin/AdminSidebar';
 import AdminHeader from '../../Components/Admin/AdminHeader';
 import Pagination from '../../Components/Layouts/Pagination';
+import ActionModal from '../../Components/Layouts/ActionModal';
 
 const PsychologistVerification = () => {
     const [isLoading,setIsLoading] = useState(false)
@@ -12,7 +13,9 @@ const PsychologistVerification = () => {
     const [filter,setFilter] = useState('pending')
     const [currentPage,setCurrentPage] = useState(1)
     const [totalPages,setTotalpage] = useState(1)
-    const [expandedProfileId,setExpandedProfileId] = useState(false)
+    const [expandedProfileId,setExpandedProfileId] = useState(null)
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProfileId, setSelectedProfileId] = useState(null);
     const pageSize = 6
 
     const fetchProfiles = async (page,status) => {
@@ -61,6 +64,16 @@ const PsychologistVerification = () => {
 
     const toggleProfileDetails = (profileId) =>{
       setExpandedProfileId(expandedProfileId === profileId ? null : profileId)
+    }
+
+    const openRejectionModal = (profileId) =>{
+        setSelectedProfileId(profileId);
+        setIsModalOpen(true)
+    }
+
+    const onCloseModal = () =>{
+        setIsModalOpen(false)
+        setSelectedProfileId(null)
     }
 
     const getInitials = (first_name,last_name) =>{
@@ -304,6 +317,16 @@ const PsychologistVerification = () => {
                                                                                                 <strong>Status:</strong> {profile.is_verified}
                                                                                             </span>
                                                                                         </div>
+                                                                                        {profile.rejection_reason && (
+                                                                                        <div className='flex items-start space-x-2'>
+                                                                                            <svg className='w-4 h-4 text-red-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                                                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z'></path>
+                                                                                            </svg>
+                                                                                            <span className='text-slate-600'>
+                                                                                            <strong>Rejection Reason:</strong> {profile.rejection_reason}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                                 <div>
@@ -377,7 +400,7 @@ const PsychologistVerification = () => {
                                                                                 {filter === 'pending'?(
 
                                                                                   <button
-                                                                                  onClick={() => handleVerification(profile.user.id, 'reject')}
+                                                                                  onClick={() => openRejectionModal(profile.user.id)}
                                                                                   className='inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white font-medium rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5'
                                                                                   >
                                                                                     <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -389,7 +412,7 @@ const PsychologistVerification = () => {
                                                                                   <button
                                                                                   onClick={()=>setExpandedProfileId(null)}
                                                                                   className='inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white font-medium rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5'>
-                                                                                    Cancel</button>
+                                                                                    Close</button>
                                                                                 )}
                                                                             </div>
                                                                         </div>
@@ -411,6 +434,16 @@ const PsychologistVerification = () => {
                     </div>
                 </div>
             </div>
+            <ActionModal
+            isOpen={isModalOpen}
+            onClose={onCloseModal}
+            id={selectedProfileId}
+            actionApi={(id,data) => HandlePsychologistVerificationApi(id,'reject',data.description)}
+            refetch={()=>fetchProfiles(currentPage,filter)}
+            type='rejection'
+            title='Confirm Rejection'
+            prompt='Are you sure you want to reject this profile? This action cannot be undone. Please provide a reason for the cancellation.'
+            confirmText='Confirm Rejection'/>
         </div>
     );
 };

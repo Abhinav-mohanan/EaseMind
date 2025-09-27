@@ -229,6 +229,9 @@ class PsychologistProfileView(APIView):
         user = request.user
         try:
             profile = user.psychologist_profile
+            is_verified = profile.is_verified
+            if is_verified == 'rejected':
+                profile.is_verified = 'pending'
             serializer = PsychologistProfileWriterSerializer(profile,data=request.data,partial=True)
             if serializer.is_valid():
                 serializer.save()

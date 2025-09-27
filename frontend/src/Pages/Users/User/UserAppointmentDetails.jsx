@@ -11,6 +11,7 @@ import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
 import { GetZegoTokenApi } from '../../../api/videocallApi';
+import ActionModal from '../../../Components/Layouts/ActionModal';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -291,12 +292,13 @@ const UserAppointmentDetails = () => {
           </div>
         </div>
       </div>
-      <CancellationModal
+      <ActionModal
       isOpen={ismodalopen}
       onClose={onModalClose}
-      appointment_id={appointment_id}
-      cancelApi={CancelUserAppointmentApi}
-      refetch={FetchAppointment}/>
+      id={appointment_id}
+      actionApi={CancelUserAppointmentApi}
+      refetch={FetchAppointment}
+      prompt='Are you sure you want to cancel this order? This action cannot be undone. Please provide a reason for the cancellation'/>
     </Loading>
   );
 };

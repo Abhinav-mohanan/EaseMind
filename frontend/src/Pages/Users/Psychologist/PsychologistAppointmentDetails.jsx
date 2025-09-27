@@ -10,6 +10,7 @@ import { AlertTriangle, Calendar, CarTaxiFront, Check, CheckCircle, Clock, Heart
 import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
+import ActionModal from '../../../Components/Layouts/ActionModal';
 
 const PsychologistAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -311,12 +312,13 @@ const PsychologistAppointmentDetails = () => {
           </div>
         </div>
       </div>
-      <CancellationModal
+      <ActionModal
       isOpen={ismodalopen}
       onClose={onModalClose}
-      appointment_id={appointment_id}
-      cancelApi={CancelPsychologistAppointmentApi}
+      id={appointment_id}
+      actionApi={CancelPsychologistAppointmentApi}
       refetch={FetchAppointment}
+      prompt='Are you sure you want to cancel this Appointment? This action cannot be undone. Please provide a reason for the cancellation'
       />
     </Loading>
   );
