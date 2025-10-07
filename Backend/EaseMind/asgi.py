@@ -17,13 +17,15 @@ django.setup()
 
 
 import chat.routing
+import notification.routing
 from chat.middleware import JWTAuthMiddleware
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": JWTAuthMiddleware(
         URLRouter(
-            chat.routing.websocket_urlpatterns)
+            chat.routing.websocket_urlpatterns+
+            notification.routing.websocket_urlpatterns)
 
     ),
 })

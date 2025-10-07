@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/',include('videocall.urls')),
     path('api/',include('prescription.urls')),
     path('api/',include('dashboard.urls')),
+    path('api/',include('notification.urls')),
     
     
     
