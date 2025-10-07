@@ -14,7 +14,6 @@ const PsychologistSidebar = () => {
   };
 
   const isVerified = localStorage.getItem('is_verified') === 'true'
-  console.log(isVerified,'dd')
 
   const menuItems = [
     {

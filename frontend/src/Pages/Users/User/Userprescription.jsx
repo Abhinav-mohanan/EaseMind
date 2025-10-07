@@ -55,7 +55,7 @@ const UserPrescription = () => {
 
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pt-16">
           <Navbar />
         <div className="flex-1 lg:ml-64">
         <UserSidebar />

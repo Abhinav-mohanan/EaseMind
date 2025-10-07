@@ -1,171 +1,82 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthStatusApi, LogoutApi } from '../../api/authApi';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Menu, X } from 'lucide-react';
+import { LogoutApi } from '../../api/authApi';
 import ErrorHandler from '../Layouts/ErrorHandler';
-import { useEffect, useRef, useState } from 'react';
-import { ChevronsRight, LogIn, LogOut, Menu, User, X } from 'lucide-react';
+import { useAuth } from '../../Hooks/useAuth'
+import { useNotifications } from '../../Hooks/UseNotifications'
+import NavLinks from './NavLinks';
+import ProfileDropdown from './ProfileDropdown';
+import NotificationPanel from './NotificationPanel ';
 import ConfirmationModal from '../Layouts/Confirmationmodal';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState();
-  const dropdwonRef = useRef();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate()
+  const { isAuthenticated, role } = useAuth()
+  const{notifications,fetchNotifications} = useNotifications(isAuthenticated)
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [role, setRole] = useState(null);
-  const [menubarOpen,setMenubarOpen] = useState(false)
+  const [menubarOpen, setMenubarOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const data = await AuthStatusApi();
-        setIsAuthenticated(data.isAuthenticated);
-        setRole(data.role);
-        localStorage.setItem('is_verified',data.is_verified)
-        localStorage.setItem('role',data.role)
-      } catch (error) {
-        setIsAuthenticated(false);
-        setRole(null);
-      }
-    };
-    checkAuth();
-  }, []);
-
-  const profileRoute = role === 'psychologist' ? '/psychologist/profile' : '/user/profile';
-
-  const handleUserProfile = () => {
-    setDropdownOpen((prev) => !prev);
-  };
-
-  const handleLogout = () => {
-    setIsModalOpen(true);
-  };
-
-  const ConfirmLogout = async () => {
+  const handleLogout = async () => {
     try {
       const data = await LogoutApi();
       toast.success(data.message);
+      localStorage.removeItem('role');
+      localStorage.removeItem('is_verified');
       navigate('/login');
-      localStorage.removeItem('role')
-      localStorage.removeItem('is_verified')
+      window.location.reload(); 
     } catch (error) {
       ErrorHandler(error);
+    } finally {
       setIsModalOpen(false);
     }
   };
-
-  const onCloseModal = () => {
-    setIsModalOpen(false);
-  };
-  useEffect(() => {
-    const handleClickoutside = (event) => {
-      if (dropdwonRef.current && !dropdwonRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickoutside); 
-    return () => {
-      document.removeEventListener('mousedown', handleClickoutside); 
-    };
-  }, []);
 
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 bg-white shadow-md px-4 py-3 flex items-center justify-between h-16 z-50">
         <div className="text-2xl font-bold text-customBlue">EaseMind</div>
-        <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2 ">
-          <Link to="/" className="text-gray-700 font-medium  hover:text-customBlue">
-            Home
-          </Link>
-          <Link to="/articles" className="text-gray-700 font-medium hover:text-customBlue">
-            Articles
-          </Link>
-          <Link to="/therapist" className="text-gray-700 font-medium hover:text-customBlue">
-            Therapist
-          </Link>
-          <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
-            About
-          </Link>
-          <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
-            Contact
-          </Link>
-           </div>
-           <div className='flex items-center'>
-
-          <div className="relative" ref={dropdwonRef}>
-            <User
-              size={24}
-              onClick={handleUserProfile}
-              className="text-customBlue hover:text-green-700 cursor-pointer mr-5"
+        <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2">
+          <NavLinks />
+        </div>
+        <div className="flex items-center gap-5">
+          {isAuthenticated && (
+            <NotificationPanel 
+              notifications={notifications} 
+              isOpen={isNotificationOpen} 
+              setIsOpen={setIsNotificationOpen} 
+              fetchNotifications={fetchNotifications}
             />
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-50 border">
-                {isAuthenticated ? (
-                  <>
-                    <button
-                      disabled={!role}
-                      onClick={() => navigate(profileRoute)}
-                      className="w-full flex items-center gap-3 p-1.5 hover:bg-gray-100 text-gray-700 rounded-lg"
-                    >
-                      <User className="h-4 w-4" />
-                      <span className="text-md">My Profile</span>
-                    </button>
-                    <div className="p-2">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 p-1.5 hover:bg-red-50 rounded-lg text-red-600 hover:text-red-700 transition-colors"
-                        >
-                        <LogOut className="h-4 w-4" />
-                        <span className="text-md">Logout</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <button
-                  onClick={() => navigate('/login')}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-700 rounded-lg"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    <span className="text-md">Login</span>
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
+          <ProfileDropdown
+            isAuthenticated={isAuthenticated}
+            role={role}
+            onLogout={() => setIsModalOpen(true)}
+          />
           <button
-          className='md:hidden text-customBlue'
-          onClick={()=>setMenubarOpen(!menubarOpen)}>
-            {menubarOpen? <X className='h-4 w-4'/>:<Menu className='h-4 w-4'/>}
+            className="md:hidden text-customBlue"
+            onClick={() => setMenubarOpen(!menubarOpen)}
+          >
+            {menubarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-        {menubarOpen&&(
-          <div className='absolute top-16 left-0 w-full bg-white shadow-md border-t flex flex-col space-y-4 p-4 md:hidden z-40'>
-            <Link to="/" className="text-gray-700 font-medium hover:text-customBlue">
-              Home
-            </Link>
-            <Link to="/articles" className="text-gray-700 font-medium hover:text-customBlue">
-              Articles
-            </Link>
-            <Link to="/therapist" className="text-gray-700 font-medium hover:text-customBlue">
-              Therapist
-            </Link>
-            <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
-              About
-            </Link>
-            <Link to="#" className="text-gray-700 font-medium hover:text-customBlue">
-              Contact
-            </Link>
-          </div>
-        )}
       </nav>
+      {menubarOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-white shadow-md border-t flex flex-col space-y-4 p-4 z-40">
+          <NavLinks linkClassName="text-gray-700 font-medium hover:text-customBlue p-2" />
+        </div>
+      )}
+
       <ConfirmationModal
         isOpen={isModalOpen}
-        onClose={onCloseModal}
-        onConfirm={ConfirmLogout}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleLogout}
         title="Confirm Logout"
+        confirmText='Logout'
         message="Are you sure you want to log out?"
-        confirmText="Logout"
-        cancelText="Cancel"
       />
     </>
   );
