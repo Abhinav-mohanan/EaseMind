@@ -1,26 +1,27 @@
 import axiosInstance from "./axiosInstance"
 
-// Admin login
 export const AdminLoginApi = async(data) =>{
     const response = await axiosInstance.post('/admin/login/',data)
     return response.data
 }
 
-// Get user Details
-export const AdminUserDetailApi = async(page) =>{
-    const response = await axiosInstance.get(`/admin/user/details/?page=${page}`)
+export const AdminUserDetailApi = async(page,status) =>{
+    const response = await axiosInstance.get(`/admin/user/details/`,{
+        params:{page,status}
+    })
     return response.data
 }
 
-// Manage users
 export const ManageUserApi = async(user_id,current_status) => {
     const response = await axiosInstance.patch(`/admin/user/manage/${user_id}/`,
         {'is_blocked':!current_status})
     return response.data
 }
 
-export const AdminPsychologistDetailApi = async(page) =>{
-    const response = await axiosInstance.get(`/admin/psychologist/details/?page=${page}`)
+export const AdminPsychologistDetailApi = async(page,status) =>{
+    const response = await axiosInstance.get(`/admin/psychologist/details/`,{
+        params:{page,status}
+    })
     return response.data
 }
 

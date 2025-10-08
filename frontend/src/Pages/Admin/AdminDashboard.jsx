@@ -186,7 +186,7 @@ const AdminDashboard = () => {
 
                                     <div className='flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-100'>
                                         <div className='flex items-center gap-3'>
-                                            <DollarSign className='h-5 w-5 text-amber-600' />
+                                            <IndianRupee className='h-5 w-5 text-amber-600' />
                                             <span className='font-medium text-gray-700'>Pending Payments</span>
                                         </div>
                                         <span className='text-xl font-bold text-amber-600'>₹{stats.total_pending_payments}</span>

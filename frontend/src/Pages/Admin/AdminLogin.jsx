@@ -40,7 +40,7 @@ const AdminLogin = () => {
             setIsLoading(true)
             const data = await AdminLoginApi(formData)
             toast.success(data.message)
-            navigate('/admin/user/management')
+            navigate('/admin/dashboard')
         }catch(errors){
             ErrorHandler(errors)
         }finally{
@@ -55,7 +55,6 @@ const AdminLogin = () => {
 
   return (
     <div className='flex min-h-screen'>
-      {/* Left-side - Image */}
       <div className='w-1/2 bg-gray-100 flex items-center justify-center'>
         <img src={Login_img} alt="Admin Login" className='rounded-lg shadow-lg h-full'/>
       </div>
@@ -63,7 +62,6 @@ const AdminLogin = () => {
         <h1 className='text-2xl font-semibold mb-4'>Admin Login - EaseMind</h1>
         <p className='text-grey-500 text-center mb-6'>Access the admin panel to manage users and settings.</p>
 
-        {/* Fields */}
         <div className='w-full max-w-md'>
           <div className='mb-4'>
             <input

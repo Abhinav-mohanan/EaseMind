@@ -12,6 +12,7 @@ import Pagination from '../../Components/Layouts/Pagination';
 const ManagePsychologist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [psychologists, setPsychologists] = useState([]);
+  const [status,setStatus] = useState('all')
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalpage] = useState(1);
   const page_size = 6;
@@ -19,7 +20,7 @@ const ManagePsychologist = () => {
   const getPsychologistDetails = async (page) => {
     try {
       setIsLoading(true);
-      const data = await AdminPsychologistDetailApi(page);
+      const data = await AdminPsychologistDetailApi(page,status);
       setPsychologists(data.results);
       setTotalpage(Math.ceil(data.count / page_size));
     } catch (error) {
@@ -31,7 +32,7 @@ const ManagePsychologist = () => {
 
   useEffect(() => {
     getPsychologistDetails(currentPage);
-  }, [currentPage]);
+  }, [currentPage,status]);
 
   const managePsychologist = async (psychologist_id, current_status) => {
     try {
@@ -81,6 +82,8 @@ const ManagePsychologist = () => {
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-gray-400" />
                 <select
+                value={status}
+                onChange={(e)=>setStatus(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 >
                   <option value="all">All Status</option>

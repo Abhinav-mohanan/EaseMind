@@ -11,6 +11,7 @@ import Pagination from '../../Components/Layouts/Pagination'
 const ManageUser = () => {
     const [isLoading,setIsLoading] = useState(false)
     const [users,setUsers] = useState([])
+    const [status,setStatus] = useState('all')
     const [currentPage,setCurrentPage] = useState(1)
     const [totalPages,setTotalpage] = useState(1)
     const page_size = 6
@@ -18,7 +19,7 @@ const ManageUser = () => {
     const getUserDetails = async(page) =>{
         try{
             setIsLoading(true)
-            const data = await AdminUserDetailApi(page)
+            const data = await AdminUserDetailApi(page,status)
             setUsers(data.results)
             setTotalpage(Math.ceil(data.count / page_size))
         }catch(error){
@@ -31,13 +32,13 @@ const ManageUser = () => {
 
     useEffect(()=>{
         getUserDetails(currentPage) 
-    },[currentPage])
+    },[currentPage,status])
 
     const manageUser = async(user_id,current_status) =>{
         try{
             const data = await ManageUserApi(user_id,current_status)
             toast.success(data.message)
-            getUserDetails(currentPage)
+            getUserDetails(currentPage,status)
         }catch(error){
             ErrorHandler(error)
         }
@@ -79,6 +80,8 @@ const ManageUser = () => {
                 <div className='flex items-center gap-2'>
                   <Filter className='h-4 w-4 text-gray-400'/>
                   <select
+                  value={status}
+                  onChange={(e)=>setStatus(e.target.value)}
                   className='px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent'>
                     <option value='all'>All status</option>
                     <option value='active'>Active</option>
@@ -171,6 +174,7 @@ const ManageUser = () => {
                     <AlertCircle className='h-8 w-8 text-teal-600'/>
                   </div>
                   <h3 className='text-lg font-medium text-gray-800 mb-2'>No users can found</h3>
+                  <p className="text-gray-600">No Users match your current search criteria.</p>
                 </div>
                </div> 
               )}
