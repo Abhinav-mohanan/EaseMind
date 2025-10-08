@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from authentication_app.serializer import LoginSerializer,PsychologistProfileSerializer
 from authentication_app.utils import set_token_cookies
+from authentication_app.permissions import IsAdmin
 from authentication_app.models import CustomUser,PsychologistProfile
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken,OutstandingToken
 import logging
@@ -29,20 +30,15 @@ class AdminLoginView(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-class BaseAdminView(APIView):
-
-    def validate(self,user):
-        if user.role != 'admin':
-            return Response({"error":"Access denied"},status=status.HTTP_403_FORBIDDEN)
-        return None
-    
-
-class AdminUserManageView(BaseAdminView):
+class AdminUserManageView(APIView):
+    permission_classes = [IsAdmin]
     def get(self,request):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
+        filter = request.query_params.get('status','all')
         users = CustomUser.objects.filter(role='user').order_by('created_at')
+        if filter == 'active':
+            users = users.filter(is_blocked=False)
+        if filter == 'blocked':
+            users = users.filter(is_blocked=True)
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(users,request)
         user_list = [
@@ -59,9 +55,6 @@ class AdminUserManageView(BaseAdminView):
         return paginator.get_paginated_response(user_list)
     
     def patch(self,request,user_id=None):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
         if not user_id:
             return Response({"error":"User ID is required"},status=status.HTTP_400_BAD_REQUEST)
         
@@ -69,37 +62,40 @@ class AdminUserManageView(BaseAdminView):
             user =CustomUser.objects.get(id=user_id,role='user')
         except CustomUser.DoesNotExist:
             return Response({"error":"User not found"},status=status.HTTP_404_NOT_FOUND)
-        
-        is_blocked = request.data.get('is_blocked')
-        was_blocked = user.is_blocked
+        try:
+            is_blocked = request.data.get('is_blocked')
+            was_blocked = user.is_blocked
+            if is_blocked is not None:
+                user.is_blocked = is_blocked
+            else:
+                user.is_blocked = not user.is_blocked 
+            
+            user.save()
+            if not was_blocked and user.is_blocked:
+                try:
+                    for token in OutstandingToken.objects.filter(user=user):
+                        BlacklistedToken.objects.get_or_create(token=token)
+                except Exception as e:
+                    logger.warning(f'Failed to blacklist token of user : {str(e)}')
+            return Response({"message":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
+                            'is_blocked':user.is_blocked},status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f'Unexpected error in block and unblock {str(e)}')
+            return Response({"error":"Something went wrong while updating user status"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if is_blocked is not None:
-            if isinstance(is_blocked,str):  
-                is_blocked = is_blocked.lower() == 'true'  # if the is_block is str update in to bool
 
-            user.is_blocked = is_blocked
-        else:
-            user.is_blocked = not user.is_blocked # Toggle current status
-        
-        user.save()
-        if not was_blocked and user.is_blocked:
-            try:
-                for token in OutstandingToken.objects.filter(user=user):
-                    BlacklistedToken.objects.get_or_create(token=token)
-            except Exception as e:
-                logger.warning(f'Failed to blacklist token of user : {str(e)}')
-        return Response({"message":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
-                         'is_blocked':user.is_blocked},status=status.HTTP_200_OK)
-
-
-class ManagePsychologistView(BaseAdminView):
+class ManagePsychologistView(APIView):
+    permission_classes = [IsAdmin]
     def get(self,request):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
+        filter = request.query_params.get('status','all')
         psychologists = CustomUser.objects.filter(role ='psychologist').order_by('created_at').select_related(
             'psychologist_profile'
         )
+        if filter == 'active':
+            psychologists = psychologists.filter(is_blocked=False)
+        elif filter == 'blocked':
+            psychologists = psychologists.filter(is_blocked=True)
         psychologists = psychologists.filter(psychologist_profile__is_verified='verified')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(psychologists,request)
@@ -116,9 +112,6 @@ class ManagePsychologistView(BaseAdminView):
         return paginator.get_paginated_response(psychologist_list)
     
     def patch(self,request,psychologist_id=None):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
         if not psychologist_id:
             return Response({"error":"Psychologist ID is required"},status=status.HTTP_400_BAD_REQUEST)
         
@@ -130,8 +123,6 @@ class ManagePsychologistView(BaseAdminView):
         is_blocked = request.data.get('is_blocked')
         was_block = psychologist.is_blocked
         if is_blocked is not None:
-            if isinstance(is_blocked,str):
-                is_blocked = is_blocked.lower() == 'true'
             psychologist.is_blocked = is_blocked
         else:
             psychologist.is_blocked = not psychologist.is_blocked
@@ -146,12 +137,9 @@ class ManagePsychologistView(BaseAdminView):
                          'is_blocked':is_blocked},status=status.HTTP_200_OK)
     
 
-class PsychologistVerificationView(BaseAdminView):
+class PsychologistVerificationView(APIView):
+    permission_classes = [IsAdmin]
     def get(self,request):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
-        
         status_param = request.query_params.get('status','pending').lower()  
         if status_param not in ['pending','rejected']:
             return Response({"error":"Invalid status. Use pending or rejected"},
@@ -165,10 +153,6 @@ class PsychologistVerificationView(BaseAdminView):
         return paginator.get_paginated_response(serializer.data)
     
     def patch(self,request,psychologist_id):
-        authorization_error = self.validate(request.user)
-        if authorization_error:
-            return authorization_error
-        
         action =request.data.get('action')
         rejection_reason = request.data.get('rejection_reason','')
 
