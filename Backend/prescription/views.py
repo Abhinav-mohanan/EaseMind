@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from appointments.views import BaseAppointmentView
 from appointments.models import Appointment
 from appointments.serializer import AppointmentListSerializer
-from authentication_app.permissions import IsPsychologist,IsUser
+from authentication_app.permissions import IsVerifiedAndUnblock,IsUser
 from .models import HealthTracking
 from .serializer import (PrescriptionSerializer,PrescriptionCreateUpdateSerializer,
                          HealthTrackingCreateUpdateSerializer,HealthTrackingSerializer)
@@ -24,7 +24,7 @@ class UserCompletedAppointmentsListView(BaseAppointmentView):
     status_filter = 'completed'
 
 class PsychologistPrescriptionView(APIView):
-    permission_classes = [IsPsychologist]
+    permission_classes = [IsVerifiedAndUnblock]
 
     def get_object(self,appointment_id,user):
         try:
@@ -182,6 +182,7 @@ class UserHealthTrackingDetailView(APIView):
         
 
 class PsychologistHealthTrackingView(APIView):
+    permission_classes = [IsVerifiedAndUnblock]
     def get(self,request,user_id):
         user = request.user
         try:

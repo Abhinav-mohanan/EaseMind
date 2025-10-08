@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from authentication_app.models import CustomUser,PsychologistProfile
+from authentication_app.permissions import IsAdmin
 from appointments.models import Appointment,Payment
 from wallet.models import Wallet
 from django.db.models import Sum,Count,Q
@@ -11,6 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AdminDashboardView(APIView):
+    permission_classes = [IsAdmin]
     def get(self,request):
         try:
             stats = self.get_dashboard_stats()
