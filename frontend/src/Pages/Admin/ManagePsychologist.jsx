@@ -38,7 +38,9 @@ const ManagePsychologist = () => {
     try {
       const data = await ManagePsychologistApi(psychologist_id, current_status);
       toast.success(data.message);
-      getPsychologistDetails(currentPage);
+      setPsychologists((prevPsy)=>
+      prevPsy.map((psy)=>
+      psy.id === psychologist_id ? {...psy,is_blocked:!current_status}:psy))
     } catch (error) {
       ErrorHandler(error);
     }

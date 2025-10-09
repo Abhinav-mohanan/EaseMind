@@ -14,6 +14,8 @@ const PsychologistDetail = () => {
   const [profile, setProfile] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState(null)
+  const [dateFilter,setDateFilter] = useState('all')
+  const [customDate,setCustomDate] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [paymentLoading,setPaymentLoading] = useState(false)
   const itemPerPage = 3
@@ -21,7 +23,10 @@ const PsychologistDetail = () => {
   const FetchPsychologist = async () => {
     try {
       setIsLoading(true)
-      const data = await PsychologistDetailApi(psychologist_id)
+      const params = dateFilter === 'custom' 
+      ? {date_filter:'custom',custom_date:customDate}
+      :{date_filter:dateFilter}
+      const data = await PsychologistDetailApi(psychologist_id,params)
       setProfile(data)
     } catch (error) {
       ErrorHandler(error)
@@ -32,7 +37,7 @@ const PsychologistDetail = () => {
 
   useEffect(() => {
     FetchPsychologist();
-  }, [psychologist_id]);
+  }, [psychologist_id,dateFilter,customDate]);
 
   // Group slots by date
   const groupedSlots = profile?.slots?.reduce((acc, slot) => {
@@ -137,7 +142,7 @@ const PsychologistDetail = () => {
 
   return (
     <Loading isLoading={isLoading}>
-      <div className="min-h-screen bg-gray-50 to-blue-50">
+      <div className="min-h-screen bg-gray-50 to-blue-50 pt-16">
         <Navbar />
         <main className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -225,6 +230,36 @@ const PsychologistDetail = () => {
                     Book an Appointment
                   </h2>
 
+                    <div className='flex gap-3 mb-6'>
+                      <button onClick={()=>setDateFilter('today')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium ${
+                          dateFilter === 'today' ? 'bg-teal-600 text-white':'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        }`}>
+                        Today
+                      </button>
+                      <button onClick={()=>setDateFilter('tomorrow')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium ${
+                          dateFilter === 'tomorrow' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        }`}>
+                        Tomorrow
+                      </button>
+                      <button onClick={()=>setDateFilter('all')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium ${
+                          dateFilter === 'all' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        }`}>
+                        All
+                      </button>
+                      <input
+                      type='date'
+                      value={customDate}
+                      onChange={(e)=>{
+                        setCustomDate(e.target.value)
+                        setDateFilter('custom')
+                      }}
+                      className={`px-3 py-2 border  rounded-md text-sm focus:ring-2 focus:ring-teal-500 
+                      ${dateFilter == 'custom' ? 'border-teal-500':'border-gray-300'}`}/>
+                    </div>
+                    
                   {Object.keys(groupedSlots).length > 0 ? (
                     <div className="space-y-6">
                       {Object.entries(groupedSlots)

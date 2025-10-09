@@ -38,7 +38,9 @@ const ManageUser = () => {
         try{
             const data = await ManageUserApi(user_id,current_status)
             toast.success(data.message)
-            getUserDetails(currentPage,status)
+            setUsers((prevUsers)=>
+            prevUsers.map((user)=>
+            user.id === user_id ? {...user,is_blocked:!current_status}:user))
         }catch(error){
             ErrorHandler(error)
         }
