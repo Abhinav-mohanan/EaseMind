@@ -103,11 +103,20 @@ class LockSlotView(APIView):
 class PsychologistDetailsView(APIView):
     permission_classes = [IsUser]
     def get(self,request,psychologist_id):
+        date_filter = request.query_params.get('date_filter')
+        custom_date = request.query_params.get('custom_date')
         today = datetime.today().date()
+        tomorrow = today + timedelta(days=1)
         try:
             psychologist = PsychologistProfile.objects.get(id=psychologist_id,user__role='psychologist')
-            slots = PsychologistAvailability.objects.filter(psychologist=psychologist,is_booked=False,
-                                                            date__gte=today).order_by('date','start_time')
+            slots_qs = PsychologistAvailability.objects.filter(psychologist=psychologist,is_booked=False)
+            date_filters = {
+                'today':{'date':today},
+                'tomorrow':{'date':tomorrow},
+                'all':{'date__gte':today},
+                'custom':{'date':custom_date if custom_date else {'date__gte':today}}
+            }
+            slots = slots_qs.filter(**date_filters.get(date_filter,{'date__gte':today}))
             serializer = PsychologistDetailSerializer({'psychologist':psychologist,'slots':slots})
             return Response(serializer.data)
         except PsychologistProfile.DoesNotExist:

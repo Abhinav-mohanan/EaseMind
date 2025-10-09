@@ -17,6 +17,7 @@ class PsychologistAvailability(models.Model):
 
     class Meta:
         unique_together = ('psychologist','date','start_time')
+        ordering = ['date','start_time']
     
     def save(self,*args,**kwargs):
         if self.start_time and self.date:
