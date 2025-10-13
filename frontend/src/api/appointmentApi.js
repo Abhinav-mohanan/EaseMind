@@ -3,9 +3,10 @@ import { data } from "react-router-dom"
 import axiosInstance from "./axiosInstance"
 
 
-export const FetchSlotsApi = async(page) =>{
+export const FetchSlotsApi = async(page,filter) =>{
+    console.log(page,filter)
     const response = await axiosInstance.get('/psychologist/availability/',{
-        params:{page:page}
+        params:{page:page,...filter}
     })
     return response.data
 }
