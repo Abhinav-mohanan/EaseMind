@@ -43,7 +43,7 @@ class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
             overlapping_slots = overlapping_slots.exclude(id=instance.id)
 
         if overlapping_slots.exists():
-            raise serializers.ValidationError("This time slot overlaps with an existing slot")
+            raise serializers.ValidationError(f"This time slot overlaps with an existing slot on {date}")
 
         return data
     

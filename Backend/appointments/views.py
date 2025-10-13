@@ -28,13 +28,18 @@ class PsychologistAvailabilityView(APIView):
 
     def get(self,request):
         date = request.query_params.get('date')
-        is_booked = request.query_params.get('is_booked')
+        status_param = request.query_params.get('status')
         psychologist = request.user.psychologist_profile
-        slots = PsychologistAvailability.objects.filter(psychologist=psychologist).order_by('date')
+        slots = PsychologistAvailability.objects.filter(psychologist=psychologist)
+        status_filters = {
+            'booked':{'is_booked':True},
+            'available':{'is_booked':False},
+        }
+
+        if status_param in status_filters:
+            slots = slots.filter(**status_filters[status_param])
         if date:
             slots = slots.filter(date=date)
-        if is_booked is not None:
-            slots = slots.filter(is_booked=is_booked.lower() == 'true')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(slots,request)
         serializer = PsychologistAvailabilitySerializer(page,many=True,context={'request':request})
