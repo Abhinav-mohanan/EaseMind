@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from authentication_app.permissions import IsVerifiedAndUnblock
 from authentication_app.permissions import IsAdmin
 from .serializer import ArticleListSerializer,ArticleCreateSerializer
@@ -59,7 +60,8 @@ class CreateArticleView(APIView):
             return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
 
 
-class ArticleListView(APIView):    
+class ArticleListView(APIView):
+    permission_classes = [AllowAny]    
     def get(self,request):
         search_query = request.query_params.get('search')
         articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads'))
@@ -72,7 +74,16 @@ class ArticleListView(APIView):
         serializer = ArticleListSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
 
+class TopArticlesView(APIView):
+    permission_classes = [AllowAny]
+    def get(self,request):
+        articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads')
+                                                                       ).order_by('-total_readers').distinct()[:3]
+        serializer = ArticleListSerializer(articles,many=True)
+        return Response(serializer.data)
+
 class ArticleDetailView(APIView):
+    permission_classes = [AllowAny]
     def get(self,request,article_id):
         user = request.user
         try:

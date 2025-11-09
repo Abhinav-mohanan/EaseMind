@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from authentication_app.permissions import IsVerifiedAndUnblock,IsUser,IsAdmin
 from authentication_app.models import PsychologistProfile
 from wallet.models import Wallet
@@ -85,6 +86,14 @@ class PsychologitListView(APIView):
         page = paginator.paginate_queryset(psychologit,request)
         serializer = PsychologistListSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
+
+class TopPsychologistsView(APIView):
+    permission_classes  = [AllowAny]
+    def get(self,request):
+        psychologist = PsychologistProfile.objects.filter(user__role='psychologist',is_verified='verified'
+                                                          ).order_by('-experience_years').distinct()[:4]
+        serializers = PsychologistListSerializer(psychologist,many=True)
+        return Response(serializers.data)
     
 
 class LockSlotView(APIView):
