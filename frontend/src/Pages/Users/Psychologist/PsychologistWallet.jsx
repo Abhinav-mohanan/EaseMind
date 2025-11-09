@@ -1,5 +1,5 @@
 import React from 'react';
-import WalletTransactionList from '../../../Components/Users/WalletTransactions';
+import WalletTransactionList from '../../../Components/Users/Common/WalletTransactions'
 import { WalletBalanceApi, WalletTransactionListApi } from '../../../api/walletApi';
 
 const PsychologistWallet = () => {

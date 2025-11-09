@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import { PenSquare, Trash2, BookOpen, Eye, Save, X, Plus, Calendar, User, Image, Search, Filter, XCircle } from 'lucide-react';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import Pagination from '../../../Components/Layouts/Pagination';
 import ConfirmationModal from '../../../Components/Layouts/Confirmationmodal';
 
@@ -157,7 +157,6 @@ const CreateArticle = () => {
                     <div className="ml-0 lg:ml-64 transition-all duration-300">
                         <Navbar />
                         <div className="flex-1">
-                            {/* Header */}
                             <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
@@ -313,7 +312,6 @@ const CreateArticle = () => {
                 <div className="ml-0 lg:ml-64 transition-all duration-300">
                     <Navbar />
                     <div className="flex-1">
-                        {/* Header */}
                         <div className="bg-gray-50 border-b border-gray-100 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">

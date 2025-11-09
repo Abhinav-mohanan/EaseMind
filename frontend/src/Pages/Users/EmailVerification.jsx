@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import VerifyOTP from '../../Components/Users/VerifyOTP';
+import VerifyOTP from '../../Components/Users/Common/VerifyOTP';
 import { useLocation } from 'react-router-dom';
 
 // validate email after signup

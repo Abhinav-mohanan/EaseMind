@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArticleDetailsApi } from '../../api/articlesApi'
 import ErrorHandler from '../../Components/Layouts/ErrorHandler'
 import Loading from '../../Components/Layouts/Loading';
-import Navbar from '../../Components/Users/Navbar';
+import Navbar from '../../Components/Users/Common/Navbar';
 import { BookOpen, Calendar, ImageIcon, User } from 'lucide-react';
-import Footer from '../../Components/Users/Footer';
+import Footer from '../../Components/Users/Common/Footer';
 
 const ArticleDetails = () => {
     const {article_id} = useParams() 
@@ -50,7 +50,6 @@ const ArticleDetails = () => {
 
                         {article ? (
                             <>
-                                {/* Header */}
                                 <h1 className="text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
                                     {article.title}
                                 </h1>

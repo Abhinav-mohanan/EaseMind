@@ -97,3 +97,21 @@ class WalletTransaction(models.Model):
     description = models.CharField(max_length=255,blank=True,null=True)
     initiated_by = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True,blank=True,related_name='initiated_transactions')
     appointment = models.ForeignKey(Appointment,on_delete=models.SET_NULL,null=True,blank=True,related_name='wallet_transactions')
+
+
+class Payout(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    psychologist = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='payout_requests')
+    amount = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
+    status = models.CharField(max_length=50,choices=STATUS_CHOICES,default='pending')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True,blank=True)
+    remarks = models.TextField(blank=True,null=True)
+    bank_account_no = models.CharField(max_length=20,null=True,blank=True)
+    ifsc_code = models.CharField(max_length=20,null=True,blank=True)
+    class Meta:
+        ordering = ['-requested_at']

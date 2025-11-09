@@ -6,7 +6,7 @@ import { AlertTriangle, Calendar, CheckCircle, Clock, Heart, IndianRupee, Mail, 
     MessageCircle, Phone,Video, XCircle } from 'lucide-react';
 import Loading from '../../../Components/Layouts/Loading';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';

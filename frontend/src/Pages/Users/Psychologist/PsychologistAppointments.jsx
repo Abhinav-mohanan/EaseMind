@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { PsychologistAppointmentApi } from '../../../api/appointmentApi'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import { Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';

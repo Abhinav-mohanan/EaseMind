@@ -4,7 +4,7 @@ import { CancelPsychologistAppointmentApi, CompleteAppointmentApi, PsychologistA
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import { AlertTriangle, Calendar, CarTaxiFront, Check, CheckCircle, Clock, Heart, IndianRupee, Mail, MapPin, 
   MessageCircle, Phone, Pill, Video, XCircle } from 'lucide-react';
 import default_img from '../../../assets/default_image.png'

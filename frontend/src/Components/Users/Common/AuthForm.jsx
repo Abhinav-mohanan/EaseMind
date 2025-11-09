@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import login_img from '../../assets/Login_img.jpg';
+import login_img from '../../../assets/Login_img.jpg';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { SignupApi } from '../../api/authApi';
-import ErrorHandler from '../Layouts/ErrorHandler';
-import Loading from '../Layouts/Loading';
+import { SignupApi } from '../../../api/authApi';
+import ErrorHandler from '../../Layouts/ErrorHandler';
+import Loading from '../../Layouts/Loading';
 
 const AuthForm = ({ type, fields }) => {
   const navigate = useNavigate();
@@ -127,7 +127,6 @@ const AuthForm = ({ type, fields }) => {
         <div className="w-full lg:w-1/2 flex flex-col">
           <div className="flex-1 flex flex-col justify-center px-6 sm:px-8 lg:px-12 py-6">
             <div className="w-full max-w-sm mx-auto">
-              {/* Header */}
               <div className="text-center mb-6">
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2">
                   Welcome to <span className="text-teal-500">EaseMind</span>

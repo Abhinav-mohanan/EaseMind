@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, LogOut, User } from 'lucide-react';
-import { useOnClickOutside } from '../../Hooks/useOnClickOutside '
+import { useOnClickOutside } from '../../../Hooks/useOnClickOutside ';
 
 const ProfileDropdown = ({ isAuthenticated, role, onLogout }) => {
   const navigate = useNavigate();

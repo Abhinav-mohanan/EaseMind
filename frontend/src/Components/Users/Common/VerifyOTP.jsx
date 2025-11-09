@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { resendOTPApi, verifyOTPApi } from '../../api/authApi';
+import { resendOTPApi, verifyOTPApi } from '../../../api/authApi';
 import { toast } from 'react-toastify';
-import ErrorHandler from '../Layouts/ErrorHandler';
-import imageSrc from '../../assets/image_src.jpeg';
-import Loading from '../Layouts/Loading';
+import ErrorHandler from '../../Layouts/ErrorHandler';
+import imageSrc from '../../../assets/image_src.jpeg';
+import Loading from '../../Layouts/Loading';
 
 const VerifyOTP = ({ initialEmail, purpose, description }) => {
   const navigate = useNavigate();

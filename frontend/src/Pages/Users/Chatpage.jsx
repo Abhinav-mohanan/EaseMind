@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import UserSidebar from '../../Components/Users/User/UserSidebar';
-import Navbar from '../../Components/Users/Navbar';
-import ConversationList from '../../Components/Users/Conversations';
-import ChatBox from '../../Components/Users/Chatbox';
+import Navbar from '../../Components/Users/Common/Navbar';
+import ConversationList from '../../Components/Users/Common/Conversations';
+import ChatBox from '../../Components/Users/Common/Chatbox';
 import PsychologistSidebar from '../../Components/Users/Psychologist/PsychologistSidebar';
 import { useLocation } from 'react-router-dom';
 

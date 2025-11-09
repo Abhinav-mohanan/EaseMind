@@ -4,7 +4,7 @@ import { CreatePsychologistPrescriptionApi, GetPsychologistPrescriptionApi, Upda
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import { ArrowLeft, Edit, FileText, Save, User, Calendar, Clock, Plus, Eye } from 'lucide-react';
 
 const PsychologistPrescription = () => {

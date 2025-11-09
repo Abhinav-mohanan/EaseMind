@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
+from channels.exceptions import DenyConnection
 
 User = get_user_model()
 
@@ -22,11 +23,13 @@ class JWTAuthMiddleware(BaseMiddleware):
             token =query_stirng.get('token',[None])[0]
 
             if token is None:
-                scope['user'] = AnonymousUser()
-                return await super().__call__(scope,receive,send)
+                raise DenyConnection("missing token")
             
             validated_token = AccessToken(token)
-            scope['user'] = await get_user(validated_token)
-        except Exception:
-            scope['user'] = AnonymousUser()
+            user = await get_user(validated_token)
+            if not user:
+                raise DenyConnection("Invalid token")
+            scope['user'] = user
+        except Exception as e:
+            raise DenyConnection(str(e))
         return await super().__call__(scope,receive,send)

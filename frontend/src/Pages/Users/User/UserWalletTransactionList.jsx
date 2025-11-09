@@ -1,5 +1,5 @@
 import React from 'react';
-import WalletTransactionList from '../../../Components/Users/WalletTransactions';
+import WalletTransactionList from '../../../Components/Users/Common/WalletTransactions'
 import { WalletTransactionListApi } from '../../../api/walletApi';
 import { WalletBalanceApi } from '../../../api/walletApi';
 

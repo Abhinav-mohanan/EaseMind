@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { FetchPsychologistApi } from '../../api/appointmentApi'
 import ErrorHandler from '../../Components/Layouts/ErrorHandler'
-import Navbar from '../../Components/Users/Navbar';
+import Navbar from '../../Components/Users/Common/Navbar';
 import Pagination from '../../Components/Layouts/Pagination';
-import Footer from '../../Components/Users/Footer';
+import Footer from '../../Components/Users/Common/Footer';
 import { Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import default_img from '../../assets/default_image.png'

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import AuthForm from '../../Components/Users/AuthForm';
+import AuthForm from '../../Components/Users/Common/AuthForm';
 
 // login
 const Login = () => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FetchMessagesApi, GetWebsocketTokenApi } from "../../api/chatApi";
-import ErrorHandler from "../Layouts/ErrorHandler";
+import { FetchMessagesApi, GetWebsocketTokenApi } from "../../../api/chatApi";
+import ErrorHandler from "../../Layouts/ErrorHandler";
 import { MessageCircle, Send } from "lucide-react";
-import CONFIG from "../../api/config";
+import CONFIG from "../../../api/config";
 
 const ChatBox = ({conversationId}) => {
   const [messages, setMessages] = useState([]);

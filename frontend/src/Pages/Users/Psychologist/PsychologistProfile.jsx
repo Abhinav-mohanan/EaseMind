@@ -8,9 +8,10 @@ import {
 } from '../../../api/authApi';
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler';
 import { toast } from 'react-toastify';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
-import { CheckCircle } from 'lucide-react';
+import { AlertCircle, Briefcase, Camera, CheckCircle, Clock, Eye, FilePenLine, Mail,
+   User, XCircle } from 'lucide-react';
 
 const PsychologistProfile = () => {
   const navigate = useNavigate();
@@ -58,6 +59,8 @@ const PsychologistProfile = () => {
       'education_certificate',
       'education',
       'bio',
+      'bank_account_no',
+      'ifsc_code'
     ];
     const filledPersonal = personalFields.filter((field) => personal[field]).length;
     const filledProfessional = professionalFields.filter((field) => professional[field]).length;
@@ -92,7 +95,9 @@ const PsychologistProfile = () => {
         license_certificate: psychData.license_certificate || null,
         experience_certificate: psychData.experience_certificate || null,
         education_certificate: psychData.education_certificate || null,
-        rejection_reason:psychData.rejection_reason || null
+        rejection_reason:psychData.rejection_reason || null,
+        bank_account_no:psychData.bank_account_no || null,
+        ifsc_code:psychData.ifsc_code || null,
       };
       setPersonalData(personal);
       setProfessionalData(professional);
@@ -244,7 +249,6 @@ const PsychologistProfile = () => {
         <Navbar />
         <div className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto space-y-6">
-            {/* Profile Header */}
             <div className="bg-white shadow-lg rounded-xl overflow-hidden mb-6">
               <div className="bg-gradient-to-r from-teal-600 to-teal-700 h-32 relative">
                 <div className="absolute -bottom-16 left-8">
@@ -262,25 +266,7 @@ const PsychologistProfile = () => {
                     )}
                     {isEditing && currentStep === 1 && (
                       <label className="absolute bottom-0 right-0 bg-teal-600 text-white rounded-full p-2 cursor-pointer hover:bg-teal-700 transition-colors">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
+                        <Camera className='w-4 h-4'/>
                         <input
                           type="file"
                           accept="image/*"
@@ -297,72 +283,24 @@ const PsychologistProfile = () => {
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">{getFullName()}</h1>
                     <p className="text-gray-600 flex items-center mb-2">
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                        />
-                      </svg>
+                      <Mail className='w-4 h-4 text-teal-500 mr-2'/>
                       {personalData.email}
                     </p>
                     {isVerified === 'pending' && (
                       <div className="flex items-center text-yellow-600">
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
+                        <Clock className='w-4 h-4 text-amber-500 mr-2'/>
                         Profile pending verification
                       </div>
                     )}
                     {isVerified === 'rejected' && (
                       <div className="space-y-2">
                         <div className="flex items-center text-red-600">
-                          <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          >
-                          <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
-                          />
-                          </svg>
+                          <XCircle className='w-4 h-4 mr-2'/>
                           Profile was rejected
                           </div>
                           {professionalData.rejection_reason && (
                           <div className="flex items-start space-x-2 text-red-600">
-                          <svg
-                          className="w-4 h-4 mt-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          >
-                          <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z"
-                          />
-                          </svg>
+                         <AlertCircle className='w-4 h-4 mr-2'/>
                             <span>
                             <strong>Rejection Reason:</strong> {professionalData.rejection_reason}
                             </span>
@@ -372,19 +310,7 @@ const PsychologistProfile = () => {
                     )}
                     {isVerified === 'verified' && (
                       <div className="flex items-center text-green-600">
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
+                        < CheckCircle className='w-4 h-4 mr-2'/>
                         Profile verified
                       </div>
                     )}
@@ -394,19 +320,7 @@ const PsychologistProfile = () => {
                       onClick={() => setIsEditing(true)}
                       className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center space-x-2"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
+                     <FilePenLine className='w-4 h-4'/>
                       <span>Edit Profile</span>
                     </button>
                   )}
@@ -469,19 +383,7 @@ const PsychologistProfile = () => {
                   {/* Personal Details Display */}
                   <div>
                     <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                      <svg
-                        className="w-6 h-6 mr-3 text-teal-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
+                      <User className='text-teal-500 mr-2'/>
                       Personal Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -541,19 +443,7 @@ const PsychologistProfile = () => {
                   {/* Professional Details Display */}
                   <div className="border-t pt-8">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                      <svg
-                        className="w-6 h-6 mr-3 text-teal-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        />
-                      </svg>
+                     <Briefcase className='text-teal-500 mr-2'/>
                       Professional Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -590,14 +480,30 @@ const PsychologistProfile = () => {
                             {professionalData.experience_years || 'Not provided'}
                           </p>
                         </div>
-                      </div>
-                      <div className="space-y-6">
                         <div className="border-l-4 border-teal-500 pl-4">
                           <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                             License Number
                           </label>
                           <p className="text-lg text-gray-900 mt-1">
                             {professionalData.license_no || 'Not provided'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-teal-500 pl-4">
+                          <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                            Bank Account No
+                          </label>
+                          <p className="text-lg text-gray-900 mt-1">
+                            {professionalData.bank_account_no || 'Not provided'}
+                          </p>
+                        </div>
+                        <div className="border-l-4 border-teal-500 pl-4">
+                          <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                            IFSC Code
+                          </label>
+                          <p className="text-lg text-gray-900 mt-1">
+                            {professionalData.ifsc_code || 'Not provided'}
                           </p>
                         </div>
                         <div className="border-l-4 border-teal-500 pl-4">
@@ -611,25 +517,8 @@ const PsychologistProfile = () => {
                               rel="noopener noreferrer"
                               className="text-teal-600 hover:text-teal-700 flex items-center mt-1"
                             >
-                              <svg
-                                className="w-4 h-4 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 12a3 3 0 11-6 0 3 3 0 0116 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
+                              
+                             <Eye className='w-4 h-4 mr-2'/>
                               View Certificate
                             </a>
                           ) : (
@@ -647,25 +536,7 @@ const PsychologistProfile = () => {
                               rel="noopener noreferrer"
                               className="text-teal-600 hover:text-teal-700 flex items-center mt-1"
                             >
-                              <svg
-                                className="w-4 h-4 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
+                              <Eye className='w-4 h-4 mr-2'/>
                               View Certificate
                             </a>
                           ) : (
@@ -683,25 +554,7 @@ const PsychologistProfile = () => {
                               rel="noopener noreferrer"
                               className="text-teal-600 hover:text-teal-700 flex items-center mt-1"
                             >
-                              <svg
-                                className="w-4 h-4 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
+                            <Eye className='w-4 h-4 mr-2'/>
                               View Certificate
                             </a>
                           ) : (
@@ -718,19 +571,7 @@ const PsychologistProfile = () => {
                   {currentStep === 1 && (
                     <div className="space-y-6">
                       <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                        <svg
-                          className="w-6 h-6 mr-3 text-teal-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
+                        <User className='text-teal-500 mr-2'/>
                         Personal Details
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -851,19 +692,7 @@ const PsychologistProfile = () => {
                   {currentStep === 2 && (
                     <div className="space-y-6">
                       <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                        <svg
-                          className="w-6 h-6 mr-3 text-teal-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                          />
-                        </svg>
+                        <Briefcase className='text-teal-500 mr-2'/>
                         Professional Details
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -936,6 +765,34 @@ const PsychologistProfile = () => {
                             className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200"
                             placeholder="Enter years of experience"
                             min="0"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Bank Account No
+                          </label>
+                          <input
+                            type="text"
+                            name="bank_account_no"
+                            value={professionalData.bank_account_no}
+                            onChange={handleProfessionalChange}
+                            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200"
+                            placeholder="Enter your bank account no"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            IFSC Code
+                          </label>
+                          <input
+                            type="text"
+                            name="ifsc_code"
+                            value={professionalData.ifsc_code}
+                            onChange={handleProfessionalChange}
+                            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200"
+                            placeholder="Enter ifsc code"
                             required
                           />
                         </div>

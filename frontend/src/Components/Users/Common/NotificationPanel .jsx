@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Bell, Info, AlertTriangle, XCircle, CheckCircle } from 'lucide-react';
-import { useOnClickOutside } from '../../Hooks/useOnClickOutside '
-import { ClearAllNotificationsApi, MarkAllAsReadApi } from '../../api/notificationApi';
+import { useOnClickOutside } from '../../../Hooks/useOnClickOutside ';
+import { ClearAllNotificationsApi, MarkAllAsReadApi } from '../../../api/notificationApi'
 import { toast } from 'react-toastify';
-import ErrorHandler from '../Layouts/ErrorHandler';
-import ConfirmationModal from '../Layouts/Confirmationmodal';
+import ErrorHandler from '../../Layouts/ErrorHandler';
+import ConfirmationModal from '../../Layouts/Confirmationmodal';
 
 const formatDate = (dateString) => {
   if (!dateString) return "Just now";
@@ -46,6 +46,7 @@ const notificationStyles = {
     hoverBg: 'hover:bg-green-50'
   }
 };
+
 
 const NotificationPanel = ({ notifications, isOpen, setIsOpen, fetchNotifications }) => {
   const panelRef = useRef(null);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { User,Clock } from "lucide-react";
-import { ConversationsApi} from '../../api/chatApi'
-import ErrorHandler from "../Layouts/ErrorHandler";
+import { ConversationsApi} from '../../../api/chatApi'
+import ErrorHandler from "../../Layouts/ErrorHandler";
 
 const ConversationList = ({onSelect,selectedId}) => {
   const [conversation, setConversation] = useState([]);

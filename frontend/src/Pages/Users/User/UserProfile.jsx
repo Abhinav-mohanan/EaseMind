@@ -16,7 +16,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -221,7 +221,6 @@ const UserProfile = () => {
       <UserSidebar />
         <div className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto space-y-6">
-            {/* Header Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-r from-teal-500 to-cyan-600 h-32 lg:h-40"></div>
               <div className="relative px-6 lg:px-8 pb-6">

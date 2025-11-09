@@ -3,8 +3,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .models import WalletTransaction,Wallet
-from .serializer import WalletTransactionSerializer,WalletBalanceSerializer
+from .models import WalletTransaction,Wallet,Payout
+from .serializer import WalletTransactionSerializer,WalletBalanceSerializer,PayoutSerializer
+from authentication_app.permissions import IsVerifiedAndUnblock,IsAdmin
 # Create your views here.
 
 
@@ -30,3 +31,19 @@ class WalletTransactionView(APIView):
         serializer = WalletTransactionSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
 
+
+class PayoutView(APIView):
+    permission_classes = [IsVerifiedAndUnblock]
+    def post(self,request):
+        print(f'{request.data=}')        
+        serializer = PayoutSerializer(data=request.data,context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class PendingPayoutView(APIView):
+    def get(self,request):
+        user = request.user
+        pending = Payout.objects.filter(psychologist=user,status='pending').exists()
+        return Response({'has_pending':pending},status=status.HTTP_200_OK)

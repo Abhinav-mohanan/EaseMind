@@ -280,8 +280,8 @@ class AppointmentCompleteSerializer(serializers.Serializer):
             appointment_datetime = timezone.make_aware(
                 datetime.combine(self.appointment.availability.date,self.appointment.availability.end_time)
             )
-            if now < appointment_datetime:
-                raise serializers.ValidationError("Only mark complete after the end time")
+            # if now < appointment_datetime:
+            #     raise serializers.ValidationError("Only mark complete after the end time")
         except Appointment.DoesNotExist:
             raise serializers.ValidationError("Appointment does not exist")
         return data

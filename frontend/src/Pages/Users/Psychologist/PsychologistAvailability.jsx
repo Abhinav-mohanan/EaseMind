@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar';
 import Loading from '../../../Components/Layouts/Loading';
 import Pagination from '../../../Components/Layouts/Pagination';

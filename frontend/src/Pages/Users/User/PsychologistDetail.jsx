@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
-import Navbar from '../../../Components/Users/Navbar'
+import Navbar from '../../../Components/Users/Common/Navbar'
 import { Award, BookOpen, Calendar, Clock, Mail, Phone, User } from 'lucide-react'
 import default_img from '../../../assets/default_image.png'
 import { BookSlotApi, CreateRazorpayOrderApi, LockSlotApi, PsychologistDetailApi } from '../../../api/appointmentApi'

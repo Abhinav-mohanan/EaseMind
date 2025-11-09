@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import AuthForm from '../../Components/Users/AuthForm';
+import AuthForm from '../../Components/Users/Common/AuthForm';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 

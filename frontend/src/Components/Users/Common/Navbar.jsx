@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Menu, X } from 'lucide-react';
-import { LogoutApi } from '../../api/authApi';
-import ErrorHandler from '../Layouts/ErrorHandler';
-import { useAuth } from '../../Hooks/useAuth'
-import { useNotifications } from '../../Hooks/UseNotifications'
+import { LogoutApi } from '../../../api/authApi';
+import ErrorHandler from '../../Layouts/ErrorHandler';
+import { useAuth } from '../../../Hooks/useAuth'
+import { useNotifications } from '../../../Hooks/UseNotifications'
 import NavLinks from './NavLinks';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationPanel from './NotificationPanel ';
-import ConfirmationModal from '../Layouts/Confirmationmodal';
+import ConfirmationModal from '../../Layouts/Confirmationmodal';
 
 const Navbar = () => {
   const navigate = useNavigate()

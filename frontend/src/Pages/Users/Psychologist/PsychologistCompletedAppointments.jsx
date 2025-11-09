@@ -1,7 +1,7 @@
 import React from 'react'
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar'
-import Navbar from '../../../Components/Users/Navbar'
-import CompletedAppointmentList from '../../../Components/Users/CompletedAppointment'
+import Navbar from '../../../Components/Users/Common/Navbar'
+import CompletedAppointmentList from '../../../Components/Users/Common/CompletedAppointment'
 import { PsychologistCompletedAppointmentsListApi } from '../../../api/prescriptionApi'
 
 const PsychologistCompletedAppointments = () => {

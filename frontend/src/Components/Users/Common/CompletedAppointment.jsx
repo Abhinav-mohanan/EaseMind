@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ErrorHandler from '../Layouts/ErrorHandler'
-import Loading from '../Layouts/Loading';
+import ErrorHandler from '../../Layouts/ErrorHandler'
+import Loading from '../../Layouts/Loading';
 import { Calendar, Clock, User, FileText, ArrowRight, CheckCircle } from 'lucide-react';
-import Pagination from '../Layouts/Pagination';
+import Pagination from '../../Layouts/Pagination';
 
 const CompletedAppointmentList = ({role, fetchApi}) => {
     const navigate = useNavigate()
@@ -76,7 +76,6 @@ const CompletedAppointmentList = ({role, fetchApi}) => {
         <Loading isLoading={isLoading}>
             <div className="flex-1 p-6">
                 <div className="max-w-6xl mx-auto">
-                    {/* Header Section */}
                     <div className="mb-8">
                         <div className="flex items-center mb-4">
                             <div className="bg-green-100 p-2 rounded-lg mr-3">

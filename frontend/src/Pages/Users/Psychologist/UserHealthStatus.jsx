@@ -7,7 +7,7 @@ import Loading from '../../../Components/Layouts/Loading'
 import Pagination from '../../../Components/Layouts/Pagination'
 import { toast } from 'react-toastify'
 import PsychologistSidebar from '../../../Components/Users/Psychologist/PsychologistSidebar'
-import Navbar from '../../../Components/Users/Navbar'
+import Navbar from '../../../Components/Users/Common/Navbar'
 
 const UserHealthStatus = () => {
   const location = useLocation()

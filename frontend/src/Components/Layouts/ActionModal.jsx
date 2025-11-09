@@ -45,7 +45,6 @@ const ActionModal = ({
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-black/70 to-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 scale-100">
-        {/* Header */}
         <div className="relative bg-gradient-to-r from-red-50 to-orange-50 rounded-t-3xl px-8 py-6 border-b border-red-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">

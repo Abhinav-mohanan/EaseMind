@@ -37,7 +37,6 @@ const RoleSelection = () => {
       {/* Right Side - Role Selection */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md space-y-8">
-          {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl lg:text-4xl font-bold">
               Welcome to <span className="text-teal-500">EaseMind</span>

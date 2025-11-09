@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GetUserPrescriptionApi } from "../../../api/prescriptionApi";
 import ErrorHandler from "../../../Components/Layouts/ErrorHandler";
 import Loading from "../../../Components/Layouts/Loading";
-import Navbar from "../../../Components/Users/Navbar";
+import Navbar from "../../../Components/Users/Common/Navbar";
 import { ArrowLeft, FileText, User, Calendar, Clock } from "lucide-react";
 import UserSidebar from "../../../Components/Users/User/UserSidebar";
 
@@ -60,7 +60,6 @@ const UserPrescription = () => {
         <div className="flex-1 lg:ml-64">
         <UserSidebar />
           <div className="p-6 max-w-5xl mx-auto">
-            {/* Header */}
             <div className="flex items-center mb-8">
               <button
                 onClick={() => navigate("/user/consultations")}

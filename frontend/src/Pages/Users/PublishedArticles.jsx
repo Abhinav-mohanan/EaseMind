@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { ArticlesListApi } from '../../api/articlesApi';
 import ErrorHandler from '../../Components/Layouts/ErrorHandler';
 import Loading from '../../Components/Layouts/Loading';
-import Navbar from '../../Components/Users/Navbar';
+import Navbar from '../../Components/Users/Common/Navbar';
 import { BookOpen, Calendar, User, Search, XCircle } from 'lucide-react';
 import Pagination from '../../Components/Layouts/Pagination';
-import Footer from '../../Components/Users/Footer';
+import Footer from '../../Components/Users/Common/Footer';
 
 const PublishedArticles = () => {
     const [isLoading, setIsLoading] = useState(false);

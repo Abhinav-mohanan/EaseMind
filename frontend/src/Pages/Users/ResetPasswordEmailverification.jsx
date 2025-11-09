@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import VerifyOTP from '../../Components/Users/VerifyOTP';
+import VerifyOTP from '../../Components/Users/Common/VerifyOTP';
 
 const ResetPasswordEmailverification = () => {
   const location = useLocation();

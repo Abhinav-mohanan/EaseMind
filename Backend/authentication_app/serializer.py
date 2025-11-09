@@ -207,12 +207,10 @@ class UserProfileWriterSerializer(serializers.ModelSerializer):
         phone_number = data.get('phone_number')
         date_of_birth = data.get('date_of_birth')
         
-        # Phone number: must be 10 digits
         if phone_number:
             if not phone_number.isdigit() or len(phone_number) != 10:
                 raise serializers.ValidationError('Enter a valid 10-digit phone number')
         
-        # DOB must be in the past and user must be at least 10 years old
         if date_of_birth:
             today = date.today()
             if date_of_birth > today:
@@ -271,7 +269,18 @@ class PsychologistProfileWriterSerializer(serializers.ModelSerializer):
             'license_certificate',
             'education_certificate',
             'experience_certificate',
+            'bank_account_no',
+            'ifsc_code',
         ]
+    def validate(self, data):
+        bank_account_no = data.get('bank_account_no')
+        if bank_account_no:
+            account = bank_account_no.strip()
+            if not account.isdigit():
+                raise serializers.ValidationError("Bank account number must contain only digits")
+            if not (9 <= len(account) <= 18):
+                raise serializers.ValidationError("Please enter a valid account number")
+        return data
     
     def update(self, instance, validated_data):
         for attr,value in validated_data.items():

@@ -4,7 +4,7 @@ import { CreateUserHealthTrackerApi, GetUserHealthTrackerApi } from '../../../ap
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Loading from '../../../Components/Layouts/Loading';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
-import Navbar from '../../../Components/Users/Navbar';
+import Navbar from '../../../Components/Users/Common/Navbar';
 import { Calendar, Heart, Activity, Brain, BookOpen, Moon, Share2, ChevronRight, TrendingUp } from 'lucide-react';
 
 const UserHealthTracking = () => {
