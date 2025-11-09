@@ -30,6 +30,10 @@ export const FetchPsychologistApi = async(page) =>{
     const response = await axiosInstance.get(`/psychologit/list/?page=${page}`)
     return response.data
 }
+export const TopPsychologists = async() =>{
+    const response = await axiosInstance.get('/top-psychologit/list/')
+    return response.data
+}
 
 export const PsychologistDetailApi = async(psychologist_id,params) =>{
     const response = await axiosInstance.get(`/psychologist/details/${psychologist_id}/`,{

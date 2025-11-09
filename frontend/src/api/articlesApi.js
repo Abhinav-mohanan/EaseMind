@@ -32,6 +32,10 @@ export const ArticlesListApi = async(page,search) =>{
     )
     return response.data
 }
+export const TopArticles = async() =>{
+    const response = await axiosInstance.get(`/top-articles/`)
+    return response.data
+}
 
 //Article Details
 export const ArticleDetailsApi = async(article_id) =>{
