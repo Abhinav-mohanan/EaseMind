@@ -5,8 +5,10 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from authentication_app.permissions import IsVerifiedAndUnblock
 from authentication_app.permissions import IsAdmin
-from .serializer import ArticleListSerializer,ArticleCreateSerializer
-from .models import Article,ArticleRead
+from .serializer import (ArticleListSerializer,ArticleCreateSerializer,CategoryListSerializer,
+                         CategoryCreateSerializer,CommentSerializer)
+from .models import (Article,ArticleRead,Category,ArticleLike,ArticleComment)
+from .permissions import IsCommentOwner
 from django.db.models import Q,Count
 # Create your views here.
 
@@ -64,14 +66,32 @@ class ArticleListView(APIView):
     permission_classes = [AllowAny]    
     def get(self,request):
         search_query = request.query_params.get('search')
+        category = request.query_params.get('category')
+        author = request.query_params.get('author')
+        sort = request.query_params.get('sort')
         articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads'))
         if search_query:
             articles = articles.filter(
                 Q(title__icontains=search_query)|
                 Q(content__icontains=search_query))
+            
+        if category and category != 'all':
+            articles = articles.filter(category__name__iexact=category)
+        
+        if author:
+            articles = articles.filter(
+                Q(author__first_name__icontains=author) |
+                Q(author__last_name__icontains=author)
+            )
+        
+        if sort == 'oldest':
+            articles = articles.order_by('created_at')
+        else:
+            articles = articles.order_by('-created_at')
+
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(articles,request)
-        serializer = ArticleListSerializer(page,many=True)
+        serializer = ArticleListSerializer(page,many=True,context={'request':request})
         return paginator.get_paginated_response(serializer.data)
 
 class TopArticlesView(APIView):
@@ -79,7 +99,7 @@ class TopArticlesView(APIView):
     def get(self,request):
         articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads')
                                                                        ).order_by('-total_readers').distinct()[:3]
-        serializer = ArticleListSerializer(articles,many=True)
+        serializer = ArticleListSerializer(articles,many=True,context={'request':request})
         return Response(serializer.data)
 
 class ArticleDetailView(APIView):
@@ -90,7 +110,7 @@ class ArticleDetailView(APIView):
             article = Article.objects.annotate(total_readers=Count('reads')).get(id=article_id,status='published')
             if user.is_authenticated:
                 ArticleRead.objects.get_or_create(user=user,article=article)
-            serializer = ArticleListSerializer(article)
+            serializer = ArticleListSerializer(article,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error":"Article Not found"},status=status.HTTP_404_NOT_FOUND)
@@ -118,3 +138,126 @@ class ArticleAdminView(APIView):
             return Response({"message":"Article deleted Successfully"},status=status.HTTP_200_OK)
         except Article.DoesNotExist:
             return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
+
+class ArticleCategoryView(APIView):
+    permission_classes = [IsAdmin]
+    def get(self,request):
+        categories = Category.objects.all().order_by('created_at')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(categories,request)
+        serializer = CategoryListSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def post(self,request):
+        data = request.data
+        serializer = CategoryCreateSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'message':"Category created sucessfully"},
+                        status=status.HTTP_201_CREATED)
+    
+    def put(self,request,category_id):
+        data = request.data
+        category = Category.objects.get(id=category_id)
+        serializer = CategoryCreateSerializer(category,data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message":"category updated successfully"},
+                        status=status.HTTP_200_OK)
+    
+    def delete(self,request,category_id):
+        category = Category.objects.get(id=category_id)
+        category.delete()
+        return Response({'message': 'Category deleted successfully'},
+                        status=status.HTTP_200_OK)
+
+class AllCategoriesView(APIView):
+    permission_classes = [AllowAny]
+    def get(self,request):
+        categories = Category.objects.all().order_by('created_at')
+        serializer = CategoryListSerializer(categories,many=True)
+        return Response(serializer.data)
+
+class LikeToggleView(APIView):
+    def post(self,request,article_id):
+        user = request.user
+        try:
+            article = Article.objects.get(id=article_id)
+        except Article.DoesNotExist():
+            return Response({"error":"Articles not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        like_obj = ArticleLike.objects.filter(user=user,article=article)
+        if like_obj.exists():
+            like_obj.delete()
+            is_liked = False
+        else:
+            ArticleLike.objects.create(user=user,article=article)
+            is_liked = True
+        likes = article.likes.count()
+        return Response({'likes':likes,'is_liked':is_liked},status=status.HTTP_200_OK)
+
+class ArticleCommentView(APIView):
+    permission_classes = [AllowAny]
+    def get(self,request,article_id):
+        try:
+            article = Article.objects.get(id=article_id)
+        except Article.DoesNotExist:
+            return Response({"error":"Article Not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        comments = ArticleComment.objects.filter(article=article).order_by('-created_at')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(comments,request)
+        serializer = CommentSerializer(page,many=True,context={'request':request})
+        return paginator.get_paginated_response(serializer.data)
+    
+    def post(self,request,article_id):
+        user = request.user
+        comment_text = request.data.get('comment','').strip()
+
+        if not user.is_authenticated:
+            return Response({"error":"Please login to post the comment"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            article = Article.objects.get(id=article_id,status='published')
+        except Article.DoesNotExist:
+            return Response({"error":"Article Not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        if len(comment_text) < 1:
+            return Response({"error":"Comment cannot be empty"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        new_comment = ArticleComment.objects.create(
+            user = user,
+            article = article,
+            comment = comment_text
+        )
+        
+        return Response({'message':"Comment added sucessfully"},status=status.HTTP_201_CREATED)
+
+class CommentDetaliView(APIView):
+    permission_classes = [IsCommentOwner]
+
+    def put(self,request,comment_id):
+        try:
+            comment = ArticleComment.objects.get(id=comment_id)
+        except ArticleComment.DoesNotExist:
+            return Response({"error":"Comment does not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        self.check_object_permissions(request,comment)
+        text = request.data.get('comment','').strip()
+        if len(text) == 0:
+            return Response({"error":"Comment cannot be empty"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        comment.comment = text
+        comment.save()
+        return Response({"message":"Comment updated successfully"},status=status.HTTP_200_OK)
+    
+    def delete(self,request,comment_id):
+        try:
+            comment = ArticleComment.objects.get(id=comment_id)
+        except ArticleComment.DoesNotExist:
+            return Response({'error':"Comment not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        self.check_object_permissions(request,comment)
+        comment.delete()
+        return Response({"message":"Comment deleted"},status=status.HTTP_200_OK)
