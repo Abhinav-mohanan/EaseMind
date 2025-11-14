@@ -5,11 +5,13 @@ import { toast } from 'react-toastify';
 import Loading from '../../Components/Layouts/Loading';
 import AdminSidebar from '../../Components/Admin/AdminSidebar';
 import AdminHeader from '../../Components/Admin/AdminHeader';
-import { Eye, ImageIcon, Trash2, XCircle, Search } from 'lucide-react';
+import { Eye, ImageIcon, Trash2, XCircle, Search, Plus } from 'lucide-react';
 import Pagination from '../../Components/Layouts/Pagination';
 import ConfirmationModal from '../../Components/Layouts/Confirmationmodal';
+import { useNavigate } from 'react-router-dom';
 
 const ArticlesManage = () => {
+    const navigate = useNavigate()
     const [articles, setArticles] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -136,7 +138,8 @@ const ArticlesManage = () => {
                                             </div>
                                             <button
                                                 type="submit"
-                                                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white font-medium rounded-lg hover:from-teal-700 hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md flex items-center space-x-2"
+                                                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white font-medium rounded-lg hover:from-teal-700 
+                                                hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md flex items-center space-x-2"
                                             >
                                                 <Search className="w-4 h-4" />
                                                 <span>Search</span>
@@ -147,6 +150,15 @@ const ArticlesManage = () => {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div className='flex justify-end mb-2'>
+                                <button
+                                onClick={()=>navigate('/admin/categories/create')}
+                                 className='inline-flex items-center px-5 py-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white font-medium rounded-lg 
+                                hover:from-teal-700 hover:to-teal-900 transition-all duration-200 shadow-sm'>
+                                    <Plus/>
+                                    Create New Category
+                                </button>
                             </div>
 
                             {/* Articles Section */}
@@ -185,14 +197,16 @@ const ArticlesManage = () => {
                                                         <td className="px-6 py-6">
                                                             <button
                                                                 onClick={() => handleViewArticle(article)}
-                                                                className="inline-flex items-center px-4 py-2 m-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white text-sm font-medium rounded-lg hover:from-teal-800 hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md mr-2"
+                                                                className="inline-flex items-center px-4 py-2 m-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white text-sm font-medium 
+                                                                rounded-lg hover:from-teal-800 hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md mr-2"
                                                             >
                                                                 <Eye className="w-4 h-4 mr-2" />
                                                                 View
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteArticle(article.id)}
-                                                                className="inline-flex items-center px-4 py-2 m-2 bg-gradient-to-r from-red-700 to-red-800 text-white text-sm font-medium rounded-lg hover:from-red-800 hover:to-red-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                className="inline-flex items-center px-4 py-2 m-2 bg-gradient-to-r from-red-700 to-red-800 text-white text-sm font-medium 
+                                                                rounded-lg hover:from-red-800 hover:to-red-900 transition-all duration-200 shadow-sm hover:shadow-md"
                                                             >
                                                                 <Trash2 className="w-4 h-4 mr-2" />
                                                                 Delete
@@ -243,7 +257,8 @@ const ArticlesManage = () => {
                             <p className="text-sm text-slate-500">Created: {new Date(previewArticle.created_at).toLocaleDateString()}</p>
                             <button
                                 onClick={closePreview}
-                                className="mt-4 px-6 py-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white font-medium rounded-lg hover:from-teal-700 hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                                className="mt-4 px-6 py-2 bg-gradient-to-r from-teal-600 to-teal-800 text-white font-medium rounded-lg hover:from-teal-700 
+                                hover:to-teal-900 transition-all duration-200 shadow-sm hover:shadow-md"
                             >
                                 Close
                             </button>

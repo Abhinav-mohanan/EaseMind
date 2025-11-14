@@ -38,6 +38,7 @@ import UserHealthStatus from './Pages/Users/Psychologist/UserHealthStatus'
 import UserWalletTransactionList from './Pages/Users/User/UserWalletTransactionList'
 import PsychologistWallet from './Pages/Users/Psychologist/PsychologistWallet'
 import AdminDashboard from './Pages/Admin/AdminDashboard'
+import AddCategory from './Pages/Admin/AddCategory'
 
 
 function App() {
@@ -74,7 +75,7 @@ function App() {
         <Route path='/psychologist/availability' element={<PsychologistAvailability />} />
         <Route path='/articles' element={<PublishedArticles />} />
         <Route path='/article/detail/:article_id' element={<ArticleDetails />} />
-        <Route path='/admin/aritcles' element={<ArticlesManage />} />
+        <Route path='/admin/articles' element={<ArticlesManage />} />
         <Route path='/therapist' element={<PsychologistsList />} />
         <Route path='/therapist/details/:psychologist_id' element={<PsychologistDetail />} />
         <Route path='/psychologist/appointments' element={<PsychologistAppointments />} />
@@ -94,6 +95,7 @@ function App() {
         <Route path='/user/health-tracking/:health_tracking_id' element={<UserHealthTrackingDetail />} />
         <Route path='/psychologist/user/health-status' element={<UserHealthStatus />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/admin/categories/create' element={<AddCategory />} />
       </Routes>
     </Router>
   );

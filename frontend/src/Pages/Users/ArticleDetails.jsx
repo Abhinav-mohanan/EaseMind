@@ -6,10 +6,15 @@ import Loading from '../../Components/Layouts/Loading';
 import Navbar from '../../Components/Users/Common/Navbar';
 import { BookOpen, Calendar, ImageIcon, User } from 'lucide-react';
 import Footer from '../../Components/Users/Common/Footer';
+import ArticleHero from '../../Components/Users/Common/ArticleHero';
+import ArticleContent from '../../Components/Users/Common/ArticleContent';
+import EngagementAuthor from '../../Components/Users/Common/EngagementAuthor';
+import CommentsSection from '../../Components/Users/Common/CommentsSection';
+import Breadcrumbs from '../../Components/Layouts/Breadcrumbs';
+import FormatDate from '../../Components/Layouts/FormatDate';
 
 const ArticleDetails = () => {
     const {article_id} = useParams() 
-    const navigate = useNavigate()
     const [isLoading,setIsLoading] = useState(false)
     const [article,setArticles] = useState(null)
 
@@ -18,6 +23,7 @@ const ArticleDetails = () => {
             setIsLoading(true)
             const data = await ArticleDetailsApi(article_id)
             setArticles(data)
+            console.log('article',data)
         }catch(error){
             ErrorHandler(error)
         }finally{
@@ -29,72 +35,54 @@ const ArticleDetails = () => {
         fetchArticles()
     },[])
 
+     const breadcrumbItems = [
+        {label:'Articles',link:'/articles'},
+        {label:'Detail',link:null}
+    ]
+
     const defaultImage = (
         <div className="w-full h-72 bg-gray-200 flex items-center justify-center rounded-lg mb-6">
             <ImageIcon className="w-24 h-24 text-gray-400" />
         </div>
     );
 
+    const articleData = {...article};
+
+
     return (
-        <Loading isLoading={isLoading}>
-            <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-white pt-16">
-                <Navbar />
-                <div className="flex-1 p-6 md:p-12">
-                    <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-8 border border-gray-100">
-                        <button
-                            onClick={() => navigate('/articles')}
-                            className="mb-6 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                        >
-                            Back to Articles
-                        </button>
-
-                        {article ? (
-                            <>
-                                <h1 className="text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
-                                    {article.title}
-                                </h1>
-
-                                {/* Metadata */}
-                                <div className="flex items-center text-sm text-gray-600 mb-8 space-x-6">
-                                    <div className="flex items-center space-x-2">
-                                        <Calendar className="w-5 h-5 text-blue-500" />
-                                        <span>{new Date(article.created_at).toLocaleDateString('en-Asia', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <User className="w-5 h-5 text-blue-500" />
-                                        <span>{article.author_name || 'Author'}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <BookOpen className="w-5 h-5 text-blue-500" />
-                                        <span>{article.total_readers || '0'}</span>
-                                    </div>
-                                </div>
-
-                                {/* Cover Image */}
-                                {article.cover_image ? (
-                                    <img
-                                        src={article.cover_image}
-                                        alt={article.title}
-                                        className="w-full h-80 object-cover rounded-xl mb-8 shadow-md"
-                                    />
-                                ) : (
-                                    defaultImage
-                                )}
-
-                                {/* Content */}
-                                <div className="prose prose-lg text-gray-800 max-w-none">
-                                    <div dangerouslySetInnerHTML={{ __html: article.content }} />
-                                </div>
-                            </>
-                        ) : (
-                            <p className="text-center text-gray-500 text-xl">Article not found.</p>
-                        )}
-                    </div>
-                </div>
-                <Footer />
-            </div>
-        </Loading>
-    );
-};
-
+       <>
+       <Navbar/>
+        <div className="relative flex h-auto min-h-screen w-full flex-col p-16 bg-[#F8F9FA] font-['Inter',sans-serif] text-[#343A40]">
+      <main className="flex flex-1 justify-center py-5 sm:py-10">
+        <div className="flex flex-col w-full max-w-3xl px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs items={breadcrumbItems}/>
+          <ArticleHero
+            imageUrl={articleData.cover_image}
+            title={articleData.title}
+            author={articleData.author_name}
+            date={articleData.created_at}
+            defaultImage={defaultImage}
+            formatDate={FormatDate}
+          />
+          
+          <ArticleContent content={articleData.content}/>
+          {article &&(
+            
+            <EngagementAuthor 
+            likes={articleData.likes}
+            views={articleData.total_readers}
+            author={articleData.authorDetails}
+            is_liked={articleData.is_liked}
+            article={articleData}
+            />
+          )}
+          
+          <CommentsSection />
+        </div>
+      </main>
+    </div>
+    <Footer/>
+    </>
+  );
+}
 export default ArticleDetails

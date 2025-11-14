@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CreateArticleApi, PsyArticleFetch, PsyDeleteArticleApi, UpdateArticleApi } from '../../../api/articlesApi';
+import { CreateArticleApi, FetchAllCategory, PsyArticleFetch, PsyDeleteArticleApi, UpdateArticleApi } from '../../../api/articlesApi';
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler';
 import { toast } from 'react-toastify';
 import Loading from '../../../Components/Layouts/Loading';
@@ -30,6 +30,7 @@ const CreateArticle = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [inputValue, setInputValue] = useState('');
+    const [categories,setCategories] = useState([])
     const page_size = 6;
 
     const fetchArticles = async (page, term = searchTerm, status = filterStatus) => {
@@ -44,6 +45,20 @@ const CreateArticle = () => {
             setIsLoading(false);
         }
     };
+
+    const fetchCategories = async()=>{
+        try{
+            setIsLoading(true);
+            const data = await FetchAllCategory()
+            setCategories(data)
+        }catch(error){
+            ErrorHandler(error)
+        }
+    }
+
+    useEffect(()=>{
+        fetchCategories()
+    },[])
 
     useEffect(() => {
         fetchArticles(currentPage);
@@ -85,10 +100,11 @@ const CreateArticle = () => {
     };
 
     const handleEdit = (article) => {
+        const categoryId = categories.find(cat=>cat.name === article.category)?.id || ''
         setNewArticle({
             title: article.title,
             content: article.content,
-            category: article.category,
+            category: categoryId,
             cover_image: null,
             status: article.status,
         });
@@ -252,14 +268,18 @@ const CreateArticle = () => {
                                             <div className="space-y-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newArticle.category}
-                                                        onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })}
-                                                        placeholder="Enter category"
-                                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                                                        required
-                                                    />
+                                                    <select
+                                                    value={newArticle.category}
+                                                    onChange={(e)=>setNewArticle({...newArticle,category:e.target.value})}
+                                                    className='w-full p-3 border border-gray-200 rounded-lg focus:ring-2 uppercase focus:ring-teal-500 focus:border-teal-500'
+                                                    required>
+                                                        <option value=''> Select a Category</option>
+                                                        {categories.map((cat)=>(
+                                                            <option key={cat.id} value={cat.id} className='uppercase'>  
+                                                            {cat.name} 
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
