@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArticlesListApi } from '../../api/articlesApi';
-import ErrorHandler from '../../Components/Layouts/ErrorHandler';
-import Loading from '../../Components/Layouts/Loading';
+import React, { useState } from 'react';
 import Navbar from '../../Components/Users/Common/Navbar';
-import { BookOpen, Calendar, User, Search, XCircle } from 'lucide-react';
-import Pagination from '../../Components/Layouts/Pagination';
 import Footer from '../../Components/Users/Common/Footer';
 import FilterSidebar from '../../Components/Users/Common/FilterSidebar';
 import ArticlesList from '../../Components/Users/Common/ArticlesList';

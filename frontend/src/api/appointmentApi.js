@@ -66,7 +66,7 @@ export const PsychologistAppointmentApi = async(page,status) =>{
 }
 
 export const UserAppointmentsApi = async(page,status) =>{
-    const response = await axiosInstance.get('/user/appointments/?page=${page}',{
+    const response = await axiosInstance.get('/user/appointments/',{
         params:{page:page,status:status}
     })
     return response.data

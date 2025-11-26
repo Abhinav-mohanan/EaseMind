@@ -6,6 +6,7 @@ import Loading from '../../../Components/Layouts/Loading';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
 import Navbar from '../../../Components/Users/Common/Navbar';
 import { Calendar, Heart, Activity, Brain, BookOpen, Moon, Share2, ChevronRight, TrendingUp } from 'lucide-react';
+import Pagination from '../../../Components/Layouts/Pagination';
 
 const UserHealthTracking = () => {
     const navigate = useNavigate()
@@ -28,7 +29,7 @@ const UserHealthTracking = () => {
     const GetHealthTracking = async() =>{
         setIsLoading(true)
         try{
-            const data = await GetUserHealthTrackerApi()
+            const data = await GetUserHealthTrackerApi(currentPage)
             setEntries(data.results)
             setTotalPages(Math.ceil(data.count / page_size))
         }catch(error){

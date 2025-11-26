@@ -209,7 +209,7 @@ const PsychologistAppointmentDetails = () => {
                       )}
                       {appointment.status === 'completed' &&(
                         <button
-                        
+                        onClick={()=>navigate(`/psychologist/prescription/${appointment_id}`)}
                          className='w-full flex items-center justify-center mt-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200'>
                             <Pill className='w-4 h-4 mr-2'/>
                             Add prescription

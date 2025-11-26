@@ -8,10 +8,15 @@ import Loading from '../../Components/Layouts/Loading';
 
 export default function VideoCall() {
   const { appointment_id } = useParams();
+  const role = localStorage.getItem('role')
   const navigate = useNavigate()
   const containerRef = useRef(null);
   const zpRef = useRef(null)
   const [isLoading,setIsLoading] = useState(false)
+  const leaving_url = 
+        role === 'psychologist' 
+        ? `/psychologist/appointment/${appointment_id}`
+        :`/user/appointment/${appointment_id}`
 
   const initZego = async() =>{
     try{
@@ -51,7 +56,8 @@ export default function VideoCall() {
               zpRef.current.destroy();
               zpRef.current = null;
             }
-            navigate(`/psychologist/appointment/${appointment_id}`);
+            navigate(leaving_url);
+            window.location.reload()
           }
         });
       }

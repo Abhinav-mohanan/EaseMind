@@ -1,7 +1,7 @@
 import axiosInstance from "./axiosInstance"
 
-export const GetUserHealthTrackerApi = async() =>{
-    const response = await axiosInstance.get('user/health-tracking/')
+export const GetUserHealthTrackerApi = async(page) =>{
+    const response = await axiosInstance.get(`user/health-tracking/?page=${page}`)
     return response.data
 }
 

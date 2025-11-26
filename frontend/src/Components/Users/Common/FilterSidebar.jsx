@@ -46,7 +46,7 @@ const FilterSidebar = ({search,category,author,sort,setSearch,setCategory,setAut
             <select
             value={category}
             onChange={(e)=>setCategory(e.target.value)}
-            className='w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] uppercase focus:ring-[#3A7CA5] placeholder:text-[#6B7280] text-[#333333]'>
+            className='w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] uppercase focus:ring-[#3A7CA5] placeholder:text-[#6B7280] text-gray-700 font-bold'>
                 <option value='all'> all</option>
                 {categories.map((cat)=>(
                     <option key={cat.id} value={cat.name} className='uppercase'>  
@@ -61,7 +61,7 @@ const FilterSidebar = ({search,category,author,sort,setSearch,setCategory,setAut
             <input 
               value={author}
               onChange={(e)=>setAuthor(e.target.value)}
-              className="w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] focus:ring-[#3A7CA5] placeholder:text-[#6B7280] text-[#333333]" 
+              className="w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] focus:ring-[#3A7CA5] placeholder:text-[#6B7280] text-gray-700 font-bold" 
               placeholder="Search by author name" 
               type="text"
             />
@@ -72,7 +72,7 @@ const FilterSidebar = ({search,category,author,sort,setSearch,setCategory,setAut
             <select
             value={sort}
             onChange={(e)=>setSort(e.target.value)}
-            className="w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] focus:ring-[#3A7CA5] text-[#333333]">
+            className="w-full rounded-lg border-[#CFDBE7] bg-white h-12 text-sm focus:border-[#3A7CA5] focus:ring-[#3A7CA5] text-gray-700 font-bold">
               <option value='newest'>Newest First</option>
               <option value='oldest'>Oldest First</option>
             </select>
