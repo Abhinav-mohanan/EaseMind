@@ -5,7 +5,7 @@ from .models import Message,ChatRoom
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['id','sender','text','timestamp']
+        fields = ['id','sender','text','timestamp','file','filenames']
 
 
 class ConversationSerializer(serializers.ModelSerializer):

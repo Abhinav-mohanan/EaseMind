@@ -1,5 +1,7 @@
 from django.db import models
 from authentication_app.models import CustomUser
+import os
+
 
 # Create your models here.
 
@@ -13,7 +15,9 @@ class ChatRoom(models.Model):
 class Message(models.Model):
     room = models.ForeignKey(ChatRoom,on_delete=models.CASCADE,related_name='messages')
     sender = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
-    text = models.TextField()
+    text = models.TextField(null=True,blank=True)
+    file = models.TextField(blank=True,null=True)
+    filenames = models.CharField(max_length=200,blank=True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

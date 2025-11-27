@@ -17,29 +17,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, code):
         await self.channel_layer.group_discard(self.room_group_name,self.channel_name)
 
-    async def receive(self, text_data=None,):
+    async def receive(self, text_data=None):
+        if not text_data:
+            return None
+        
         data = json.loads(text_data)
-        message = data['message']
+        message = data.get("message")
+        file_ref = data.get("file")
+        filenames = data.get('filename')
 
         sender = self.scope['user']
         room = await self.get_room(self.room_name)
-        message_content = await self.create_message(room,sender,message)
+        message_content = await self.create_message(room,sender,message,file_ref,filenames)
+
+        payload = {
+            "id":message_content.id,
+            "text":message_content.text,
+            "sender":sender.id,
+            "timestamp":message_content.timestamp.isoformat(),
+            "file":message_content.file if message_content.file else None,
+            'filenames':message_content.filenames
+            
+        }
 
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
-                "message":{
-                    'text':message,
-                    'sender':sender.id,
-                    'id':message_content.id,
-                    'timestamp':message_content.timestamp.isoformat(),
-                }
+                "event": "message",
+                "message":payload
             },
         )
     async def chat_message(self,event):
         await self.send(text_data=json.dumps({
-            "message":event['message']
+            "event":event.get("event","message"),
+            "message":event['message'],
         }))
     
     
@@ -48,9 +60,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return ChatRoom.objects.get(id=room_id)
     
     @database_sync_to_async
-    def create_message(self,room,sender,text):
-        return Message.objects.create(
-            room=room,
-            sender=sender,
-            text=text
-        )
+    def create_message(self,room,sender,text,file_ref,filenames):
+        kwargs = {
+            "room":room,
+            "sender":sender,
+            "text":text
+        }
+        if file_ref:
+            kwargs['file'] = file_ref
+            kwargs['filenames'] = filenames
+
+        return Message.objects.create(**kwargs)

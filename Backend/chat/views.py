@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import ChatRoom
 from .serializers import ConversationSerializer,MessageSerializer
 from appointments.models import Appointment
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
+from cloudinary.uploader import upload as cloudinary_upload
 
 
 class ConversationCreateView(APIView):
@@ -58,3 +60,28 @@ class MessageListView(APIView):
             return Response(serilaizer.data,status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response({"error":"Conversation does not foun"},status=status.HTTP_404_NOT_FOUND)
+
+class UploadFileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self,request,*args,**kwargs):
+        file_obj = request.FILES.get('file')
+
+        if not file_obj:
+            return Response({"error":"No file provided"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            file_name = file_obj.name
+            result = cloudinary_upload(file_obj,resource_type='raw')
+            file_url = result.get('secure_url')
+            if not file_url:
+                return Response({"error":"File upload failed"},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                'file_url':file_url,
+                'file_name':file_name,
+            },status=status.HTTP_201_CREATED,)
+        except Exception as e:
+            return Response({"error":f"upload error: {str(e)}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
