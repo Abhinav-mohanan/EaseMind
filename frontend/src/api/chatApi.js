@@ -19,3 +19,16 @@ export const GetWebsocketTokenApi = async() =>{
     const response = await axiosInstance.get('chat/ws-token/')
     return response.data
 }
+
+export const UploadChatFileApi = async(file,onUploadProgress) =>{
+    const formData = new FormData()
+    formData.append('file',file)
+    const response = await axiosInstance.post('/chat/upload/',formData,{
+        headers:{
+            "Content-Type":"multipart/form-data",
+        },
+        onUploadProgress
+    }
+    )
+    return response.data
+}
