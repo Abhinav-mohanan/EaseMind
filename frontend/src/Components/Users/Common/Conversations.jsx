@@ -22,7 +22,7 @@ const ConversationList = ({onSelect,selectedId}) => {
 
   return (
     <div className="bg-white h-full flex flex-col">
-      <div className="bg-gradient-to-r from-teal-700 to-teal-800 text-white px-6 py-5 border-b-2 border-slate-600">
+      <div className="bg-[#008069] text-white px-6 py-5 border-b-2 border-slate-600">
         <h2 className="text-xl font-bold mb-1">Conversations</h2>
         <div className="flex items-center gap-2 text-slate-300">
           <span className="text-sm">{conversation.length} active chats</span>
@@ -34,7 +34,7 @@ const ConversationList = ({onSelect,selectedId}) => {
           <div 
             key={conv.id}
             onClick={() => {
-              onSelect(conv.id)              
+              onSelect(conv)              
             }}
             className={`px-6 py-5 cursor-pointer border-b border-gray-100 hover:bg-teal-50 transition-all duration-200 relative ${
               selectedId === conv.id ? 'bg-teal-50 border-l-4 border-l-teal-600 shadow-sm' : ''
@@ -53,7 +53,7 @@ const ConversationList = ({onSelect,selectedId}) => {
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600 mb-1">
-                  {role === 'user' ? 'Licensed Psychologist' : 'Patient'}
+                  {role === 'user' ? 'Psychologist' : 'Patient'}
                 </p>
                 
               </div>

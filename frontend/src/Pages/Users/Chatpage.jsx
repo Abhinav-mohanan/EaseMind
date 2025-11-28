@@ -11,7 +11,13 @@ const Chatpage = () => {
     const [selectedConversation,setSelectedConversation] = useState(
       location.state?.conversationId || null
     );
+    const [participantName,setParticipantName] = useState('')
     const role = localStorage.getItem('role')
+
+    const handleselectedConversation = (conv) =>{
+      setSelectedConversation(conv.id);
+      setParticipantName(role === 'psychologist' ? conv.user : conv.psychologist)
+    }
 
  return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
@@ -28,13 +34,14 @@ const Chatpage = () => {
               <div className="flex h-full">
                 <div className="w-80 border-r-2 border-gray-200 flex flex-col bg-gray-50">
                   <ConversationList 
-                    onSelect={setSelectedConversation}
+                    onSelect={handleselectedConversation}
                     selectedId={selectedConversation} 
                   />
                 </div>    
                 <div className="flex-1 flex flex-col">
                   {selectedConversation ? (
-                    <ChatBox conversationId={selectedConversation} />
+                    <ChatBox conversationId={selectedConversation} 
+                    participantName={participantName} />
                   ) : (
                     <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                       <div className="text-center max-w-md">

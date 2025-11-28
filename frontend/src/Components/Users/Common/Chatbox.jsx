@@ -4,7 +4,7 @@ import ErrorHandler from "../../Layouts/ErrorHandler";
 import { File, MessageCircle, Paperclip, Send, User, X } from "lucide-react";
 import CONFIG from "../../../api/config";
 
-const ChatBox = ({conversationId}) => {
+const ChatBox = ({conversationId , participantName = 'Active Conversation'}) => {
   const [messages, setMessages] = useState([]);
   const [newmessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState(null);
@@ -15,6 +15,7 @@ const ChatBox = ({conversationId}) => {
   const [uploadProgress,setUploadProgress] = useState(0);
   const [isUploading,setIsUploading] = useState(false);
   const [filePreview,setFilePreview] = useState(null);
+  const [onlineStatus,setOnlineStatus] = useState(false)
   const messageEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -58,6 +59,21 @@ const ChatBox = ({conversationId}) => {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
+
+      if (data.event === 'initial_statuses'){
+        const otherEntry = Object.entries(data.statuses).find(([uid])=> uid != currentUser);
+        if (otherEntry){
+          setOnlineStatus(otherEntry[1] === 'online')
+        }
+        return
+      }
+
+      if (data.event === 'status'){
+        if (data.user !== currentUser){
+          setOnlineStatus(data.status === 'online')
+        }
+        return;
+      }
       setMessages((prev) => [...prev, data.message]);
     };
 
@@ -146,6 +162,31 @@ const ChatBox = ({conversationId}) => {
     }
   };
 
+  const groupedMessages = messages.reduce((groups,msg)=>{
+    const date = new Date(msg.timestamp).toDateString();
+    if(!groups[date]) groups[date] = [];
+    groups[date].push(msg)
+    return groups
+  },{})
+
+
+  const formatDateLabel = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+
   return (
     <div className="flex flex-col h-full bg-[#efeae2]">
       <div className="bg-[#008069] text-white px-4 py-3 shadow-md flex items-center gap-3">
@@ -153,8 +194,8 @@ const ChatBox = ({conversationId}) => {
           <User className="h-5 w-5 text-gray-600" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-medium">Active Conversation</h3>
-          {/* <p className="text-xs text-[#d1f4cc]">online</p> */}
+          <h3 className="text-base font-medium uppercase">{participantName}</h3>
+          <p className="text-xs text-[#d1f4cc]">{onlineStatus ? '● Online':'Offline'}</p>
         </div>
       </div>
 
@@ -166,57 +207,69 @@ const ChatBox = ({conversationId}) => {
       >
         {messages.length > 0 ? (
           <div className="space-y-2 py-2">
-            {messages.map((msg) => {
-              const isMe = msg.sender === currentUser;
-              const hasFile = !!msg.file;
-              return(
-                <div
-                  key={msg.id}
-                  className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-md ${
-                    isMe
-                      ? "bg-[#d9fdd3]"
-                      : "bg-white"
-                  } rounded-lg shadow-md px-3 py-2 relative`}
-                  style={{
-                    borderRadius: isMe ? "8px 8px 0px 8px" : "8px 8px 8px 0px"
-                  }}
-                  >
-                    {msg.text && (
-                      <p className="text-sm text-gray-800 leading-relaxed mb-1">{msg.text}</p>
-                    )}
-                    
-                    {hasFile && (
-                      <div className="mt-1 mb-1">
-                        {msg?.file.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                          <img
-                            src={msg.file}
-                            alt="attachment"
-                            className="max-w-full max-h-64 rounded-md"
-                          />
-                        ) : (
-                          <a
-                            href={msg.file}
-                            download={msg.filenames}
-                            className="flex items-center gap-2 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors"
-                          >
-                            <File className="w-5 h-5 text-gray-600"/>
-                            <span className="text-sm text-gray-700 truncate max-w-xs">{msg.filenames}</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      <span className="text-xs text-gray-500">
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
+            {Object.entries(groupedMessages).map(([date, msgs]) => (
+              <div key={date}>
+                <div className="flex justify-center my-3">
+                  <div className="bg-white/90 px-3 py-1 rounded-md shadow-sm">
+                    <span className="text-xs text-gray-600 font-medium">
+                      {formatDateLabel(date)}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
+                
+                {msgs.map((msg) => {
+                  const isMe = msg.sender === currentUser;
+                  const hasFile = !!msg.file;
+                  return(
+                    <div
+                      key={msg.id}
+                      className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                    >
+                      <div className={`max-w-md ${
+                        isMe
+                          ? "bg-[#d9fdd3]"
+                          : "bg-white"
+                      } rounded-lg shadow-md px-3 py-2 mb-2 relative`}
+                      style={{
+                        borderRadius: isMe ? "8px 8px 0px 8px" : "8px 8px 8px 0px"
+                      }}
+                      >
+                        {msg.text && (
+                          <p className="text-sm text-gray-800 leading-relaxed mb-2">{msg.text}</p>
+                        )}
+                        
+                        {hasFile && (
+                          <div className="mt-1 mb-1">
+                            {msg?.file.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                              <img
+                                src={msg.file}
+                                alt="attachment"
+                                className="max-w-full max-h-64 rounded-md"
+                              />
+                            ) : (
+                              <a
+                                href={msg.file}
+                                download={msg.filenames}
+                                className="flex items-center gap-2 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors"
+                              >
+                                <File className="w-5 h-5 text-gray-600"/>
+                                <span className="text-sm text-gray-700 truncate max-w-xs">{msg.filenames}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-end gap-1 mt-1">
+                          <span className="text-xs text-gray-500">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
 
              {isUploading && (
               <div className="flex justify-end mb-2">
