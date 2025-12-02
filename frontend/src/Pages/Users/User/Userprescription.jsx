@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { GetUserPrescriptionApi } from "../../../api/prescriptionApi";
+import { DownloadPrescriptionPdfApi, GetUserPrescriptionApi } from "../../../api/prescriptionApi";
 import ErrorHandler from "../../../Components/Layouts/ErrorHandler";
 import Loading from "../../../Components/Layouts/Loading";
 import Navbar from "../../../Components/Users/Common/Navbar";
@@ -52,6 +52,22 @@ const UserPrescription = () => {
       hour12: true,
     });
   };
+
+  const downloadPrescriptionPdf = async(id) =>{
+    try{
+      const fileBlob = await DownloadPrescriptionPdfApi(id);
+      
+      const url = window.URL.createObjectURL(new Blob([fileBlob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute('download',`prescription_${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }catch(error){
+      ErrorHandler(error)
+    }
+  }
 
   return (
     <Loading isLoading={isLoading}>
@@ -200,6 +216,13 @@ const UserPrescription = () => {
                       </div>
                     </div>
                   </div>
+                  <button
+                  onClick={() => downloadPrescriptionPdf(prescription?.appointment?.id)}
+                  className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition"
+                  >
+                   <FileText className="h-5 w-5 mr-2" />
+                    Download PDF
+                    </button>
                 </div>
               </div>
             )}

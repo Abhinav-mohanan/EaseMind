@@ -26,3 +26,9 @@ export const GetUserPrescriptionApi = async(appointment_id) =>{
     const response = await axiosInstance.get(`/user/prescription/${appointment_id}/`)
     return response.data
 }
+export const DownloadPrescriptionPdfApi = async(appointment_id) =>{
+    const response = await axiosInstance(`appointments/${appointment_id}/prescription/download/`,
+        {responseType:'blob'}
+    );
+    return response.data
+}

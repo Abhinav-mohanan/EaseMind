@@ -232,19 +232,7 @@ const AuthForm = ({ type, fields }) => {
                   <span className="px-2 bg-gray-100 text-gray-500">or</span>
                 </div>
               </div>
-
-              {/* Google Sign In */}
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-2 p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 text-sm"
-                aria-label="Sign in with Google"
-              >
-                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 via-red-500 to-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">G</span>
-                </div>
-                <span className="font-medium text-gray-700">Continue with Google</span>
-              </button>
-
+  
               {/* Back to Home Link */}
               <div className="text-center mt-4">
                 <button
