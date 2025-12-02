@@ -9,6 +9,10 @@ from authentication_app.permissions import IsVerifiedAndUnblock,IsUser
 from .models import HealthTracking
 from .serializer import (PrescriptionSerializer,PrescriptionCreateUpdateSerializer,
                          HealthTrackingCreateUpdateSerializer,HealthTrackingSerializer)
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from io import BytesIO
 import logging
 
 # Create your views here.
@@ -199,3 +203,28 @@ class PsychologistHealthTrackingView(APIView):
             return Response({'error':"An error occured while fetching health tracking details"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
+
+class DownloadPrescription(APIView):
+    def get(self,request,appointment_id):
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+            prescription = appointment.prescription
+
+            html = render_to_string('prescription/prescription_template.html',{
+                "appointment":appointment,
+                "prescription":prescription,
+            })
+            result = BytesIO()
+            pdf = pisa.CreatePDF(html,dest=result)
+            if not pdf.err:
+                result.seek(0)
+                respose = HttpResponse(
+                    result.read(),
+                    content_type='application/pdf'
+                )
+                respose['Content-Disposition'] =f'attachment; filename="prescription_{appointment_id}.pdf'
+                return respose
+            else:
+                return Response({'error':'Failed to generate PDF'})
+        except Exception as e:
+            return Response({'error':str(e)})

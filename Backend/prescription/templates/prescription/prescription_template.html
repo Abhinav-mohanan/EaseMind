@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { 
+            size: A4; 
+            margin: 15mm; 
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+            border-bottom: 3px double #0B1263;
+            padding-bottom: 10px;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #0B1263;
+            margin-bottom: 5px;
+        }
+
+        .sub-title {
+            font-size: 11px;
+            margin-top: 5px;
+            color: #555;
+            font-style: italic;
+        }
+
+        .patient-info {
+            margin-bottom: 18px;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #0B1263;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-item {
+            margin-bottom: 4px;
+        }
+
+        .patient-info strong {
+            color: #0B1263;
+            display: inline-block;
+            min-width: 75px;
+        }
+
+        .section-label {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 14px;
+            margin-bottom: 5px;
+            color: #0B1263;
+            border-bottom: 2px solid #0B1263;
+            padding-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content-box {
+            margin-bottom: 10px;
+            white-space: pre-line;
+            padding: 8px 10px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            min-height: 30px;
+        }
+
+    
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-left {
+            font-size: 10px;
+            color: #666;
+            max-width: 250px;
+            font-style: italic;
+        }
+
+        .signature-area {
+            text-align: right;
+        }
+
+        .sign-line {
+            border-top: 1px solid #0B1263;
+            width: 200px;
+            margin-left: auto;
+            margin-top: 25px;
+            margin-bottom: 6px;
+        }
+
+        .doctor-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #0B1263;
+        }
+
+        .credentials {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">EaseMind</div>
+        <div class="sub-title">Support for Stress · Anxiety · Depression · Emotional Wellness</div>
+        <div class="sub-title">support@easemind.com | www.easemind.com</div>
+    </div>
+
+    <div class="patient-info">
+        <div>
+            <div class="info-item"><strong>Patient:</strong> {{ appointment.user.get_full_name }}</div>
+            <div class="info-item"><strong>Date:</strong> {{ prescription.created_at|date:"F j, Y" }}</div>
+            <div class="info-item"><strong>Severity:</strong> {{ prescription.get_severity_level_display }}</div>
+        </div>
+        
+    </div>
+
+    <div class="section-label">Diagnosis</div>
+    <div class="content-box">{{ prescription.diagnosis }}</div>
+
+    <div class="section-label"> Prescription</div>
+    <div class="content-box">{{ prescription.medicines|linebreaks }}</div>
+
+    <div class="section-label">Advice & Recommendations</div>
+    <div class="content-box">{{ prescription.advice|linebreaks }}</div>
+
+    {% if prescription.follow_up_date %}
+    <div class="section-label">Follow-up Appointment</div>
+    <div class="content-box"> {{ prescription.follow_up_date|date:"F j, Y" }}</div>
+    {% endif %}
+
+    <div class="footer">
+        <div class="footer-left">
+            This prescription is valid for the consultation on the date mentioned above.
+        </div>
+        <div class="signature-area">
+            <div class="sign-line"></div>
+            <div class="doctor-name">{{ appointment.psychologist.user.get_full_name }}</div>
+            <div class="credentials">Licensed Psychologist</div>
+        </div>
+    </div>
+
+</body>
+</html>
