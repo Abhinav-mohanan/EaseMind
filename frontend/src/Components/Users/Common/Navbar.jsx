@@ -13,7 +13,7 @@ import ConfirmationModal from '../../Layouts/Confirmationmodal';
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, role } = useAuth()
+  const { isAuthenticated, role,loading } = useAuth()
   const{notifications,fetchNotifications} = useNotifications(isAuthenticated)
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +34,10 @@ const Navbar = () => {
       setIsModalOpen(false);
     }
   };
+  
+  if (loading) {
+    return <div className="h-16 bg-white shadow-md"></div>;
+  }
 
   return (
     <>

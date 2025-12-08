@@ -34,7 +34,7 @@ class WebsocketTokenView(APIView):
     def get(self,request):
         user = request.user
         access_token = AccessToken.for_user(user)
-        access_token.set_exp(lifetime=timedelta(minutes=5))
+        access_token.set_exp(lifetime=timedelta(hours=24))
         return Response({"token":str(access_token),"user":user.id})
 
 class ConversationListView(APIView):

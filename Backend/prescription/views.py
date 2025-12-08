@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import NotFound, ValidationError
 from appointments.views import BaseAppointmentView
 from appointments.models import Appointment
 from appointments.serializer import AppointmentListSerializer
@@ -9,9 +10,11 @@ from authentication_app.permissions import IsVerifiedAndUnblock,IsUser
 from .models import HealthTracking
 from .serializer import (PrescriptionSerializer,PrescriptionCreateUpdateSerializer,
                          HealthTrackingCreateUpdateSerializer,HealthTrackingSerializer)
+from notification.utils import create_notification
 from django.template.loader import render_to_string
-from xhtml2pdf import pisa
 from django.http import HttpResponse
+from django.db import transaction
+from xhtml2pdf import pisa
 from io import BytesIO
 import logging
 
@@ -23,24 +26,28 @@ class PsychologistCompletedAppointmentsListView(BaseAppointmentView):
     role = 'psychologist'
     status_filter = 'completed'
 
+
 class UserCompletedAppointmentsListView(BaseAppointmentView):
     role = 'user'
     status_filter = 'completed'
+
 
 class PsychologistPrescriptionView(APIView):
     permission_classes = [IsVerifiedAndUnblock]
 
     def get_object(self,appointment_id,user):
-        try:
-            appointment = Appointment.objects.get(id=appointment_id,psychologist__user=user)
-            if appointment.status != 'completed':
-                raise ValueError('Prescription operations only allowed for completed appointments.')
-            return appointment
-        except Appointment.DoesNotExist:
-            raise ValueError("Appointment not found")
-        except ValueError as e:
-            raise ValueError(str(e))
+        appointment = Appointment.objects.filter(
+            id=appointment_id,
+            psychologist__user=user
+        ).first()
+
+        if not appointment:
+            raise NotFound("Appointment not found")
+        if appointment.status !='completed':
+            raise ValidationError("Prescription operations allowed only for completed appointments.")
+        return appointment
     
+
     def get(self,request,appointment_id):
         try:
             appointment = self.get_object(appointment_id,request.user)
@@ -53,27 +60,32 @@ class PsychologistPrescriptionView(APIView):
                 'id':None,
                 'appointment':appointment_data,
             },status=status.HTTP_200_OK)
-        except ValueError as e:
-            return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"GET Prescription failed :{str(e)}")
+            return Response({"error":str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self,request,appointment_id):
         user = request.user
         try:
             appointment = self.get_object(appointment_id,user)
             if hasattr(appointment,'prescription'):
-                return Response({"error":"Prescription already exists"},status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error":"Prescription already exists"},
+                                status=status.HTTP_400_BAD_REQUEST)
             serializer = PrescriptionCreateUpdateSerializer(data=request.data)
-            if serializer.is_valid():
+            serializer.is_valid(raise_exception=True)
+            with transaction.atomic():
                 prescription = serializer.save(appointment=appointment)
-                response_serializer = PrescriptionSerializer(prescription)
-                return Response(response_serializer.data,status=status.HTTP_201_CREATED)
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as e:
-            return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST)
+            create_notification(
+                user=appointment.user,
+                message=f"Your Prescription for the appointment on {appointment.availability.date} is now availabe."
+            )
+            response_serializer = PrescriptionSerializer(prescription)
+            return Response(response_serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"POST prescription failed: {str(e)}")
+            return Response({"error":str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def patch(self,request,appointment_id):
         user = request.user
@@ -81,16 +93,25 @@ class PsychologistPrescriptionView(APIView):
             appointment = self.get_object(appointment_id,user)
             prescription = getattr(appointment,'prescription',None)
             if not prescription:
-                return Response({"error":"Prescription does not exist"},status=status.HTTP_400_BAD_REQUEST)
-            serializer = PrescriptionCreateUpdateSerializer(prescription,data=request.data,partial=True)
-            if serializer.is_valid():
+                return Response({"error":"Prescription does not exist"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            serializer = PrescriptionCreateUpdateSerializer(
+                prescription,
+                data=request.data,
+                partial=True)
+            serializer.is_valid(raise_exception=True)
+            with transaction.atomic():
                 serializer.save()
-                response_serializer = PrescriptionSerializer(prescription)
-                return Response(response_serializer.data,status=status.HTTP_200_OK)
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as e:
-            return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST)
+
+            create_notification(
+                user=appointment.user,
+                message=f"Your prescription for the appointment on {appointment.availability.date} has been updated."
+            )
+            
+            response_serializer = PrescriptionSerializer(prescription)
+            return Response(response_serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
+            logger.error(f'PATCH prescription failed:-{str(e)}')
             return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class UserPrescriptionView(APIView):

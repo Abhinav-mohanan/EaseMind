@@ -19,6 +19,7 @@ from datetime import timedelta
 from decimal import Decimal
 import razorpay
 import logging
+from notification.utils import create_notification
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +80,7 @@ class PsychologistAvailabilityView(APIView):
             return Response({"error":"Slot not found"},status=status.HTTP_404_NOT_FOUND)
 
 
-class PsychologitListView(APIView):
+class PsychologistListView(APIView):
     def get(self,request):
         psychologit = PsychologistProfile.objects.filter(user__role='psychologist',is_verified='verified').select_related('user')
         paginator = PageNumberPagination()
@@ -103,7 +104,7 @@ class LockSlotView(APIView):
             slot = PsychologistAvailability.objects.get(id=slot_id)
             
             if slot.is_booked:
-                return Response({"error":"Slot already booked"},status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error":"Slot is already booked"},status=status.HTTP_400_BAD_REQUEST)
             if slot.locked_until and slot.locked_until >timezone.now():
                 return Response({'error':"slot is temporarily locked please try agian after some time"},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -138,6 +139,7 @@ class PsychologistDetailsView(APIView):
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID,settings.RAZORPAY_KEY_SECRET))
+
 class CreateOrderView(APIView):
     def post(self,request):
         amount = request.data.get('amount')
@@ -168,6 +170,7 @@ class BookSlotView(APIView):
         order_id = request.data.get('razorpay_order_id')
         signature = request.data.get('razorpay_signature')
         slot_id = request.data.get('slot_id')
+        amount = request.data.get('amount')
 
         params_dict = {
             'razorpay_order_id':order_id,
@@ -177,9 +180,12 @@ class BookSlotView(APIView):
         try:
             client.utility.verify_payment_signature(params_dict)
             with transaction.atomic():
-                slot = PsychologistAvailability.objects.get(id=slot_id)
+                slot = PsychologistAvailability.objects.select_for_update().get(id=slot_id)
                 if slot.is_booked:
-                    return Response({"error":"Slot is booked"},status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error":"Slot is already  booked"},status=status.HTTP_400_BAD_REQUEST)
+                if Decimal(amount) != slot.payment_amount:
+                    return Response({"error":"Payment amount mismatch"},
+                                    status=status.HTTP_400_BAD_REQUEST)
                 slot.is_booked = True
                 slot.locked_until = None
                 slot.save()
@@ -208,9 +214,12 @@ class BookSlotView(APIView):
                     status = 'success'
                 )
                 admin_wallet,_ = Wallet.objects.get_or_create(is_admin_wallet=True)
-                admin_wallet.credit_locked(amount=admin_commission,
-                                    description=f'Locked amount {admin_commission} for appointment: {appointment.id}',
-                                    appointment=appointment)
+                admin_wallet.credit_locked(
+                    amount=admin_commission,
+                    description=f'Locked amount {admin_commission} for appointment: {appointment.id}',
+                    appointment=appointment
+                    )
+                
                 psychologist_user = appointment.psychologist.user
                 psychologist_wallet,_ = Wallet.objects.get_or_create(user=psychologist_user)
                 psychologist_wallet.credit_locked(
@@ -218,13 +227,34 @@ class BookSlotView(APIView):
                     description=f'Locked amount {psychologist_amount} for Appointment :{appointment.id}',
                     appointment=appointment
                 )
+
+                create_notification(
+                    user=request.user,
+                    message=f"Your payment of ₹ {total_amount} was successful for appointemnt on {slot.date}"
+                )
+
+                create_notification(
+                    user=request.user,
+                    message=f"Your appointment with Dr.{psychologist_user.get_full_name() } is booked for {slot.date}")
+                
+                create_notification(
+                    user=psychologist_user,message=
+                    f"You have a new appointment from {request.user.get_full_name()} at {slot.date} ")
                 return Response({'message':"Payment completed.slot booked successfully"},status=status.HTTP_200_OK)
                 
         except razorpay.errors.SignatureVerificationError as e:
-            return Response({"error":"Payment verification failed",},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"Payment verification failed. If any amount was deducted, it will be refunded automatically.",},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        except PsychologistAvailability.DoesNotExist:
+            return Response({
+                'error':"Selected slot does not exist."
+            },status=status.HTTP_404_NOT_FOUND)
+        
         except Exception as e:
             logger.error(f'error occure when book the slot:{str(e)}')
-            return Response({"error":"An error occured please try again after some time"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error":"Something went wrong while booking your appointment. Please try again later."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BaseAppointmentView(APIView):
@@ -285,6 +315,7 @@ class BaseAppointmentDetailView(APIView):
     
     def patch(self,request,appointment_id):
         action = request.data.get('action')
+
         if action == 'cancel':
             serializer = AppointmentCancelSerializer(
                 data = request.data,
@@ -296,13 +327,30 @@ class BaseAppointmentDetailView(APIView):
             
             try:
                 appointment = serializer.cancel_appointment()
+                user = appointment.user
+                psychologist = appointment.psychologist.user
+                date = appointment.availability.date
+                if request.user == user:
+                    create_notification(
+                        user=psychologist,
+                        message=f'{user.get_full_name()} Cancelled the appointment scheduled for {date}.'
+                    )
+                else:
+                    create_notification(
+                        user=user,
+                        message=f'Your appointment with Dr. {psychologist.get_full_name()} on {date} has been cancelled.'
+                    )  
                 response_serializer = AppointmentSerializer(appointment)
-                return Response({"message":"Appointment cancelled successfully",'appointment':response_serializer.data},
-                                status=status.HTTP_200_OK)
+                return Response(
+                    {"message":"Appointment cancelled successfully",'appointment':response_serializer.data},
+                    status=status.HTTP_200_OK)
             except Exception as e:
-                logger.error(f"failed to cancel the appointment reasong {str(e)}")
-                return Response({"error":"An error occurred while canceling the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"failed to cancel the appointment reason:- {str(e)}")
+                return Response(
+                    {"error":"An error occurred while canceling the appointment"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+
         elif action == 'complete':
             serializer = AppointmentCompleteSerializer(
                 data = request.data,
@@ -312,12 +360,30 @@ class BaseAppointmentDetailView(APIView):
                 return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
             try:
                 appointment = serializer.complete_appointment()
+                user = appointment.user
+                psychologist = appointment.psychologist.user
+                date = appointment.availability.date
+                
+                create_notification(
+                    user=user,
+                    message=f"Your appointment with Dr. {psychologist.get_full_name()} on {date} is completed."
+                )
+
+                create_notification(
+                    user=psychologist,
+                    message=f"You have completed the appointment with {user.get_full_name()} on {date}."
+                )
                 response_serializer = AppointmentSerializer(appointment)
-                return Response({"message":"Appointment completed successfully",'appointment':response_serializer.data},
-                                status=status.HTTP_200_OK)
+                return Response(
+                    {"message":"Appointment completed successfully",'appointment':response_serializer.data},
+                    status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({"error":"An error occured while complete the appointment"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
-        return Response({"error":"Invalid action use cancel or complete"},status=status.HTTP_400_BAD_REQUEST)                             
+                return Response(
+                    {"error":"An error occured while complete the appointment"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+        return Response(
+            {"error":"Invalid action use cancel or complete"},
+            status=status.HTTP_400_BAD_REQUEST)                             
 
 
 class UserAppointmentDetails(BaseAppointmentDetailView):

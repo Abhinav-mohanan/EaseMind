@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (PsychologistAvailabilityView,PsychologitListView,PsychologistDetailsView,
+from .views import (PsychologistAvailabilityView,PsychologistListView,PsychologistDetailsView,
                     CreateOrderView,BookSlotView,LockSlotView,PsychologitAppointmentView,
                     UserAppointmentView,AdminAppointmentView,UserAppointmentDetails,PsychologistAppointmentDetails,
                     TopPsychologistsView,)
@@ -7,7 +7,7 @@ from .views import (PsychologistAvailabilityView,PsychologitListView,Psychologis
 urlpatterns = [
     path('psychologist/availability/',PsychologistAvailabilityView.as_view(),name='psychologist-availability'),
     path('psychologist/availability/<int:slot_id>/',PsychologistAvailabilityView.as_view(),name='psychologist-availability_manage'),
-    path('psychologit/list/',PsychologitListView.as_view(),name='psychologist-list'),
+    path('psychologit/list/',PsychologistListView.as_view(),name='psychologist-list'),
     path('top-psychologit/list/',TopPsychologistsView.as_view(),name='psychologist-list'),
     path('psychologist/details/<int:psychologist_id>/',PsychologistDetailsView.as_view(),name='psychologist-details'),
     path('psychologist/appointments/',PsychologitAppointmentView.as_view(),name='psychologist-appointments'),

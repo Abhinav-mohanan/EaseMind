@@ -1,14 +1,14 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken,OutstandingToken
 from authentication_app.serializer import LoginSerializer,PsychologistProfileSerializer
 from authentication_app.utils import set_token_cookies
 from authentication_app.permissions import IsAdmin
 from authentication_app.models import CustomUser,PsychologistProfile
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken,OutstandingToken
+from notification.utils import create_notification
 import logging
 
 
@@ -165,18 +165,37 @@ class PsychologistVerificationView(APIView):
             psychologist_profile = PsychologistProfile.objects.get(user__id=psychologist_id)
         except PsychologistProfile.DoesNotExist:
             return Response({"error":"Psychologist profile not found"},status=status.HTTP_404_NOT_FOUND )
-        
-        psychologist_profile.is_verified = 'verified' if action == 'verify' else 'rejected'
-        if action == 'reject' and rejection_reason:
+                
+        if action == 'reject':
+            if not rejection_reason:
+                return Response({'error':"Rejection reason is required when rejecting a profile"},
+                                status=status.HTTP_400_BAD_REQUEST)
             if len(rejection_reason) < 10:
                 return Response({'error':'Rejection reason must be at least 10 characters'},
                                 status=status.HTTP_400_BAD_REQUEST)
+            
+            psychologist_profile.is_verified = 'rejected'
             psychologist_profile.rejection_reason = rejection_reason
-        elif action == 'reject' and not rejection_reason:
-            return Response({'error':"Rejection reason is required when rejecting a profile"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        else:
+
+            create_notification(
+                user=psychologist_profile.user,
+                message=f"Your profile has been Rejected please visit the profile to details."
+            )
+            
+        if action == 'verify':
+            psychologist_profile.is_verified='verified'
             psychologist_profile.rejection_reason = None
-        psychologist_profile.save()
+
+            create_notification(
+                user=psychologist_profile.user,
+                message=f"Your profile has been verified. You can now accept appointments."
+            )
+        try:
+            psychologist_profile.save()
+        except Exception as e:
+            logger.error(f"Psychologist verification failed:-{str(e)}")
+            return Response({"error":"Something went wrong while update profile, Please try again later"},
+                            status=status.status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         serializer = PsychologistProfileSerializer(psychologist_profile)
         return Response({'message':f"Profile {action}ed successfully",'data':serializer.data},status=status.HTTP_200_OK)

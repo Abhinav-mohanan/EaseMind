@@ -5,7 +5,7 @@ const CTASection = () => {
   return (
     <section className="py-8 md:py-8">
       <div className="container mx-auto px-6">
-        <div className="bg-slate-50  text-center rounded-2xl py-16 px-6">
+        <div className="bg-white text-center rounded-2xl py-16 px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 ">
             Ready to Start Your Journey?
           </h2>
