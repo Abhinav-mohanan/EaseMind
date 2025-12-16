@@ -10,7 +10,10 @@ from .serializer import (ArticleListSerializer,ArticleCreateSerializer,CategoryL
 from .models import (Article,ArticleRead,Category,ArticleLike,ArticleComment)
 from .permissions import IsCommentOwner
 from django.db.models import Q,Count
+import logging
 # Create your views here.
+
+logger = logging.getLogger(__name__)
 
 class CreateArticleView(APIView):
     permission_classes = [IsVerifiedAndUnblock]
@@ -59,6 +62,9 @@ class CreateArticleView(APIView):
             article.delete()
             return Response({"message":"Article deleted successfully"},status=status.HTTP_200_OK)
         except Article.DoesNotExist:
+            logger.warning(
+                f'attempting to delete non-existent article {article_id}'
+            )
             return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
 
 
@@ -137,6 +143,9 @@ class ArticleAdminView(APIView):
             article.delete()
             return Response({"message":"Article deleted Successfully"},status=status.HTTP_200_OK)
         except Article.DoesNotExist:
+            logger.warning(
+                f'attempting to delete non-existent article {article_id}'
+            )
             return Response({"error":"Article not found"},status=status.HTTP_404_NOT_FOUND)
 
 class ArticleCategoryView(APIView):
@@ -240,24 +249,41 @@ class CommentDetaliView(APIView):
     def put(self,request,comment_id):
         try:
             comment = ArticleComment.objects.get(id=comment_id)
+            self.check_object_permissions(request,comment)
+            text = request.data.get('comment','').strip()
+            if len(text) == 0:
+                return Response({"error":"Comment cannot be empty"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            comment.comment = text
+            comment.save()
+            return Response({"message":"Comment updated successfully"},status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
             return Response({"error":"Comment does not found"},
                             status=status.HTTP_404_NOT_FOUND)
-        self.check_object_permissions(request,comment)
-        text = request.data.get('comment','').strip()
-        if len(text) == 0:
-            return Response({"error":"Comment cannot be empty"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        comment.comment = text
-        comment.save()
-        return Response({"message":"Comment updated successfully"},status=status.HTTP_200_OK)
+        except Exception:
+            logger.error(
+                "Unexpected error while updating article comment",
+                exc_info=True
+            )
+            return Response({
+                "error":"Unexpected error occurred while updating the comment. Please try again later."
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def delete(self,request,comment_id):
         try:
             comment = ArticleComment.objects.get(id=comment_id)
+            self.check_object_permissions(request,comment)
+            comment.delete()
+            return Response({"message":"Comment deleted"},status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
             return Response({'error':"Comment not found"},
                             status=status.HTTP_404_NOT_FOUND)
-        self.check_object_permissions(request,comment)
-        comment.delete()
-        return Response({"message":"Comment deleted"},status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(
+                "Unexpected error while deleting the article comment",
+                exc_info=True
+            )
+            return Response({
+                "error":'Unexpected error occurred while deleting the comment. Please try again later'
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

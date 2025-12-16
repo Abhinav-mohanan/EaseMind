@@ -3,13 +3,15 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
+from cloudinary.uploader import upload as cloudinary_upload
 from .models import ChatRoom
 from .serializers import ConversationSerializer,MessageSerializer
 from appointments.models import Appointment
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
-from cloudinary.uploader import upload as cloudinary_upload
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ConversationCreateView(APIView):
     def post(self,request):
@@ -29,6 +31,13 @@ class ConversationCreateView(APIView):
             return Response({'message':'Room created successfully','room_id':room.id},status=status.HTTP_200_OK)
         except Appointment.DoesNotExist:
             return Response({"Appointment does not found"},status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            logger.error(
+                'Unexpected error while creating conversation room',
+                exc_info=True
+            )
+            return Response({'error':"An unexpected error occurred. Please try again later"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class WebsocketTokenView(APIView):
     def get(self,request):
@@ -82,6 +91,10 @@ class UploadFileView(APIView):
                 'file_url':file_url,
                 'file_name':file_name,
             },status=status.HTTP_201_CREATED,)
-        except Exception as e:
-            return Response({"error":f"upload error: {str(e)}"},
+        except Exception:
+            logger.error(
+                'Unexpected error while uploading file',
+                exc_info=True
+            )
+            return Response({"error":"An unexpected error occurred while uploading the file. Please try again later."},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

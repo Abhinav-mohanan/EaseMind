@@ -13,6 +13,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -237,3 +240,27 @@ ZEGO_APP_ID =os.getenv('ZEGO_APP_ID')
 ZEGO_SERVER_SECRET=os.getenv('ZEGO_SERVER_SECRET')
 
 OTP_EXPIRY_MINUTES = int(os.getenv('OTP_EXPIRY_MINUTES',5))
+
+LOGGING = {
+    'version':1,
+    'disable_existing_loggers':False,
+
+    'formatters':{
+        'verbose':{
+            'format':'[{levelname}] {asctime} {name} {module} | {message}',
+            'style':'{',
+        },
+    },
+
+    'handlers':{
+        'console':{
+            'class': 'logging.StreamHandler',
+            'formatter':'verbose',
+        }
+    },
+
+    'root':{
+        'handlers':['console'],
+        'level': 'INFO'
+    }
+}

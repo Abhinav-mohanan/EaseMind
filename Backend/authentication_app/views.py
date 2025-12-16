@@ -61,10 +61,12 @@ class ResendOTPView(APIView):
     def post(self,request):
         email = request.data.get('email')
         purpose = request.data.get('purpose','email_verification')   
+
         if not email:
             return Response({'error':"Email is required"},status=status.HTTP_400_BAD_REQUEST)
         if not purpose in ['email_verification','password_reset']:
             return Response({'error':'Invalid Purpose for OTP'},status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             user = CustomUser.objects.get(email=email)
             cache_key = f'otp_resend_{email}_{purpose}'
@@ -78,10 +80,19 @@ class ResendOTPView(APIView):
             otp_expire = settings.OTP_EXPIRY_MINUTES * 60
             cache.set(cache_key,timezone.now(),timeout=otp_expire)
             return Response({"message":"OTP Resend Successfully"})
+        
         except CustomUser.DoesNotExist:
-            return Response({'error':'User with this email does not exists'},status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error':f'Failed to resend OTP {str(e)}'},
+            logger.warning(
+                f'OTP resend attempted with non-existing email'
+            )
+            return Response({'error':'User with this email does not exists'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            logger.error(
+                'Unexpected error while resending OTP',
+                exc_info=True
+            )
+            return Response({'error':'Failed to resend OTP. Please try again later.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BaseAuthView(APIView):
@@ -153,15 +164,14 @@ class Logoutview(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         refresh_token = request.COOKIES.get('refresh_token')
-        if not refresh_token:
-            return Response({'error':"Refresh token not found"},status=status.HTTP_400_BAD_REQUEST)
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()                  # Black list the refresh token
-        except TokenError:
-            # This may happen if the token was already blacklisted,
-            # for example, if the user was blocked by an admin earlier
-            logger.warning("Logout attempt with an invalid or already blacklisted refresh token.")
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()                  # Black list the refresh token
+            except TokenError:
+                # This may happen if the token was already blacklisted,
+                # for example, if the user was blocked by an admin earlier
+                logger.warning("Logout attempt with an invalid or already blacklisted refresh token.")
         
         # clear tokens
         response = Response({'message':"Logout Succesful"},status=status.HTTP_200_OK)
@@ -200,7 +210,6 @@ class UserProfileView(APIView):
             serializer = UserProfileSerializer(user)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error(str(e))
             return Response({"error": "Something went wrong while retrieving profile"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -213,8 +222,11 @@ class UserProfileView(APIView):
                 response_serializer = UserProfileSerializer(user)
                 return Response(response_serializer.data,status=status.HTTP_200_OK)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(str(e))
+        except Exception:
+            logger.error(
+                'Unexpected error while updating user profile',
+                exc_info=True
+            )
             return Response({"error":"Something went wrong while updating profile"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -264,6 +276,9 @@ class PsychologistProfileView(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         except ObjectDoesNotExist:
             return Response({"error":"Psychologist profile not found"},status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(f'Error updating psychologist profile {str(e)}')
+        except Exception:
+            logger.error(
+                'Unexpected error while updating psychologist profile',
+                exc_info=True
+            )
             return Response({'error':'Something went wrong while updating profile'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

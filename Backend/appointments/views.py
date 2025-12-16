@@ -52,6 +52,7 @@ class PsychologistAvailabilityView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
+        logger.error(f'an error occured psychologist availbility {serializer.errors}')
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self,request,slot_id):
@@ -182,8 +183,15 @@ class BookSlotView(APIView):
             with transaction.atomic():
                 slot = PsychologistAvailability.objects.select_for_update().get(id=slot_id)
                 if slot.is_booked:
+                    logger.warning(
+                        f'Booking attempt for already booked slot :- {slot.id}'
+                    )
                     return Response({"error":"Slot is already  booked"},status=status.HTTP_400_BAD_REQUEST)
                 if Decimal(amount) != slot.payment_amount:
+                    logger.warning(
+                        f'Payment amount mismatch for user {request.user.id}:'
+                        f'expected={slot.payment_amount},received={amount}'
+                    )
                     return Response({"error":"Payment amount mismatch"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 slot.is_booked = True
@@ -242,17 +250,23 @@ class BookSlotView(APIView):
                     f"You have a new appointment from {request.user.get_full_name()} at {slot.date} ")
                 return Response({'message':"Payment completed.slot booked successfully"},status=status.HTTP_200_OK)
                 
-        except razorpay.errors.SignatureVerificationError as e:
+        except razorpay.errors.SignatureVerificationError:
+            logger.error(
+                f'Payment signature verification failed for user:- {request.user.id}'
+            )
             return Response({"error":"Payment verification failed. If any amount was deducted, it will be refunded automatically.",},
                             status=status.HTTP_400_BAD_REQUEST)
         
         except PsychologistAvailability.DoesNotExist:
+            logger.warning(
+                f'Booking attempt for non-existent slot:-> {slot.id}'
+            )
             return Response({
                 'error':"Selected slot does not exist."
             },status=status.HTTP_404_NOT_FOUND)
         
         except Exception as e:
-            logger.error(f'error occure when book the slot:{str(e)}')
+            logger.error(f'Unexpected error during slot booking.:{str(e)}')
             return Response({"error":"Something went wrong while booking your appointment. Please try again later."},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -378,6 +392,10 @@ class BaseAppointmentDetailView(APIView):
                     {"message":"Appointment completed successfully",'appointment':response_serializer.data},
                     status=status.HTTP_200_OK)
             except Exception as e:
+                logger.warning(
+                    f'POST:- Failed to complete the appointment {appointment.id}'
+                    f'reason:-{str(e)}'
+                )
                 return Response(
                     {"error":"An error occured while complete the appointment"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)   

@@ -1,7 +1,9 @@
 import React from 'react';
 import banner_img from '../../../assets/banner_img.png';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate()
   return (
     <section className="relative min-h-[80vh] md:min-h-screen flex flex-col items-center justify-center pt-16 md:pt-20 overflow-hidden">
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[80vw] md:w-[50vw] h-[30vh] md:h-[40vh] 
@@ -20,7 +22,9 @@ const Header = () => {
           <p className="text-sm sm:text-base md:text-lg text-textBlue mb-6 md:mb-8 max-w-md mx-auto px-2">
             "Your mental health matters—healing begins with a single conversation."
           </p>
-          <button className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 
+          <button
+          onClick={()=>navigate('/therapist')}
+           className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 
                              bg-blue-600 hover:bg-blue-700 text-white font-medium 
                              rounded-full text-sm sm:text-base transition-all duration-200">
             Book Slot

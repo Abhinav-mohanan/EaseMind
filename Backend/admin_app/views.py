@@ -27,6 +27,7 @@ class AdminLoginView(APIView):
             tokens = serializer.get_token_for_users(user)
             response = Response({"message":"Login Successful"},status=status.HTTP_200_OK)
             return set_token_cookies(response,tokens['access'],tokens['refresh'])
+        logger.error(f'POST:- error at admin login:-{serializer.errors}')
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -193,7 +194,7 @@ class PsychologistVerificationView(APIView):
         try:
             psychologist_profile.save()
         except Exception as e:
-            logger.error(f"Psychologist verification failed:-{str(e)}")
+            logger.error(f"PATCH:- Psychologist verification failed:-{str(e)}")
             return Response({"error":"Something went wrong while update profile, Please try again later"},
                             status=status.status.HTTP_500_INTERNAL_SERVER_ERROR)
         

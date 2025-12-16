@@ -248,4 +248,9 @@ class DownloadPrescription(APIView):
             else:
                 return Response({'error':'Failed to generate PDF'})
         except Exception as e:
-            return Response({'error':str(e)})
+            logger.error(
+                "Unexpected error while download prescription pdf ",
+                exc_info=True
+            )
+            return Response({'error':'An error occur please try again later'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
