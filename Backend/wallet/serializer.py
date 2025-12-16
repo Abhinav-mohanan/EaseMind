@@ -39,10 +39,15 @@ class WalletBalanceSerializer(serializers.ModelSerializer):
     
 
 class PayoutSerializer(serializers.ModelSerializer):
+    psychologist_name = serializers.SerializerMethodField()
     class Meta:
         model = Payout
-        fields = ['id','amount','status','requested_at','processed_at','remarks','bank_account_no','ifsc_code']
+        fields = ['id','amount','status','requested_at','processed_at','remarks',
+                  'bank_account_no','ifsc_code','psychologist_name']
         read_only_fields = ['status','requested_at','processed_at']
+    
+    def get_psychologist_name(self,obj):
+        return obj.psychologist.get_full_name()
     
     def validate(self,data):
         user = self.context['request'].user

@@ -1,22 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from . serializer import (SignupSerializer,VerifyOTPserializer,LoginSerializer,
                           ForgotPasswordSerializer,ResetPasswordSerializer,UserProfileSerializer,
                           UserProfileWriterSerializer,PsychologistProfileSerializer,
                           PsychologistProfileWriterSerializer)
 from . models import CustomUser,PsychologistProfile
 from . utils import send_otp_email,set_token_cookies
-from rest_framework.permissions import AllowAny,IsAuthenticated
-from rest_framework.decorators import permission_classes
-from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.tokens import RefreshToken,TokenError
-from django.core.exceptions import ObjectDoesNotExist
-import logging
 from .permissions import IsNotBlocked,IsPsychologist
+from notification.utils import create_notification
 from django.utils import timezone
-from django.core.cache import cache
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
+import logging
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,8 @@ class BaseSignupView(APIView):
         serializer = SignupSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':f'{self.role.capitalize()} signup successful'},status=status.HTTP_201_CREATED)
+            return Response({'message':f'{self.role.capitalize()} signup successful'},
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserSignupView(BaseSignupView):
@@ -49,7 +50,8 @@ class VerifyOTPView(APIView):
         serializer = VerifyOTPserializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':"Email Verified Successfully Please Login"},status=status.HTTP_200_OK)
+            return Response({'message':"Email Verified Successfully Please Login"},
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 # Resend otp [email verification,password reset]
@@ -79,7 +81,8 @@ class ResendOTPView(APIView):
         except CustomUser.DoesNotExist:
             return Response({'error':'User with this email does not exists'},status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error':f'Failed to resend OTP {str(e)}'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error':f'Failed to resend OTP {str(e)}'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BaseAuthView(APIView):
     role = None
@@ -91,7 +94,8 @@ class BaseAuthView(APIView):
 
             #Check role
             if user.role != self.role:
-                return Response({"error":f'User is not {self.role} Please select valid role'},status=status.HTTP_403_FORBIDDEN)
+                return Response({"error":f'User is not {self.role} Please select valid role'},
+                                status=status.HTTP_403_FORBIDDEN)
             tokens = serializer.get_token_for_users(user)
             is_email_verified = user.is_email_verified
             response = Response({
@@ -173,7 +177,8 @@ class ForgotPasswordView(APIView):
         serializer = ForgotPasswordSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"OTP sent to your email for password reset"},status=status.HTTP_200_OK)
+            return Response({"message":"OTP sent to your email for password reset"},
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class ResetPasswordView(APIView):
@@ -196,7 +201,8 @@ class UserProfileView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(str(e))
-            return Response({"error": "Something went wrong while retrieving profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "Something went wrong while retrieving profile"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def patch(self,request):
         try:
@@ -209,7 +215,8 @@ class UserProfileView(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(str(e))
-            return Response({"error":"Something went wrong while updating profile"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error":"Something went wrong while updating profile"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PsychologistProfileView(APIView):
@@ -223,18 +230,35 @@ class PsychologistProfileView(APIView):
         except ObjectDoesNotExist:
             return Response({'error':"Profile not found"},status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error':'Something went wrong while retrieving profile'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error':'Something went wrong while retrieving profile'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def patch(self,request):
         user = request.user
         try:
             profile = user.psychologist_profile
-            is_verified = profile.is_verified
-            if is_verified == 'rejected':
+            was_rejected = profile.is_verified == 'rejected'
+            if was_rejected:
                 profile.is_verified = 'pending'
-            serializer = PsychologistProfileWriterSerializer(profile,data=request.data,partial=True)
+            serializer = PsychologistProfileWriterSerializer(
+                profile,data=request.data,partial=True)
+            
             if serializer.is_valid():
                 serializer.save()
+                admin_user = CustomUser.objects.filter(is_superuser=True).first()
+
+                if was_rejected and admin_user:
+                    create_notification(
+                        user=admin_user,
+                        message=f'A psychologist {user.get_full_name()} has resubmitted their profile for verification. '
+                    )
+                    
+                elif admin_user:
+                    create_notification(
+                        user=admin_user,
+                        message=f'A new psychologist {user.get_full_name()} has submitted their profile for verification.'
+                    )
+
                 response_serializer = PsychologistProfileSerializer(profile)
                 return Response(response_serializer.data,status=status.HTTP_200_OK)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

@@ -200,7 +200,8 @@ class AppointmentCancelSerializer(serializers.Serializer):
     
     
     def cancel_appointment(self):
-        user = self.context['request'].user
+        patient = self.appointment.user
+        request_user = self.context['request'].user
         role = self.context['role']
         description = self.validated_data['description']
 
@@ -243,17 +244,20 @@ class AppointmentCancelSerializer(serializers.Serializer):
 
                     for txn in transactions:
                         wallet = txn.wallet
-                        if not wallet.refund_locked(txn.amount,txn,user):
+                        if not wallet.refund_locked(txn.amount,txn,request_user):
                             raise ValueError("Insufficient locked balance for refund")
                                     
-                    user_wallet,_ = Wallet.objects.get_or_create(user=user)
+                    user_wallet,_ = Wallet.objects.get_or_create(user=patient)
                     psychologist_name = self.appointment.psychologist.user.get_full_name()
                     session_date = self.appointment.availability.date.strftime('%Y-%m-%d')
                     session_time = format(self.appointment.availability.start_time,'h:i A')
-                    redable_description = f'Refund credited by {psychologist_name} on {session_date} for session at {session_time}'
+                    
+                    redable_description = (
+                        f'Refund credited by {psychologist_name} on {session_date} for session at {session_time}')
+                    
                     user_wallet.credit(
                         amount=total_amount,
-                        initiated_by=user,
+                        initiated_by=request_user,
                         appointment=self.appointment,
                         description = redable_description
                     )

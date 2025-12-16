@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import WalletTransactionView,WalletBalanceView,PayoutView,PendingPayoutView
+from .views import (WalletTransactionView,WalletBalanceView,PayoutView,PendingPayoutView,
+                    AllPendingPayoutView)
 
 
 urlpatterns = [
@@ -7,4 +8,6 @@ urlpatterns = [
     path('wallet/balance/',WalletBalanceView.as_view(),name='wallet-balance'),
     path('wallet/payout/',PayoutView.as_view(),name='payout'),
     path('pending/payout/',PendingPayoutView.as_view(),name='pending-payout'),
+    path('admin/payouts/',AllPendingPayoutView.as_view(),name='all-pending-payouts'),
+    path('admin/payouts/<int:payout_id>/',AllPendingPayoutView.as_view(),name='all-pending-payouts')
 ]

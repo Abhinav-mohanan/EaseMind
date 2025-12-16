@@ -280,6 +280,22 @@ class PsychologistProfileWriterSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Bank account number must contain only digits")
             if not (9 <= len(account) <= 18):
                 raise serializers.ValidationError("Please enter a valid account number")
+            instance = self.instance
+            license_no = data.get('license_no',instance.license_no)
+            license_cert = data.get('license_certificate',instance.license_certificate)
+            edu_cert = data.get('education_certificate',instance.education_certificate)
+
+            missing_fields = []
+            if not license_no:
+                missing_fields.append('license_no')
+            if not license_cert:
+                missing_fields.append('license_certificate')
+            if not edu_cert:
+                missing_fields.append('education_certificate')
+            
+            if missing_fields:
+                raise serializers.ValidationError(
+                    f"Profile incomplete. Missing required fields,{','.join(missing_fields)}")
         return data
     
     def update(self, instance, validated_data):
