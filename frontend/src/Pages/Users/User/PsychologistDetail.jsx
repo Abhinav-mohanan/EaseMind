@@ -8,6 +8,7 @@ import { BookSlotApi, CreateRazorpayOrderApi, LockSlotApi, PsychologistDetailApi
 import Loading from '../../../Components/Layouts/Loading'
 import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
+import BookingConfirmationCard from '../../../Components/Users/User/BookingConfirmationCard'
 
 const PsychologistDetail = () => {
   const { psychologist_id } = useParams()
@@ -141,6 +142,7 @@ const PsychologistDetail = () => {
 
 
   return (
+    <>
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gray-50 to-blue-50 pt-16">
         <Navbar />
@@ -206,7 +208,6 @@ const PsychologistDetail = () => {
                 </div>
               </div>
 
-              {/* Right Content - Bio and Appointments */}
               <div className="lg:col-span-2 space-y-8">
                 <div className="bg-white rounded-2xl shadow-xl p-8">
                   <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
@@ -337,44 +338,18 @@ const PsychologistDetail = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Payment Modal */}
-                {selectedSlot && (
-                  <div className="mt-6 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirm Booking</h3>
-                    <p className="text-gray-700 mb-2">
-                      <strong>Date:</strong> {selectedSlot.date}
-                    </p>
-                    <p className="text-gray-700 mb-2">
-                      <strong>Time:</strong> {selectedSlot.start_time}
-                    </p>
-                    <p className="text-gray-700 mb-2">
-                      <strong>End Time:</strong> {selectedSlot.end_time}
-                    </p>
-                    <p className="text-gray-700 mb-4">
-                      <strong>Amount:</strong> {selectedSlot.payment_amount}
-                    </p>
-                    <p className='text-red-500 text-sm m-3'>⚠️ when ever you confirm You have 7 minutes to complete the payment.</p>
-                    <button
-                    onClick={handlePayment}
-                    disabled={paymentLoading}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors disabled:bg-teal-400">
-                      {paymentLoading?'Processing..':'Confirm Payment'}
-                    </button>
-                    <button
-                      onClick={() => setSelectedSlot(null)}
-                      className="ml-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </main>
       </div>
-    </Loading>
+      </Loading>
+        <BookingConfirmationCard
+        selectedSlot={selectedSlot}
+        setSelectedSlot={setSelectedSlot}
+        handlePayment={handlePayment}
+        paymentLoading={paymentLoading}/>
+      </>
   );
 };
 

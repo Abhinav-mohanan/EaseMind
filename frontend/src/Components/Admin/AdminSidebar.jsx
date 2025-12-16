@@ -8,6 +8,7 @@ import {
   FileText, 
   Calendar,
   ChevronRight,
+  WalletMinimal,
   
 } from 'lucide-react';
 
@@ -46,12 +47,17 @@ const AdminSidebar = () => {
       path: '/admin/appointments',
       label: 'View Appointments',
       icon: Calendar
+    },
+    {
+      path: '/admin/payouts',
+      label: 'View Payouts',
+      icon: WalletMinimal
     }
   ];
 
   
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 shadow-lg fixed z-50">
+    <div className="w-64 h-screen bg-white border-r border-gray-200 shadow-lg fixed z-40">
       {/* Logo Section */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-3">

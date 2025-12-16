@@ -56,3 +56,15 @@ export const AdminArticleDeleteApi = async(article_id) =>{
     const response = await axiosInstance.delete(`/admin/article/${article_id}/`)
     return response.data
 }
+
+export const FetchPayoutApi = async(status,page) =>{
+    const response = await axiosInstance.get('/admin/payouts/',{
+        params:{status:status,page:page}
+    })
+    return response.data
+}
+
+export const handlePayoutApi = async(payout_id,data) =>{
+    const response = await axiosInstance.post(`/admin/payouts/${payout_id}/`,data)
+    return response.data
+}

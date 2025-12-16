@@ -1,21 +1,19 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-  LogOut, 
-  User, 
-  Bell, 
-  ChevronDown,
-  Menu
-} from 'lucide-react'
+import { LogOut, User, ChevronDown,Menu} from 'lucide-react'
 import { LogoutApi } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import ErrorHandler from '../Layouts/ErrorHandler'
 import ConfirmationModal from '../Layouts/Confirmationmodal'
+import NotificationPanel from '../Users/Common/NotificationPanel '
+import { useNotifications } from '../../Hooks/UseNotifications'
 
 const AdminHeader = () => {
   const navigate = useNavigate()
+  const{notifications,fetchNotifications} = useNotifications(true)
   const [showDropdown, setShowDropdown] = useState(false)
   const [isModalOpen,setIsModalOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   const ConfirmLogout = async() =>{
     try{
@@ -50,18 +48,14 @@ const AdminHeader = () => {
         </div>
       </div>
 
-      {/* Right Side Controls */}
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <div className="relative">
-          <button
-            className="relative p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
-        </div>
+        <NotificationPanel
+        notifications={notifications}
+        isOpen={isNotificationOpen}
+        setIsOpen={setIsNotificationOpen}
+        fetchNotifications={fetchNotifications}/>
 
-        {/* User Profile Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
@@ -71,13 +65,11 @@ const AdminHeader = () => {
               <User className="h-5 w-5 text-white" />
             </div>
             <div className="hidden md:block text-left">
-              <p className="text-sm font-medium text-gray-800">Admin User</p>
-              <p className="text-xs text-gray-600">Super Admin</p>
+              <p className="text-sm font-medium text-gray-800">Admin</p>
             </div>
             <ChevronDown className="h-4 w-4 text-gray-500" />
           </button>
 
-          {/* Dropdown Menu */}
           {showDropdown && (
             <div className="absolute right-0  w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
               <div className="p-2">
