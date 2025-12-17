@@ -68,11 +68,11 @@ const AdminDashboard = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className='flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
+            <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-16'>
+                <AdminHeader/>
+                <div className='ml-0 lg:ml-64 transition-all duration-300'>
                 <AdminSidebar/>
-                <div className='flex-1 ml-64'>
-                    <AdminHeader/>
-                    <main className='p-8'>
+                    <main className='p-8 sm:p-6 md:p-8 lg:p-10'>
                         <div className='mb-10'>
                             <div className='flex items-center gap-4 mb-3'>
                                 <div className='p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg'>
@@ -198,6 +198,9 @@ const AdminDashboard = () => {
                                             <span className='font-medium text-gray-700'>Total Appointment Value</span>
                                         </div>
                                         <span className='text-xl font-bold text-blue-600'>₹{stats.total_appointment_amount}</span>
+                                    </div>
+                                    <div>
+                                        View Details
                                     </div>
                                 </div>
                             </div>

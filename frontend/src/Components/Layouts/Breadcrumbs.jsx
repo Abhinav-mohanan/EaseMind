@@ -11,7 +11,7 @@ const Breadcrumbs = ({ items }) => {
           {item.link ? (
             <Link
               to={item.link}
-              className="hover:text-teal-600 hover:font-medium transition-colors"
+              className="hover:text-teal-600 hover:font-medium transition-all translate-300"
             >
               {item.label}
             </Link>

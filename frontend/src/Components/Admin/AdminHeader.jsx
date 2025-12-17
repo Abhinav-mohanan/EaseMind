@@ -35,7 +35,7 @@ const AdminHeader = () => {
   }
   
   return (
-    <header className="bg-white shadow-lg border-b border-teal-100 p-4 flex justify-between items-center  sticky top-0 z-40">
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-md px-4 py-3 flex items-center justify-between h-16 z-50">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg">

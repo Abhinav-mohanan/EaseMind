@@ -6,6 +6,7 @@ import Loading from "../../../Components/Layouts/Loading";
 import Navbar from "../../../Components/Users/Common/Navbar";
 import { ArrowLeft, FileText, User, Calendar, Clock } from "lucide-react";
 import UserSidebar from "../../../Components/Users/User/UserSidebar";
+import Breadcrumbs from "../../../Components/Layouts/Breadcrumbs";
 
 const UserPrescription = () => {
   const { appointment_id } = useParams();
@@ -69,6 +70,11 @@ const UserPrescription = () => {
     }
   }
 
+  const breadcrumbItems = [
+    {label:'Prescriptions',link:'/user/consultations'},
+    {label:'Detail',link:null}
+  ]
+
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gray-50 pt-16">
@@ -76,13 +82,8 @@ const UserPrescription = () => {
         <div className="flex-1 lg:ml-64">
         <UserSidebar />
           <div className="p-6 max-w-5xl mx-auto">
-            <div className="flex items-center mb-8">
-              <button
-                onClick={() => navigate("/user/consultations")}
-                className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
+            <Breadcrumbs items={breadcrumbItems}/>
+            <div className="flex items-center mb-6">
               <div>
                 <h1 className="text-2xl font-semibold text-gray-900">
                   My Prescription
@@ -94,7 +95,7 @@ const UserPrescription = () => {
             </div>
 
             {!prescription ? (
-              <div className="text-center py-12">
+              <div className="text-center py-6">
                 <div className="mb-4">
                   <div className="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="h-8 w-8 text-teal-600" />

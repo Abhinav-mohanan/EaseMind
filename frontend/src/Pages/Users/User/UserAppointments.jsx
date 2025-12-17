@@ -3,7 +3,7 @@ import { UserAppointmentsApi } from '../../../api/appointmentApi';
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler';
 import Loading from '../../../Components/Layouts/Loading';
 import Navbar from '../../../Components/Users/Common/Navbar';
-import { Calendar, Clock, User } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ const UserAppointments = () => {
         try {
             const data = await UserAppointmentsApi(page, statusFilter);
             setAppointments(data.results);
+            console.log(data.results)
             setTotalPages(Math.ceil(data.count / page_size));
         } catch (error) {
             ErrorHandler(error);
@@ -40,14 +41,32 @@ const UserAppointments = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-Us", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        });
+    };
+
+      const formatTime = (timeString) => {
+        if (!timeString) return "N/A";
+        return new Date(`1970-01-01T${timeString}`).toLocaleTimeString("en-Us", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        });
+    };
+
     return (
         <Loading isLoading={isLoading}>
             <div className="min-h-screen bg-gray-50 pt-16"> 
                     <Navbar />
                 <div className="ml-0 lg:ml-64 transition-all duration-300">
                 <UserSidebar />
-                    <div className="p-4 sm:p-6 md:p-8 lg:p-10"> 
-                        <div className="max-w-7xl mx-auto"> 
+                    <div className="p-4 sm:p-6 md:p-8 lg:p-10 mx-auto max-w-7xl"> 
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">Your Appointments</h2> 
                             <div className="mb-6 flex flex-wrap gap-3">
                                 {['booked', 'completed', 'cancelled'].map((status) => (
@@ -65,7 +84,84 @@ const UserAppointments = () => {
                                 ))}
                             </div>
                             {appointments.length > 0 ? (
-                                <div className="bg-white shadow-xl rounded-xl overflow-hidden ring-1 ring-gray-200">  
+                                <>
+                                <div className='block lg:hidden px-4 py-6 space-y-4 
+                                bg-gradient-to-br from-teal-50 to-cyan-50 min-h-screen'>
+                                    {appointments.map(appointment=>(
+                                        <div key={appointment.id}
+                                        className='bg-white rounded-2xl shadow-lg hover:shadow-xl
+                                        transition-all duration-300 overflow-hidden border border-teal-100'>
+                                            <div
+                                            className={`h-1.5 ${
+                                                appointment.status === 'booked'
+                                                ? 'bg-gradient-to-r from-yellow-300 to-yellow-400'
+                                                : appointment.status === 'completed'
+                                                ? 'bg-gradient-to-r from-green-300 to-green-400'
+                                                :'bg-gradient-to-r from-red-300 to-red-400'
+                                            }`}
+                                            />
+                                            <div className='p-5 space-y-4'>
+                                                <div className='flex items-start justify-between'>
+                                                    <div className='flex items-center gap-3'>
+                                                        <div className='w-12 h-12 rounded-full bg-gradient-to-br 
+                                                        from-teal-500 to-teal-600 flex items-center justify-center shadow-md'>
+                                                        <User className='text-white w-6 h-6'/>
+                                                        </div>
+                                                        <div>
+                                                            <p className='font-bold text-gray-800 text-lg leading-tight'>
+                                                                {appointment.psychologist_name}
+                                                            </p>
+                                                            <p className='text-xs text-gray-500 mt-0.5'>Licensed Psychologist</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className={`px-3 py-1 text-xs m-2 font-bold rounded-full shadow-sm ${
+                                                        appointment.status === 'booked'
+                                                        ? 'bg-yellow-100 text-yellow-700'
+                                                        : appointment.status === 'completed'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                        {appointment.status.toUpperCase()}
+                                                    </span>
+                                                </div>
+
+                                                <div className='bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-4 space-y-2.5'>
+                                                    <div className='flex items-center gap-3'>
+                                                        <div className='w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center'>
+                                                            <Calendar className='w-5 h-5 text-teal-600'/>
+                                                        </div>
+                                                        <div>
+                                                            <p className='text-xs text-gray-500 font-medium'>Appointment Date</p>
+                                                            <p className='text-sm font-bold text-gray-800'>
+                                                               {formatDate(appointment.slot_date)} 
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className='flex items-center gap-3'>
+                                                        <div className='w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center'>
+                                                            <Clock className='w-5 h-5 text-teal-600'/>
+                                                        </div>
+                                                        <div>
+                                                            <p className='text-xs text-gray-500 font-medium'>Time</p>
+                                                            <p className='text-sm font-bold text-gray-800'>
+                                                                {formatTime(appointment.slot_time)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                onClick={()=>navigate(`/user/appointment/${appointment.id}`)}
+                                                className='w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white 
+                                                py-3.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group'>
+                                                    <span>View Details</span>
+                                                    <ArrowRight className='w-5 h-5 group-hover:translate-x-1 transition-transform duration-300'/>
+                                                </button>
+                                            </div>  
+                                        </div>
+                                    ))}
+                                </div>
+                               
+                                <div className=" hidden lg:block bg-white shadow-xl rounded-xl overflow-hidden ring-1 ring-gray-200">  
                                     <table className="min-w-full divide-y divide-gray-200"> 
                                         <thead className="bg-gray-50">
                                             <tr>
@@ -89,7 +185,7 @@ const UserAppointments = () => {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center">
                                                             <Calendar className="h-5 w-5 text-teal-600 mr-2" />
-                                                            <span className="text-sm text-gray-800">{new Date(appointment.slot_date).toLocaleDateString()}</span> 
+                                                            <span className="text-sm text-gray-800">{formatDate(appointment.slot_date)}</span> 
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -128,6 +224,7 @@ const UserAppointments = () => {
                                         </tbody>
                                     </table>
                                 </div>
+                                 </>
                             ) : (
                                 <div className="text-center py-16 bg-white shadow-lg rounded-xl flex flex-col items-center justify-center"> 
                                     <Calendar className="h-20 w-20 text-gray-300 mx-auto mb-6" /> 
@@ -140,7 +237,6 @@ const UserAppointments = () => {
                                     <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
                                 </div>
                             )}
-                        </div>
                     </div>
                 </div>
             </div>

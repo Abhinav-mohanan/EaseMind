@@ -159,14 +159,12 @@ const AddCategory = () => {
 
  
     return (
-        <div className='flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
-            <AdminSidebar />
-            <div className='flex-1 ml-64 bg-gray-50'>
+        <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-16'>
                 <AdminHeader />
-                <div className='p-6'>
-
+            <div className='ml-0 lg:ml-64 transition-all duration-300'>
+            <AdminSidebar />
+                <div className='p-6 sm:p-6 md:p-8 lg:p-10'>
                     <Breadcrumbs items={breadcrumbItems} />
-
                     <div className='flex items-center justify-between mb-6'>
                         <div className='flex items-center space-x-3'>
                             <Folder className='w-6 h-6 text-teal-700' />

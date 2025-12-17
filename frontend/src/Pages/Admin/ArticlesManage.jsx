@@ -91,11 +91,11 @@ const ArticlesManage = () => {
 
     return (
         <Loading isLoading={isLoading}>
-            <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-16">
+                <AdminHeader />
+                <div className="ml-0 lg:ml-64 transition-all duration-300">
                 <AdminSidebar />
-                <div className="flex-1 ml-64 bg-gray-50">
-                    <AdminHeader />
-                    <div className="p-6">
+                    <div className="p-6 sm:p-6 md:p-8 lg:p-10">
                         <div className="max-w-7xl mx-auto">
                             {/* Header Section */}
                             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 mb-8 overflow-hidden">

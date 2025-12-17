@@ -12,6 +12,7 @@ import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
 import { GetZegoTokenApi } from '../../../api/videocallApi';
 import ActionModal from '../../../Components/Layouts/ActionModal';
+import Breadcrumbs from '../../../Components/Layouts/Breadcrumbs';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -95,6 +96,12 @@ const UserAppointmentDetails = () => {
         ErrorHandler(error)
       }
     }
+
+    const breadcrumbItems = [
+        {label:'Appointments',link:'/user/appointments'},
+        {label:'Detail',link:null}
+    ]
+
   return (
     <Loading isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
@@ -105,6 +112,7 @@ const UserAppointmentDetails = () => {
             <div className="max-w-4xl mx-auto">
               {appointment ? (
                 <div className="space-y-6">
+                  <Breadcrumbs items={breadcrumbItems}/>
                   <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
                     <div className="bg-gradient-to-r from-teal-500 to-blue-600 px-8 py-6">
                       <div className="flex items-center justify-between">
