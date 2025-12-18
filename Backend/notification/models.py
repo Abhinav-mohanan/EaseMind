@@ -13,7 +13,8 @@ class Notification(models.Model):
             ('INFO', 'Information'),
             ('WARNING', 'Warning'),
             ('ERROR', 'Error'),
-            ('SUCCESS', 'Success')
+            ('SUCCESS', 'Success'),
+            ('CHAT','Chat Message')
         ],
         default='INFO'
     )

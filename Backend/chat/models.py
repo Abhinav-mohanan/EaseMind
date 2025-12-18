@@ -18,6 +18,7 @@ class Message(models.Model):
     text = models.TextField(null=True,blank=True)
     file = models.TextField(blank=True,null=True)
     filenames = models.CharField(max_length=200,blank=True,null=True)
+    is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
