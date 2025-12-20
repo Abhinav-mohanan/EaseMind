@@ -54,7 +54,6 @@ export const useNotifications = (isAuthenticated) => {
     console.log("WebSocket disconnected");
     wsRef.current = null; 
   };
-  ws.onerror = (error) => console.error("WebSocket error:", error);
 
   ws.onmessage = (event) => {
     const newNotification = JSON.parse(event.data);

@@ -4,11 +4,13 @@ import ErrorHandler from '../../Components/Layouts/ErrorHandler'
 import Loading from '../../Components/Layouts/Loading'
 import AdminSidebar from '../../Components/Admin/AdminSidebar'
 import AdminHeader from '../../Components/Admin/AdminHeader'
-import { Users, User, CheckCircle, XCircle, DollarSign, Calendar, PieChart, IndianRupee, TrendingUp, Activity } from 'lucide-react'
+import { Users, User, CheckCircle, XCircle, DollarSign, Calendar, PieChart, IndianRupee, TrendingUp, Activity, ArrowRight } from 'lucide-react'
 import { Pie } from 'react-chartjs-2'
 import 'chart.js/auto'
+import { useNavigate } from 'react-router-dom'
 
 const AdminDashboard = () => {
+    const navigate = useNavigate()
     const [isLoading,setIsLoading] = useState(false)
     const [dashboardData,setDashboardData] = useState(null)
 
@@ -64,6 +66,17 @@ const AdminDashboard = () => {
                 }
             }
         }
+    }
+    const totalRevenue = stats.total_revenue
+    const totalAppointmentAmount = stats.total_appointment_amount
+    
+    const handleViewDetails = () => {
+        navigate('/admin/revenue-details', {
+            state: {
+                totalRevenue,
+                totalAppointmentAmount,
+            }
+        })
     }
 
     return (
@@ -199,9 +212,19 @@ const AdminDashboard = () => {
                                         </div>
                                         <span className='text-xl font-bold text-blue-600'>₹{stats.total_appointment_amount}</span>
                                     </div>
-                                    <div>
-                                        View Details
-                                    </div>
+                                    
+                                    <button 
+                                        onClick={handleViewDetails}
+                                        className='w-full mt-4 group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 
+                                        text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-3'
+                                    >
+                                        <span className='relative z-10 flex items-center gap-2'>
+                                            <TrendingUp className='h-5 w-5' />
+                                            View Complete Revenue Details
+                                            <ArrowRight className='h-5 w-5 group-hover:translate-x-1 transition-transform duration-200' />
+                                        </span>
+                                        <div className='absolute inset-0 bg-gradient-to-r from-teal-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200'></div>
+                                    </button>
                                 </div>
                             </div>
                         </div>

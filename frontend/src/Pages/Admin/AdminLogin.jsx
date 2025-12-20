@@ -8,7 +8,10 @@ import { useNavigate } from 'react-router-dom'
 
 const AdminLogin = () => {
     const navigate = useNavigate()
-    const [formData,setFormData] = useState({})
+    const [formData,setFormData] = useState({
+      email:'',
+      password:''
+    })
     const [errors,setErrors] = useState({})
     const [showPassword,setShowPassword] = useState(false)
     const [isLoading,setIsLoading] = useState(false)
@@ -52,6 +55,12 @@ const AdminLogin = () => {
     const togglePasswordVisibility = () =>{
         setShowPassword(!showPassword)
     }
+    const handleKeydown = (e)=>{
+      if (e.key === 'Enter'){
+        e.preventDefault()
+        handleSubmit(e)
+      }
+    }
 
   return (
     <div className='flex min-h-screen'>
@@ -83,6 +92,7 @@ const AdminLogin = () => {
               placeholder='Password'
               value={formData.password}
               onChange={handleChange}
+              onKeyDown={handleKeydown}
               className='w-full p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-400'
             />
             <span

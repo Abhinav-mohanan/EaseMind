@@ -68,3 +68,10 @@ export const handlePayoutApi = async(payout_id,data) =>{
     const response = await axiosInstance.post(`/admin/payouts/${payout_id}/`,data)
     return response.data
 }
+
+export const fetchRevenueDetails = async(page) =>{
+    const response = await axiosInstance.get('admin/revenue-details/',{
+        params:{page:page}}
+    )
+    return response.data
+}

@@ -40,6 +40,7 @@ import PsychologistWallet from './Pages/Users/Psychologist/PsychologistWallet'
 import AdminDashboard from './Pages/Admin/AdminDashboard'
 import AddCategory from './Pages/Admin/AddCategory'
 import ManagePayout from './Pages/Admin/ManagePayout'
+import RevenueDetails from './Pages/Admin/RevenueDetails'
 
 
 function App() {
@@ -98,6 +99,8 @@ function App() {
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/admin/categories/create' element={<AddCategory />} />
         <Route path='/admin/payouts' element={<ManagePayout />} />
+        <Route path='/admin/revenue-details' element={<RevenueDetails />} />
+        
       </Routes>
     </Router>
   );
