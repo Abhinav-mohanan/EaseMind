@@ -9,6 +9,8 @@ from authentication_app.utils import set_token_cookies
 from authentication_app.permissions import IsAdmin
 from authentication_app.models import CustomUser,PsychologistProfile
 from notification.utils import create_notification
+from wallet.models import WalletTransaction
+from .serializers import RevenueTransactionSerializer
 import logging
 
 
@@ -200,3 +202,16 @@ class PsychologistVerificationView(APIView):
         
         serializer = PsychologistProfileSerializer(psychologist_profile)
         return Response({'message':f"Profile {action}ed successfully",'data':serializer.data},status=status.HTTP_200_OK)
+
+class RevenueDetailsAPIView(APIView):
+    permission_classes = [IsAdmin]
+    def get(self,request):
+        transactions = WalletTransaction.objects.filter(
+            wallet__is_admin_wallet=True,
+            transaction_type='credit',
+            status='completed'
+        ).select_related('wallet','appointment','appointment__user')
+        paginator = PageNumberPagination()
+        page  = paginator.paginate_queryset(transactions,request)
+        serializer = RevenueTransactionSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)

@@ -82,6 +82,7 @@ class PsychologistAvailabilityView(APIView):
 
 
 class PsychologistListView(APIView):
+    permission_classes = [AllowAny]
     def get(self,request):
         psychologit = PsychologistProfile.objects.filter(user__role='psychologist',is_verified='verified').select_related('user')
         paginator = PageNumberPagination()
