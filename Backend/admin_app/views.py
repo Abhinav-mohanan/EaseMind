@@ -10,7 +10,8 @@ from authentication_app.permissions import IsAdmin
 from authentication_app.models import CustomUser,PsychologistProfile
 from notification.utils import create_notification
 from wallet.models import WalletTransaction
-from .serializers import RevenueTransactionSerializer
+from .serializers import RevenueTransactionSerializer,AdminUsersSerializer
+from django.db.models import Q
 import logging
 
 
@@ -36,30 +37,27 @@ class AdminLoginView(APIView):
 class AdminUserManageView(APIView):
     permission_classes = [IsAdmin]
     def get(self,request):
-        filter = request.query_params.get('status','all')
+        status_filter  = request.query_params.get('status','all')
+        search = request.query_params.get('search')
         users = CustomUser.objects.filter(role='user').order_by('created_at')
-        if filter == 'active':
+        if status_filter  == 'active':
             users = users.filter(is_blocked=False)
-        if filter == 'blocked':
+        if status_filter  == 'blocked':
             users = users.filter(is_blocked=True)
+        if search:
+            users = users.filter(
+                Q(first_name__icontains=search) | 
+                Q(last_name__icontains=search)
+                )
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(users,request)
-        user_list = [
-            {
-                'id':user.id,
-                'name':f"{user.first_name} {user.last_name}",
-                'email':user.email,
-                'phone_number':user.phone_number,
-                'is_blocked':user.is_blocked
-
-            }
-            for user in page
-        ]
-        return paginator.get_paginated_response(user_list)
+        serializer = AdminUsersSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
     
     def patch(self,request,user_id=None):
         if not user_id:
-            return Response({"error":"User ID is required"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"User ID is required"},
+                            status=status.HTTP_400_BAD_REQUEST)
         
         try:
             user =CustomUser.objects.get(id=user_id,role='user')
@@ -76,8 +74,11 @@ class AdminUserManageView(APIView):
             user.save()
             if not was_blocked and user.is_blocked:
                 try:
-                    for token in OutstandingToken.objects.filter(user=user):
-                        BlacklistedToken.objects.get_or_create(token=token)
+                    tokens = OutstandingToken.objects.filter(user=user)
+                    BlacklistedToken.objects.bulk_create(
+                        [BlacklistedToken(token=token) for token in tokens],
+                        ignore_conflicts=True
+                        )
                 except Exception as e:
                     logger.warning(f'Failed to blacklist token of user : {str(e)}')
             return Response({"message":f"User {'blocked' if user.is_blocked else 'unblocked'} successfully",
@@ -91,28 +92,25 @@ class AdminUserManageView(APIView):
 class ManagePsychologistView(APIView):
     permission_classes = [IsAdmin]
     def get(self,request):
-        filter = request.query_params.get('status','all')
+        status_filter  = request.query_params.get('status','all')
+        search = request.query_params.get('search')
         psychologists = CustomUser.objects.filter(role ='psychologist').order_by('created_at').select_related(
             'psychologist_profile'
         )
-        if filter == 'active':
+        if status_filter == 'active':
             psychologists = psychologists.filter(is_blocked=False)
-        elif filter == 'blocked':
+        elif status_filter == 'blocked':
             psychologists = psychologists.filter(is_blocked=True)
+        if search:
+            psychologists = psychologists.filter(
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search)
+            )
         psychologists = psychologists.filter(psychologist_profile__is_verified='verified')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(psychologists,request)
-        psychologist_list = [
-            {
-                'id':psychologist.id,
-                'name':f"{psychologist.first_name} {psychologist.last_name}",
-                'email':psychologist.email,
-                'phone_number':psychologist.phone_number,
-                'is_blocked':psychologist.is_blocked
-            }
-            for psychologist in page
-        ]
-        return paginator.get_paginated_response(psychologist_list)
+        serializer = AdminUsersSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
     
     def patch(self,request,psychologist_id=None):
         if not psychologist_id:
@@ -132,8 +130,11 @@ class ManagePsychologistView(APIView):
         psychologist.save()
         if not was_block and psychologist.is_blocked:
             try:
-                for token in OutstandingToken.objects.filter(user=psychologist):
-                    BlacklistedToken.objects.get_or_create(token=token)
+                tokens = OutstandingToken.objects.filter(user=psychologist)
+                BlacklistedToken.objects.bulk_create(
+                [BlacklistedToken(token=token) for token in tokens],
+                ignore_conflicts=True
+                    )
             except Exception as e:
                 logger.warning(f'Failed to blacklist token of user : {str(e)}')
         return Response({'message':f"Psychologsit {'blocked' if psychologist.is_blocked else 'unblocked'} successfully",

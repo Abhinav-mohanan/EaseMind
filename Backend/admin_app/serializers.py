@@ -1,5 +1,16 @@
 from rest_framework import serializers
 from wallet.models import WalletTransaction
+from authentication_app.models import CustomUser
+
+class AdminUsersSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id','name','email','phone_number','is_blocked']
+    
+    def get_name(self,obj):
+        return obj.get_full_name()    
+
 
 class RevenueTransactionSerializer(serializers.ModelSerializer):
     appointment_date = serializers.SerializerMethodField()

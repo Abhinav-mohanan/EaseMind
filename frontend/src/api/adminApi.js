@@ -5,9 +5,9 @@ export const AdminLoginApi = async(data) =>{
     return response.data
 }
 
-export const AdminUserDetailApi = async(page,status) =>{
+export const AdminUserDetailApi = async(page,status,search) =>{
     const response = await axiosInstance.get(`/admin/user/details/`,{
-        params:{page,status}
+        params:{page,status,search}
     })
     return response.data
 }
@@ -18,9 +18,9 @@ export const ManageUserApi = async(user_id,current_status) => {
     return response.data
 }
 
-export const AdminPsychologistDetailApi = async(page,status) =>{
+export const AdminPsychologistDetailApi = async(page,status,search) =>{
     const response = await axiosInstance.get(`/admin/psychologist/details/`,{
-        params:{page,status}
+        params:{page,status,search}
     })
     return response.data
 }
@@ -71,7 +71,7 @@ export const handlePayoutApi = async(payout_id,data) =>{
 
 export const fetchRevenueDetails = async(page) =>{
     const response = await axiosInstance.get('admin/revenue-details/',{
-        params:{page:page}}
+        params:{page}}
     )
     return response.data
 }

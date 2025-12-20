@@ -3,6 +3,7 @@ import Navbar from '../../Components/Users/Common/Navbar';
 import Footer from '../../Components/Users/Common/Footer';
 import FilterSidebar from '../../Components/Users/Common/FilterSidebar';
 import ArticlesList from '../../Components/Users/Common/ArticlesList';
+import useDebounce from '../../Hooks/useDebounce';
 
 const PublishedArticles = () => {
   const [search,setSearch] = useState('')
@@ -10,6 +11,7 @@ const PublishedArticles = () => {
   const [author,setAuthor] = useState('')
   const [sort,setSort] = useState('newest')
   const [filterTrigger,setFilterTrigger] = useState(false)
+  const debouncedSearch = useDebounce(search)
 
   const onApplyFilters = () =>{
     setFilterTrigger(prev => !prev)
@@ -48,11 +50,11 @@ const PublishedArticles = () => {
             ResetFilters={ResetFilters} />
 
             <ArticlesList 
-            search={search}
             category={category}
             author={author}
             sort={sort}
-            filterTrigger={filterTrigger}/>
+            filterTrigger={filterTrigger}
+            debouncedSearch={debouncedSearch}/>
           </div>
         </div>
       </main>

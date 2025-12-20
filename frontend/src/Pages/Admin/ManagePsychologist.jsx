@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { AdminPsychologistDetailApi, ManagePsychologistApi } from '../../api/adminApi';
 import { toast } from 'react-toastify';
 import ErrorHandler from '../../Components/Layouts/ErrorHandler';
-import Loading from '../../Components/Layouts/Loading';
 import AdminSidebar from '../../Components/Admin/AdminSidebar';
 import AdminHeader from '../../Components/Admin/AdminHeader';
 import { AlertCircle, CheckCircle, Filter, Mail, Phone, Search, 
     Shield, ShieldCheck, User, Users, XCircle } from 'lucide-react';
 import Pagination from '../../Components/Layouts/Pagination';
+import useDebounce from '../../Hooks/useDebounce';
 
 const ManagePsychologist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [psychologists, setPsychologists] = useState([]);
   const [status,setStatus] = useState('all')
+  const [search,setSearch] = useState('')
+  const debouncedSearch = useDebounce(search,500)
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalpage] = useState(1);
   const page_size = 6;
@@ -20,7 +22,7 @@ const ManagePsychologist = () => {
   const getPsychologistDetails = async (page) => {
     try {
       setIsLoading(true);
-      const data = await AdminPsychologistDetailApi(page,status);
+      const data = await AdminPsychologistDetailApi(page,status,debouncedSearch);
       setPsychologists(data.results);
       setTotalpage(Math.ceil(data.count / page_size));
     } catch (error) {
@@ -32,7 +34,7 @@ const ManagePsychologist = () => {
 
   useEffect(() => {
     getPsychologistDetails(currentPage);
-  }, [currentPage,status]);
+  }, [currentPage,status,debouncedSearch]);
 
   const managePsychologist = async (psychologist_id, current_status) => {
     try {
@@ -52,8 +54,13 @@ const ManagePsychologist = () => {
     }
   };
 
+  const handleSearch = (e) =>{
+      e.preventDefault()
+      setSearch(e.target.value)
+      setCurrentPage(1)
+    }
+
   return (
-    <Loading isLoading={isLoading}>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-16">
       <AdminHeader />
       <div className="ml-0 lg:ml-64 transition-all duration-300">
@@ -76,7 +83,8 @@ const ManagePsychologist = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search by name or email..."
+                    placeholder="Search by name..."
+                    onChange={handleSearch}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
@@ -192,7 +200,6 @@ const ManagePsychologist = () => {
         </main>
       </div>
     </div>
-    </Loading>
   )
 }
 

@@ -15,6 +15,11 @@ const FilterSidebar = ({search,category,author,sort,setSearch,setCategory,setAut
     }
   }
 
+  const handleSearch = (e) =>{
+    e.preventDefault()
+    setSearch(e.target.value)
+  }
+
   useEffect(()=>{
     fetchCategoies()
   },[])
@@ -30,7 +35,7 @@ const FilterSidebar = ({search,category,author,sort,setSearch,setCategory,setAut
               </div>
               <input 
                 value={search}
-                onChange={(e)=>setSearch(e.target.value)}
+                onChange={handleSearch}
                 className="w-full flex-1 resize-none overflow-hidden rounded-r-lg border-none bg-transparent pl-2 text-base font-normal placeholder:text-[#6B7280] focus:outline-none focus:ring-0" 
                 placeholder="Search articles..."
               />

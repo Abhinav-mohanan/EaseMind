@@ -5,7 +5,7 @@ import ErrorHandler from '../../Layouts/ErrorHandler';
 import { ArticlesListApi } from '../../../api/articlesApi';
 import Pagination from '../../Layouts/Pagination';
 
-const ArticlesList = ({search,category,author,sort,filterTrigger}) => {
+const ArticlesList = ({debouncedSearch,category,author,sort,filterTrigger}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -15,7 +15,7 @@ const ArticlesList = ({search,category,author,sort,filterTrigger}) => {
   const fetchArticles = async (page) => {
     try {
       setIsLoading(true);
-      const data = await ArticlesListApi(page,search,category,author,sort);
+      const data = await ArticlesListApi(page,debouncedSearch,category,author,sort);
       setArticles(data.results);
       setTotalPages(Math.ceil(data.count / page_size));
     } catch (error) {
@@ -27,7 +27,7 @@ const ArticlesList = ({search,category,author,sort,filterTrigger}) => {
 
   useEffect(() => {
     fetchArticles(currentPage);
-  }, [currentPage, search,filterTrigger]);
+  }, [currentPage, debouncedSearch,filterTrigger]);
 
   const handlePageChange = (pageNum) => {
     if (pageNum > 0 && pageNum <= totalPages) {
