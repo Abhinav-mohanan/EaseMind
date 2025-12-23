@@ -84,7 +84,8 @@ class PsychologistAvailabilityView(APIView):
 class PsychologistListView(APIView):
     permission_classes = [AllowAny]
     def get(self,request):
-        psychologit = PsychologistProfile.objects.filter(user__role='psychologist',is_verified='verified').select_related('user')
+        psychologit = PsychologistProfile.objects.filter(user__role='psychologist',
+                                                         is_verified='verified',user__is_blocked=False).select_related('user')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(psychologit,request)
         serializer = PsychologistListSerializer(page,many=True)
@@ -125,7 +126,8 @@ class PsychologistDetailsView(APIView):
         today = datetime.today().date()
         tomorrow = today + timedelta(days=1)
         try:
-            psychologist = PsychologistProfile.objects.get(id=psychologist_id,user__role='psychologist')
+            psychologist = PsychologistProfile.objects.get(id=psychologist_id,
+                                                           user__role='psychologist',user__is_blocked=False)
             slots_qs = PsychologistAvailability.objects.filter(psychologist=psychologist,is_booked=False)
             date_filters = {
                 'today':{'date':today},

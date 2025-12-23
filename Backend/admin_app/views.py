@@ -10,8 +10,12 @@ from authentication_app.permissions import IsAdmin
 from authentication_app.models import CustomUser,PsychologistProfile
 from notification.utils import create_notification
 from wallet.models import WalletTransaction
+from appointments.models import Appointment
+from appointments.services import cancel_appointment_service
 from .serializers import RevenueTransactionSerializer,AdminUsersSerializer
 from django.db.models import Q
+from django.db import transaction
+from django.utils.timezone import now
 import logging
 
 
@@ -123,20 +127,36 @@ class ManagePsychologistView(APIView):
         
         is_blocked = request.data.get('is_blocked')
         was_block = psychologist.is_blocked
-        if is_blocked is not None:
-            psychologist.is_blocked = is_blocked
-        else:
-            psychologist.is_blocked = not psychologist.is_blocked
-        psychologist.save()
-        if not was_block and psychologist.is_blocked:
-            try:
-                tokens = OutstandingToken.objects.filter(user=psychologist)
-                BlacklistedToken.objects.bulk_create(
-                [BlacklistedToken(token=token) for token in tokens],
-                ignore_conflicts=True
+        new_block_state = is_blocked if is_blocked is not None else psychologist.is_blocked
+        try:
+            with transaction.atomic():
+                psychologist.is_blocked = new_block_state
+                psychologist.save(update_fields=['is_blocked'])
+                if not was_block and new_block_state:
+                    psychologist_profile = psychologist.psychologist_profile
+                    future_appointment = Appointment.objects.filter(
+                        psychologist=psychologist_profile,
+                        status='booked',
+                        availability__date__gte=now().date()
                     )
-            except Exception as e:
-                logger.warning(f'Failed to blacklist token of user : {str(e)}')
+                    for appointment in future_appointment:
+                        cancel_appointment_service(
+                            appointment=appointment,
+                            cancelled_by='admin',
+                            description='Psychologist blocked by admin',
+                            requested_user=request.user,
+                            force_refund=True
+                        )
+
+                    tokens = OutstandingToken.objects.filter(user=psychologist)
+                    BlacklistedToken.objects.bulk_create(
+                    [BlacklistedToken(token=token) for token in tokens],
+                    ignore_conflicts=True
+                        )
+        except Exception as e:
+            logger.warning(f'Failed to blacklist token of user : {str(e)}')
+            return Response({"error":"something went wrong ,Please try again later"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'message':f"Psychologsit {'blocked' if psychologist.is_blocked else 'unblocked'} successfully",
                          'is_blocked':is_blocked},status=status.HTTP_200_OK)
     

@@ -5,12 +5,12 @@ const ErrorHandler = (error, defaultMsg = 'An error occurred. Please try again l
   const errorMessages = error?.response?.data || { error: [defaultMsg] };
   const status = error?.response?.status
   if (status === 403){
+    toast.error("Access denied.Please login again")
     axiosInstance.post('/logout/')
     .catch(()=>{})
-    .finally(()=>{
-      toast.error("Access denied")
-      window.location.href = '/login';
-    })
+    setTimeout(() => {
+      window.location.href='/login'
+    }, 2000);
     return
   }
 
