@@ -51,22 +51,6 @@ const RoleSelection = () => {
             </div>
           </div>
 
-          {/* Disabled Login/Register Tabs */}
-          <div className="flex gap-2 justify-center">
-            <button
-              disabled
-              className="px-6 py-2 text-sm rounded-full bg-gray-200 text-gray-400 cursor-not-allowed"
-            >
-              Login
-            </button>
-            <button
-              disabled
-              className="px-6 py-2 text-sm rounded-full bg-gray-200 text-gray-400 cursor-not-allowed"
-            >
-              Register
-            </button>
-          </div>
-
           {/* Role Selection Buttons */}
           <div className="space-y-4">
             <button

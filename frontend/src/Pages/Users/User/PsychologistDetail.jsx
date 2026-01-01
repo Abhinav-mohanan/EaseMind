@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import ErrorHandler from '../../../Components/Layouts/ErrorHandler'
 import Navbar from '../../../Components/Users/Common/Navbar'
 import { Award, BookOpen, Calendar, Clock, Mail, Phone, User } from 'lucide-react'
@@ -9,8 +9,10 @@ import Loading from '../../../Components/Layouts/Loading'
 import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import BookingConfirmationCard from '../../../Components/Users/User/BookingConfirmationCard'
+import Breadcrumbs from '../../../Components/Layouts/Breadcrumbs'
 
 const PsychologistDetail = () => {
+  const navigate = useNavigate()
   const { psychologist_id } = useParams()
   const [profile, setProfile] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -20,6 +22,11 @@ const PsychologistDetail = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [paymentLoading,setPaymentLoading] = useState(false)
   const itemPerPage = 3
+  const role = localStorage.getItem('role')
+  const breadcrumbsItems = [
+    {label:'Therapist',link:'/therapist'},
+    {label:'details',link:null}
+  ]
 
   const FetchPsychologist = async () => {
     try {
@@ -51,6 +58,11 @@ const PsychologistDetail = () => {
   }, {}) || {}
 
   const handleSlotSelection = (slot) => {
+    if (!role || role !== 'user'){
+      toast.info('Please login as a user to book an appointment')
+      navigate('/login')
+      return
+    }
     setSelectedSlot(slot);
   }
 
@@ -72,6 +84,11 @@ const PsychologistDetail = () => {
   } 
 
   const handlePayment = async()=>{
+    if(!role || role !== 'user'){
+      toast.info("Please login as a user to book an appointment.")
+      navigate('/login')
+      return
+    }
     if(!selectedSlot) return
     const locked = await lockSlot(selectedSlot.id)
     if(!locked){
@@ -148,6 +165,7 @@ const PsychologistDetail = () => {
         <Navbar />
         <main className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
+              <Breadcrumbs items={breadcrumbsItems}/>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Sidebar - Profile Info */}
               <div className="lg:col-span-1">

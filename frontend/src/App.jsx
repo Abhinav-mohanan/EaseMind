@@ -8,39 +8,19 @@ import Home from './Pages/Users/Home'
 import ForgotPassword from './Pages/Users/ForgotPassword'
 import ResetPasswordEmailverification from './Pages/Users/ResetPasswordEmailverification'
 import ResetPassword from './Pages/Users/ResetPassword'
-import UserProfile from './Pages/Users/User/UserProfile'
-import PsychologistProfile from './Pages/Users/Psychologist/PsychologistProfile'
 import AdminLogin from './Pages/Admin/AdminLogin'
-import ManageUser from './Pages/Admin/ManageUser'
-import ManagePsychologist from './Pages/Admin/ManagePsychologist'
-import PsychologistVerification from './Pages/Admin/PsychologistVerification'
-import CreateArticle from './Pages/Users/Psychologist/CreateArticle'
 import PublishedArticles from './Pages/Users/PublishedArticles'
 import ArticleDetails from './Pages/Users/ArticleDetails'
-import ArticlesManage from './Pages/Admin/ArticlesManage'
-import PsychologistAvailability from './Pages/Users/Psychologist/PsychologistAvailability'
 import PsychologistsList from './Pages/Users/Psychologists'
 import PsychologistDetail from './Pages/Users/User/PsychologistDetail'
-import PsychologistAppointments from './Pages/Users/Psychologist/PsychologistAppointments'
-import UserAppointments from './Pages/Users/User/UserAppointments'
-import ViewAppointments from './Pages/Admin/ViewAppointments'
-import UserAppointmentDetails from './Pages/Users/User/UserAppointmentDetails'
-import PsychologistAppointmentDetails from './Pages/Users/Psychologist/PsychologistAppointmentDetails'
 import Chatpage from './Pages/Users/Chatpage'
 import VideoCall from './Pages/Users/VideoCall'
-import PsychologistCompletedAppointments from './Pages/Users/Psychologist/PsychologistCompletedAppointments'
-import UserCompletedAppointments from './Pages/Users/User/UserCompletedAppointments '
-import PsychologistPrescription from './Pages/Users/Psychologist/PsychologistPrescription'
-import UserPrescription from './Pages/Users/User/Userprescription'
-import UserHealthTracking from './Pages/Users/User/UserHealthTracking'
-import UserHealthTrackingDetail from './Pages/Users/User/UserHealthTrackingDetail'
-import UserHealthStatus from './Pages/Users/Psychologist/UserHealthStatus'
-import UserWalletTransactionList from './Pages/Users/User/UserWalletTransactionList'
-import PsychologistWallet from './Pages/Users/Psychologist/PsychologistWallet'
-import AdminDashboard from './Pages/Admin/AdminDashboard'
-import AddCategory from './Pages/Admin/AddCategory'
-import ManagePayout from './Pages/Admin/ManagePayout'
-import RevenueDetails from './Pages/Admin/RevenueDetails'
+import AdminRoutes from './Routes/AdminRoutes'
+import ProtectedRoute from './Routes/ProtectedRoute'
+import UserRoutes from './Routes/UserRoutes'
+import PsychologistRoutes from './Routes/PsychologistRoutes'
+import NotFound from './Pages/Users/NotFound'
+import PublicRoute from './Routes/PublicRoute'
 
 
 function App() {
@@ -59,48 +39,39 @@ function App() {
         theme="light"
       />
       <Routes>
+        <Route element={<PublicRoute /> }>
         <Route path='/roleSelection' element={<RoleSelection />} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/verify-otp' element={<EmailVerification />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Home />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/resetpassword/email-verify' element={<ResetPasswordEmailverification />} />
         <Route path='/reset-password' element={<ResetPassword />} />
-        <Route path='/user/profile' element={<UserProfile />} />
-        <Route path='/psychologist/profile' element={<PsychologistProfile />} />
         <Route path='/admin/login' element={<AdminLogin />} />
-        <Route path='/admin/user/management' element={<ManageUser />} />
-        <Route path='/admin/psychologist/management' element={<ManagePsychologist />} />
-        <Route path='/admin/psychologist/verification' element={<PsychologistVerification />} />
-        <Route path='/psychologist/articles' element={<CreateArticle />} />
-        <Route path='/psychologist/availability' element={<PsychologistAvailability />} />
+        </Route>
+
+        <Route path='/' element={<Home />} />
         <Route path='/articles' element={<PublishedArticles />} />
         <Route path='/article/detail/:article_id' element={<ArticleDetails />} />
-        <Route path='/admin/articles' element={<ArticlesManage />} />
         <Route path='/therapist' element={<PsychologistsList />} />
         <Route path='/therapist/details/:psychologist_id' element={<PsychologistDetail />} />
-        <Route path='/psychologist/appointments' element={<PsychologistAppointments />} />
-        <Route path='/user/appointments' element={<UserAppointments />} />
-        <Route path='/admin/appointments' element={<ViewAppointments />} />
-        <Route path='/user/appointment/:appointment_id' element={<UserAppointmentDetails />} />
-        <Route path='/psychologist/appointment/:appointment_id' element={<PsychologistAppointmentDetails />} />
-        <Route path='/user/wallet/transaction' element={<UserWalletTransactionList />} />
-        <Route path='/psychologist/wallet/transaction' element={<PsychologistWallet />} />
         <Route path='/chat' element={<Chatpage />} />
-        <Route path='/video-call/:appointment_id' element={<VideoCall />} />
-        <Route path='/psychologist/consultations' element={<PsychologistCompletedAppointments />} />
-        <Route path='/user/consultations' element={<UserCompletedAppointments />} />
-        <Route path='/psychologist/prescription/:appointment_id' element={<PsychologistPrescription />} />
-        <Route path='/user/prescription/:appointment_id' element={<UserPrescription />} />
-        <Route path='/user/health-tracking' element={<UserHealthTracking />} />
-        <Route path='/user/health-tracking/:health_tracking_id' element={<UserHealthTrackingDetail />} />
-        <Route path='/psychologist/user/health-status' element={<UserHealthStatus />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
-        <Route path='/admin/categories/create' element={<AddCategory />} />
-        <Route path='/admin/payouts' element={<ManagePayout />} />
-        <Route path='/admin/revenue-details' element={<RevenueDetails />} />
-        
+        <Route path='/video-call/:appointment_id' element={<VideoCall />} />    
+
+        <Route path='/admin' element={<ProtectedRoute allowedRoles={['admin']}/>}>
+          {AdminRoutes}
+        </Route> 
+
+        <Route path='user' element={<ProtectedRoute allowedRoles={['user']}/>}>
+          {UserRoutes}
+        </Route> 
+
+        <Route path='psychologist' element={<ProtectedRoute allowedRoles={['psychologist']}/>}>
+          {PsychologistRoutes}
+        </Route>  
+
+        <Route path='*' element={<NotFound />}></Route>
+
       </Routes>
     </Router>
   );

@@ -43,12 +43,12 @@ const AuthForm = ({ type, fields }) => {
           `${field.name.replace(/_/g, ' ').toLowerCase() || field.placeholder} is required`;
       }
       if ((field.name === 'first_name' || field.name === 'last_name') && value) {
-        if (!/^[A-Za-z]+$/.test(value)) {
+        if (!/^[A-Za-z]+$/.test(value.trim())) {
           newErrors[field.name] = `Enter a Valid ${field.name.replace(/_/g, ' ')}`;
         }
       }
       if (field.name === 'phone_number' && value) {
-        if (value.length < 10) {
+        if (value.length !== 10) {
           newErrors.phone_number = 'Enter a Valid Phone number';
         }
       }
