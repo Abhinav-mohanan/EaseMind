@@ -5,7 +5,7 @@ import PsychologistSidebar from '../../../Components/Users/Psychologist/Psycholo
 import Loading from '../../../Components/Layouts/Loading';
 import Pagination from '../../../Components/Layouts/Pagination';
 import ConfirmationModal from '../../../Components/Layouts/ConfirmationModal';
-import SlotForm from '../../../Components/Users/Psychologist/slotForm';
+import SlotForm from '../../../Components/Users/Psychologist/SlotForm';
 import SlotList from '../../../Components/Users/Psychologist/SlotList';
 import { useSlots } from '../../../Hooks/UseSlots';
 
