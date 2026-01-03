@@ -7,7 +7,7 @@ import Pagination from '../../../Components/Layouts/Pagination';
 import ConfirmationModal from '../../../Components/Layouts/ConfirmationModal';
 import SlotForm from '../../../Components/Users/Psychologist/SlotForm';
 import SlotList from '../../../Components/Users/Psychologist/SlotList';
-import { useSlots } from '../../../Hooks/UseSlots';
+import { useSlots } from '../../../Hooks/useSlots';
 
 const PsychologistAvailability = () => {
     const {
