@@ -22,7 +22,6 @@ const UserAppointments = () => {
         try {
             const data = await UserAppointmentsApi(page, statusFilter);
             setAppointments(data.results);
-            console.log(data.results)
             setTotalPages(Math.ceil(data.count / page_size));
         } catch (error) {
             ErrorHandler(error);
@@ -69,7 +68,7 @@ const UserAppointments = () => {
                     <div className="p-4 sm:p-6 md:p-8 lg:p-10 mx-auto max-w-7xl"> 
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">Your Appointments</h2> 
                             <div className="mb-6 flex flex-wrap gap-3">
-                                {['booked', 'completed', 'cancelled'].map((status) => (
+                                {['booked', 'completed', 'cancelled','not_attended'].map((status) => (
                                     <button
                                         key={status}
                                         className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ease-in-out
@@ -200,7 +199,7 @@ const UserAppointments = () => {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <span
                                                             className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full
-                                                                ${appointment.status === 'booked'
+                                                                ${appointment.status === 'booked' || appointment.status === 'not_attended'
                                                                     ? 'bg-yellow-100 text-yellow-700'
                                                                     : appointment.status === 'completed'
                                                                         ? 'bg-green-100 text-green-700'

@@ -2,6 +2,8 @@ from django.utils import timezone
 from datetime import datetime,timedelta
 from django.db import transaction
 from wallet.models import WalletTransaction,Wallet
+from django_celery_beat.models import ClockedSchedule,PeriodicTask
+import json
 
 
 def cancel_appointment_service(
@@ -70,4 +72,27 @@ def cancel_appointment_service(
                 description=readable_description
             )
     return appointment
-        
+
+def schedule_appointment_reminder(appointment):
+    appointment_start = timezone.make_aware(
+        datetime.combine(
+                appointment.availability.date,
+                appointment.availability.start_time
+        )
+    )
+    reminder_time = appointment_start - timedelta(minutes=30)
+    
+    if reminder_time <= timezone.now():
+        return
+    
+    clocked,_ = ClockedSchedule.objects.get_or_create(
+        clocked_time = reminder_time
+    )
+
+    PeriodicTask.objects.create(
+        name=f'appointment_reminder-{appointment.id}',
+        task='appointments.tasks.send_appointment_reminder',
+        args=json.dumps([appointment.id]),
+        clocked=clocked,
+        one_off=True
+    )

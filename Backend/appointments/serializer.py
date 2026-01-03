@@ -29,10 +29,13 @@ class PsychologistAvailabilitySerializer(serializers.ModelSerializer):
         instance = getattr(self,'instance')
         start_time = data.get('start_time') or (instance.start_time if instance else None)
         date = data.get('date') or (instance.date if instance else None)
-        start_datetime = datetime.combine(date,start_time)
+        start_datetime = timezone.make_aware(datetime.combine(date,start_time))
         end_time = (start_datetime + timedelta(minutes=30)).time()
         request = self.context.get('request')
         psychologist = request.user.psychologist_profile
+
+        if start_datetime < timezone.now():
+            raise serializers.ValidationError(f"You can't create a slot in the past. Please choose a future time.")
 
         overlapping_slots = PsychologistAvailability.objects.filter(
             psychologist=psychologist,

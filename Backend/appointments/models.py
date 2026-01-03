@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime,timedelta
+from django.utils import timezone
 from authentication_app.models import PsychologistProfile,CustomUser
 
 # Create your models here.
@@ -29,13 +30,18 @@ class PsychologistAvailability(models.Model):
         start_datetime = datetime.combine(datetime.today(),self.start_time)
         end_datetime = start_datetime + timedelta(minutes=30)
         return end_datetime.time()
+    
+    @property
+    def is_locked(self):
+        return self.locked_until and self.locked_until > timezone.now()
 
 
 class Appointment(models.Model):
     STATUS_CHOICES = (
         ('booked','Booked'),
         ('completed','Completed'),
-        ('cancelled','Cancelled')
+        ('cancelled','Cancelled'),
+        ('not_attended','Not Attended'),
     )
 
     CANCELLED_BY = (

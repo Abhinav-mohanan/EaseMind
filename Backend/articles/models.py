@@ -24,6 +24,8 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='draft')
+    total_reads = models.PositiveBigIntegerField(default=0)
+
     
     class Meta:
         ordering = ['-created_at']

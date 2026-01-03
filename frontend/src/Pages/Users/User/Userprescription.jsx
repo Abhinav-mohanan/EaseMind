@@ -7,10 +7,10 @@ import Navbar from "../../../Components/Users/Common/Navbar";
 import { ArrowLeft, FileText, User, Calendar, Clock } from "lucide-react";
 import UserSidebar from "../../../Components/Users/User/UserSidebar";
 import Breadcrumbs from "../../../Components/Layouts/Breadcrumbs";
+import { toast } from "react-toastify";
 
 const UserPrescription = () => {
   const { appointment_id } = useParams();
-  const navigate = useNavigate();
 
   const [prescription, setPrescription] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,10 +19,12 @@ const UserPrescription = () => {
     setIsLoading(true);
     try {
       const data = await GetUserPrescriptionApi(appointment_id);
+      if (data?.type === 'info'){
+        toast.info(data.message)
+        setPrescription(null)
+      }
       if (data?.id) {
         setPrescription(data);
-      } else {
-        setPrescription(null);
       }
     } catch (error) {
       ErrorHandler(error);

@@ -11,6 +11,7 @@ from .models import (Article,ArticleRead,Category,ArticleLike,ArticleComment)
 from .permissions import IsCommentOwner
 from django.db.models import Q,Count
 import logging
+from django.db.models import F
 # Create your views here.
 
 logger = logging.getLogger(__name__)
@@ -75,7 +76,7 @@ class ArticleListView(APIView):
         category = request.query_params.get('category')
         author = request.query_params.get('author')
         sort = request.query_params.get('sort')
-        articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads'))
+        articles = Article.objects.filter(status='published')
         if search_query:
             articles = articles.filter(
                 Q(title__icontains=search_query)|
@@ -103,19 +104,36 @@ class ArticleListView(APIView):
 class TopArticlesView(APIView):
     permission_classes = [AllowAny]
     def get(self,request):
-        articles = Article.objects.filter(status='published').annotate(total_readers=Count('reads')
-                                                                       ).order_by('-total_readers').distinct()[:3]
+        articles = Article.objects.filter(status='published'
+                                          ).order_by('-total_reads').distinct()[:3]
         serializer = ArticleListSerializer(articles,many=True,context={'request':request})
         return Response(serializer.data)
 
 class ArticleDetailView(APIView):
     permission_classes = [AllowAny]
     def get(self,request,article_id):
-        user = request.user
         try:
-            article = Article.objects.annotate(total_readers=Count('reads')).get(id=article_id,status='published')
+            article = Article.objects.get(id=article_id,status='published')
+            user = request.user
+            session_key = f'viewed_article_{article_id}'
+            already_counted = False
+
             if user.is_authenticated:
-                ArticleRead.objects.get_or_create(user=user,article=article)
+                read_record,created = ArticleRead.objects.get_or_create(
+                    user=user,article=article
+                    )
+                if not created:
+                    already_counted = True
+            else:
+                if request.session.get(session_key):
+                    already_counted = True
+                else:
+                    request.session[session_key] = True
+            if not already_counted:
+                Article.objects.filter(id=article_id).update(
+                    total_reads=F('total_reads') + 1
+                )
+                article.refresh_from_db()
             serializer = ArticleListSerializer(article,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:

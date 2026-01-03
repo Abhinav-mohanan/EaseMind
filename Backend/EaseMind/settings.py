@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     'notification',
     
     
-
     'rest_framework',
     'corsheaders',
     'cloudinary',
@@ -66,6 +65,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'channels',
+    'django_celery_beat',
     
 
 
@@ -240,6 +240,8 @@ ZEGO_APP_ID =os.getenv('ZEGO_APP_ID')
 ZEGO_SERVER_SECRET=os.getenv('ZEGO_SERVER_SECRET')
 
 OTP_EXPIRY_MINUTES = int(os.getenv('OTP_EXPIRY_MINUTES',5))
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 LOGGING = {
     'version':1,

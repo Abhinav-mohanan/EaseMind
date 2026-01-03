@@ -14,6 +14,7 @@ from .permissions import IsNotBlocked,IsPsychologist
 from notification.utils import create_notification
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
 import logging
@@ -164,6 +165,7 @@ class Logoutview(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         refresh_token = request.COOKIES.get('refresh_token')
+        logout(request)
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)

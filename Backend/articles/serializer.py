@@ -37,7 +37,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 class ArticleListSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
     cover_image = serializers.SerializerMethodField()
-    total_readers = serializers.IntegerField(read_only=True)
+    total_readers = serializers.SerializerMethodField(read_only=True)
     likes = serializers.SerializerMethodField(read_only=True)
     is_liked = serializers.SerializerMethodField(read_only=True)
     category = serializers.SerializerMethodField()
@@ -73,7 +73,9 @@ class ArticleListSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
-
+    
+    def get_total_readers(self,obj):
+        return obj.total_reads
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:

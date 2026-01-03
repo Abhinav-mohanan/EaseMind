@@ -10,7 +10,8 @@ from .models import PsychologistAvailability,Appointment,Payment
 from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSerializer,AppointmentListSerializer,
                          PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,
                          AppointmentCancelSerializer,AppointmentCompleteSerializer)
-from rest_framework import serializers
+from notification.utils import create_notification
+from .services import schedule_appointment_reminder
 from datetime import date,datetime
 from django.conf import settings
 from django.utils import timezone
@@ -19,7 +20,7 @@ from datetime import timedelta
 from decimal import Decimal
 import razorpay
 import logging
-from notification.utils import create_notification
+
 
 
 logger = logging.getLogger(__name__)
@@ -104,22 +105,30 @@ class LockSlotView(APIView):
     def post(self,request):
         slot_id = request.data.get('slot_id')
         try:
-            slot = PsychologistAvailability.objects.get(id=slot_id)
+            with transaction.atomic():
+                slot = (
+                    PsychologistAvailability.objects
+                    .select_for_update()
+                    .get(id=slot_id)
+                )
+
+                if slot.is_booked:
+                    return Response({'error':"Slot already booked"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                
+                if slot.is_locked:
+                    return Response({'error':"slot is temporarily  locked"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                slot.locked_until = timezone.now() + timedelta(minutes=7)
+                slot.save()
+                return Response({'locked_until':slot.locked_until})
             
-            if slot.is_booked:
-                return Response({"error":"Slot is already booked"},status=status.HTTP_400_BAD_REQUEST)
-            if slot.locked_until and slot.locked_until >timezone.now():
-                return Response({'error':"slot is temporarily locked please try agian after some time"},
-                                status=status.HTTP_400_BAD_REQUEST)
-            slot.locked_until = timezone.now() + timedelta(minutes=7)
-            slot.save()
-            return Response({'locked_unitl':slot.locked_until})
         except PsychologistAvailability.DoesNotExist:
             return Response({"error":"Slot not found"},status=status.HTTP_404_NOT_FOUND)
         
 
 class PsychologistDetailsView(APIView):
-    permission_classes = [IsUser]
+    permission_classes = [AllowAny]
     def get(self,request,psychologist_id):
         date_filter = request.query_params.get('date_filter')
         custom_date = request.query_params.get('custom_date')
@@ -238,6 +247,8 @@ class BookSlotView(APIView):
                     description=f'Locked amount {psychologist_amount} for Appointment :{appointment.id}',
                     appointment=appointment
                 )
+
+                schedule_appointment_reminder(appointment)
 
                 create_notification(
                     user=request.user,

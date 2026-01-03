@@ -7,6 +7,7 @@ from django.conf import settings
 from .utils import send_otp_email
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta,datetime,date
+import re
 
 class SignupSerializer(serializers.ModelSerializer):
     # Write-only (not  returned in response)
@@ -23,13 +24,24 @@ class SignupSerializer(serializers.ModelSerializer):
         confirm_password = data.get('confirm_password')
         email = data.get('email')
         phone_number = data.get('phone_number')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
 
+        if  len(first_name.strip()) < 2 or not bool(re.fullmatch(r'[A-Za-z]+',first_name)):
+            errors['first_name'] = 'Enter a valid first name'
+        if not bool(re.fullmatch(r'[A-Za-z]+',last_name)):
+            errors['last_name'] = 'Enter a valid last name'
         if password != confirm_password:
             errors['password'] = 'Password do not match'
         if CustomUser.objects.filter(email=email).exists():
             errors['email'] = 'Email already exists'
-        if password and len(password) < 6:
-            errors['password'] = 'Password must be at least 6 characters'
+        if password:
+            if len(password) < 6:
+                errors['password'] = 'Password must be at least 6 characters'
+            elif not re.search(r'[A-Za-z]',password):
+                errors['password'] = 'Password must contain at least one letter'
+            elif not re.search(r'\d',password):
+                errors['password'] = 'Password must contain at least one number'
         if phone_number and len(phone_number) < 10:
             errors['phone_number'] = 'Enter a valid Phone number'
         

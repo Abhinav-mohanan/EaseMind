@@ -126,7 +126,7 @@ class UserPrescriptionView(APIView):
             if prescription:
                 serializer = PrescriptionSerializer(prescription)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response({"error": "No prescription available for this appointment."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "No prescription available for this appointment.",'type':'info'}, status=status.HTTP_200_OK)
         except Appointment.DoesNotExist:
             return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
