@@ -9,7 +9,7 @@ import { useNotifications } from '../../../Hooks/UseNotifications'
 import NavLinks from './NavLinks';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationPanel from './NotificationPanel ';
-import ConfirmationModal from '../../Layouts/Confirmationmodal';
+import ConfirmationModal from '../../Layouts/ConfirmationModal';
 
 const Navbar = () => {
   const navigate = useNavigate()
