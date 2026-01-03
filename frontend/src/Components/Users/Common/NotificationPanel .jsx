@@ -4,7 +4,7 @@ import { useOnClickOutside } from '../../../Hooks/useOnClickOutside ';
 import { ClearAllNotificationsApi, MarkAllAsReadApi } from '../../../api/notificationApi'
 import { toast } from 'react-toastify';
 import ErrorHandler from '../../Layouts/ErrorHandler';
-import ConfirmationModal from '../../Layouts/Confirmationmodal';
+import ConfirmationModal from '../../Layouts/ConfirmationModal';
 
 const formatDate = (dateString) => {
   if (!dateString) return "Just now";

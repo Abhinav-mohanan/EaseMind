@@ -5,7 +5,7 @@ import ErrorHandler from '../../Layouts/ErrorHandler';
 import Pagination from '../../Layouts/Pagination';
 import { Delete, Edit, Trash, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import ConfirmationModal from '../../Layouts/Confirmationmodal';
+import ConfirmationModal from '../../Layouts/ConfirmationModal';
 
 const CommentsSection = () => {
   const role = localStorage.getItem('role');

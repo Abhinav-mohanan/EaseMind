@@ -7,7 +7,7 @@ import AdminSidebar from '../../Components/Admin/AdminSidebar';
 import AdminHeader from '../../Components/Admin/AdminHeader';
 import { Eye, ImageIcon, Trash2, XCircle, Search, Plus } from 'lucide-react';
 import Pagination from '../../Components/Layouts/Pagination';
-import ConfirmationModal from '../../Components/Layouts/Confirmationmodal';
+import ConfirmationModal from '../../Components/Layouts/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 
 const ArticlesManage = () => {

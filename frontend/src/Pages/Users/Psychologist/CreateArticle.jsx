@@ -7,7 +7,7 @@ import PsychologistSidebar from '../../../Components/Users/Psychologist/Psycholo
 import { PenSquare, Trash2, BookOpen, Eye, Save, X, Plus, Calendar, User, Image, Search, Filter, XCircle } from 'lucide-react';
 import Navbar from '../../../Components/Users/Common/Navbar';
 import Pagination from '../../../Components/Layouts/Pagination';
-import ConfirmationModal from '../../../Components/Layouts/Confirmationmodal';
+import ConfirmationModal from '../../../Components/Layouts/ConfirmationModal';
 
 const CreateArticle = () => {
     const [isLoading, setIsLoading] = useState(false);

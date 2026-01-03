@@ -4,7 +4,7 @@ import { LogOut, User, ChevronDown,Menu} from 'lucide-react'
 import { LogoutApi } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import ErrorHandler from '../Layouts/ErrorHandler'
-import ConfirmationModal from '../Layouts/Confirmationmodal'
+import ConfirmationModal from '../Layouts/ConfirmationModal'
 import NotificationPanel from '../Users/Common/NotificationPanel '
 import { useNotifications } from '../../Hooks/UseNotifications'
 

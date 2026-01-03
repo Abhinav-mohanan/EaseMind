@@ -8,7 +8,7 @@ import Pagination from '../../Components/Layouts/Pagination'
 import { toast } from 'react-toastify'
 import CategoryTable from '../../Components/Users/Common/CategoryTable'
 import CategoryModal from '../../Components/Users/Common/CategoryModal'
-import ConfirmationModal from '../../Components/Layouts/Confirmationmodal'
+import ConfirmationModal from '../../Components/Layouts/ConfirmationModal'
 import Breadcrumbs from '../../Components/Layouts/Breadcrumbs'
 
 const AddCategory = () => {
