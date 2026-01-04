@@ -6,4 +6,4 @@ class AppointmentsConfig(AppConfig):
     name = 'appointments'
 
     def ready(self):
-        import appointments.s
+        import appointments.signals
