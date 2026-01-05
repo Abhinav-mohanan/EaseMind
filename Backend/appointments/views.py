@@ -119,7 +119,7 @@ class LockSlotView(APIView):
                 if slot.is_locked:
                     return Response({'error':"slot is temporarily  locked"},
                                     status=status.HTTP_400_BAD_REQUEST)
-                slot.locked_until = timezone.now() + timedelta(minutes=7)
+                slot.locked_until = timezone.now() + timedelta(minutes=2)
                 slot.save()
                 return Response({'locked_until':slot.locked_until})
             
