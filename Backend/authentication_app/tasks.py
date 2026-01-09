@@ -16,5 +16,4 @@ def send_otp_email_task(email,subject,message):
         recipient_list=[email],
         fail_silently=False
     )
-    print(f"Otp send successfully")
     return f'OTP email send to {email}'

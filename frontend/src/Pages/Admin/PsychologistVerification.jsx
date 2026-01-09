@@ -6,6 +6,7 @@ import AdminSidebar from '../../Components/Admin/AdminSidebar';
 import AdminHeader from '../../Components/Admin/AdminHeader';
 import Pagination from '../../Components/Layouts/Pagination';
 import ActionModal from '../../Components/Layouts/ActionModal';
+import ConfirmationModal from '../../Components/Layouts/ConfirmationModal';
 
 const PsychologistVerification = () => {
     const [isLoading,setIsLoading] = useState(false)
@@ -16,6 +17,8 @@ const PsychologistVerification = () => {
     const [expandedProfileId,setExpandedProfileId] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProfileId, setSelectedProfileId] = useState(null);
+    const [isVerifyModalOpen, setVerifyModalOpen] = useState(false)
+    const [verificationAction, setVerificationAction] = useState(null)
     const pageSize = 6
 
     const fetchProfiles = async (page,status) => {
@@ -35,6 +38,12 @@ const PsychologistVerification = () => {
       fetchProfiles(currentPage,filter)
     },[currentPage,filter])
 
+    const onVerifyModal = (psychologist_id,action) =>{
+        setSelectedProfileId(psychologist_id)
+        setVerificationAction(action)
+        setVerifyModalOpen(true)
+    }
+
     const handleVerification = async(psychologist_id,action)=>{
       try{
         setIsLoading(true)
@@ -42,6 +51,7 @@ const PsychologistVerification = () => {
         toast.success(`profiel ${action}ed successfully`)
         setProfiles(profiles.filter(profile=>profile.user.id != psychologist_id))
         setExpandedProfileId(null)
+        setVerifyModalOpen(false)
       }catch(error){
         ErrorHandler(error)
       }finally{
@@ -389,7 +399,7 @@ const PsychologistVerification = () => {
                                                                             {/* Action Buttons */}
                                                                             <div className='flex justify-end space-x-4 pt-6 border-t border-slate-200'>
                                                                                 <button
-                                                                                    onClick={() => handleVerification(profile.user.id, 'verify')}
+                                                                                    onClick={() => onVerifyModal(profile.user.id, 'verify')}
                                                                                     className='inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5'
                                                                                 >
                                                                                     <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -444,6 +454,12 @@ const PsychologistVerification = () => {
             title='Confirm Rejection'
             prompt='Are you sure you want to reject this profile? This action cannot be undone. Please provide a reason for the cancellation.'
             confirmText='Confirm Rejection'/>
+
+            <ConfirmationModal
+            isOpen={isVerifyModalOpen}
+            onClose={()=>setVerifyModalOpen(false)}
+            onConfirm={()=>handleVerification(selectedProfileId,verificationAction)}
+            message='Are you sure you want to verify this psychologist?'/>
         </div>
     );
 };

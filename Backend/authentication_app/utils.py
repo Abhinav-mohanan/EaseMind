@@ -8,31 +8,44 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def send_otp_email(user,purpose='email_verification'):
-    otp = get_random_string(length=6,allowed_chars='1234567890')
-    
+def send_otp_email(user, purpose='email_verification'):
+    otp = get_random_string(length=6, allowed_chars='1234567890')
+
     EmailOTP.objects.update_or_create(
-        user = user,
-        purpose = purpose,
+        user=user,
+        purpose=purpose,
         defaults={
-            'otp':otp,
-            'created_at':timezone.now()
+            'otp': otp,
+            'created_at': timezone.now()
         }
     )
-    
-    subject = f'OTP for {purpose.replace('_',' ')} is {otp}'
+
+    purpose_labels = {
+        'email_verification': 'Signup Email Verification',
+        'password_reset': 'Password Reset',
+    }
+
+    readable_purpose = purpose_labels.get(
+        purpose,
+        purpose.replace('_', ' ').title()
+    )
+
+    subject = f'OTP for {readable_purpose}'
     name = f'{user.first_name} {user.last_name}'
+
     message = f"""
-    Hai {name},
-    
-    Your OTP for {purpose.replace('_',' ')} is:{otp}
+        Hi {name},
 
-    This OTP is valid for only a Five minutes
+        Your OTP for {readable_purpose} is: {otp}
 
-    Thank you,
-    EaseMind Team
-    """
-    send_otp_email_task.delay(user.email,subject,message)
+        This OTP is valid for only 5 minutes.
+
+        Thank you,
+        EaseMind Team
+        """
+
+    send_otp_email_task.delay(user.email, subject, message)
+
 
 # set jwt token in to http only cookie
 def set_token_cookies(response,access,refresh):

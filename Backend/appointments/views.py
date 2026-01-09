@@ -11,7 +11,7 @@ from .serializer import (PsychologistAvailabilitySerializer,PsychologistListSeri
                          PsychologistDetailSerializer,AppointmentWriterSerializer,AppointmentSerializer,
                          AppointmentCancelSerializer,AppointmentCompleteSerializer)
 from notification.utils import create_notification
-from .services import schedule_appointment_reminder
+from .services import schedule_appointment_reminder,RazorpayService
 from datetime import date,datetime
 from django.conf import settings
 from django.utils import timezone
@@ -119,7 +119,7 @@ class LockSlotView(APIView):
                 if slot.is_locked:
                     return Response({'error':"slot is temporarily  locked"},
                                     status=status.HTTP_400_BAD_REQUEST)
-                slot.locked_until = timezone.now() + timedelta(minutes=2)
+                slot.locked_until = timezone.now() + timedelta(minutes=7)
                 slot.save()
                 return Response({'locked_until':slot.locked_until})
             
@@ -151,16 +151,11 @@ class PsychologistDetailsView(APIView):
             return Response({"error":"Psychologist not found"},status=status.HTTP_404_NOT_FOUND)
 
 
-client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID,settings.RAZORPAY_KEY_SECRET))
-
 class CreateOrderView(APIView):
     def post(self,request):
         amount = request.data.get('amount')
-        razorpay_order = client.order.create({
-            "amount":int(amount),
-            "currency":"INR",
-            "payment_capture":1
-        })
+        razorpay_service = RazorpayService()
+        razorpay_order = razorpay_service.create_order(amount)
         user = request.user
         name = f'{user.first_name} {user.last_name}'
         phone_number = user.phone_number
@@ -191,7 +186,8 @@ class BookSlotView(APIView):
             'razorpay_signature':signature
         }
         try:
-            client.utility.verify_payment_signature(params_dict)
+            razorpay_service = RazorpayService()
+            razorpay_service.verify_payment_signature(params_dict)
             with transaction.atomic():
                 slot = PsychologistAvailability.objects.select_for_update().get(id=slot_id)
                 if slot.is_booked:

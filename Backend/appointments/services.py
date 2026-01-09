@@ -1,9 +1,11 @@
 from django.utils import timezone
+from django.conf import settings
 from datetime import datetime,timedelta
 from django.db import transaction
 from wallet.models import WalletTransaction,Wallet
 from django_celery_beat.models import ClockedSchedule,PeriodicTask
 import json
+import razorpay
 
 
 def cancel_appointment_service(
@@ -96,3 +98,26 @@ def schedule_appointment_reminder(appointment):
         clocked=clocked,
         one_off=True
     )
+
+class RazorpayService:
+    def __init__(self):
+        self.client = razorpay.Client(
+            auth=(
+                settings.RAZORPAY_KEY_ID,
+                settings.RAZORPAY_KEY_SECRET
+            )
+        )
+    
+    def create_order(self,amount):
+        return self.client.order.create(
+            {
+                "amount":int(amount),
+                "currency":"INR",
+                "payment_capture":1
+
+            }
+        )
+    
+    def verify_payment_signature(self,params):
+        self.client.utility.verify_payment_signature(params)
+        
