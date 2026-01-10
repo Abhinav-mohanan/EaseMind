@@ -5,6 +5,7 @@ import { ClearAllNotificationsApi, MarkAllAsReadApi } from '../../../api/notific
 import { toast } from 'react-toastify';
 import ErrorHandler from '../../Layouts/ErrorHandler';
 import ConfirmationModal from '../../Layouts/ConfirmationModal';
+import { useNavigate } from 'react-router-dom';
 
 const formatDate = (dateString) => {
   if (!dateString) return "Just now";
@@ -50,6 +51,7 @@ const notificationStyles = {
 
 const NotificationPanel = ({ notifications, isOpen, setIsOpen, fetchNotifications }) => {
   const panelRef = useRef(null);
+  const navigate = useNavigate()
   useOnClickOutside(panelRef, () => setIsOpen(false));
   const notificationCount = notifications.length;
   const [filter, setFilter] = useState('unread');
@@ -79,6 +81,19 @@ const NotificationPanel = ({ notifications, isOpen, setIsOpen, fetchNotification
       setPendingAction(null);
     }
   };
+
+  const handleNotificationClick = (notification) => {
+    if (
+      notification.notification_type === 'CHAT' &&
+      notification.conversation_id
+    ) {
+      navigate('/chat', {
+        state: { conversationId: notification.conversation_id }
+      });
+      setIsOpen(false);
+    }
+  };
+
 
   return (
     <div className="relative" ref={panelRef}>
@@ -156,14 +171,15 @@ const NotificationPanel = ({ notifications, isOpen, setIsOpen, fetchNotification
                   return (
                     <div
                       key={n.id} 
-                      className={`px-5 py-4 border-b border-slate-100 last:border-none ${style.hoverBg} transition-colors duration-150 cursor-pointer group border-l-4 ${style.borderColor}`}
+                      onClick={()=>handleNotificationClick(n)}
+                      className={`px-5 py-4 border-b border-slate-100 ${n.notification_type === 'CHAT' ? 'cursor-pointer':''}last:border-none ${style.hoverBg} transition-colors duration-150 cursor-pointer group border-l-4 ${style.borderColor}`}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`flex-shrink-0 w-8 h-8 rounded-full ${style.iconBg} flex items-center justify-center`}>
                           <IconComponent size={16} className={style.iconColor} strokeWidth={2.5} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors duration-150">
+                          <p className={`text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors duration-150`}>
                             {n.message}
                           </p>
                           <span className="inline-flex items-center text-xs text-slate-500 mt-2">

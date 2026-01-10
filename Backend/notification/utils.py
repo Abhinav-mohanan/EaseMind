@@ -6,13 +6,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def create_notification(user,message,notification_type='INFO',room_id=None):
+def create_notification(user,message,conversation_id=None,notification_type='INFO'):
     try:
-        if notification_type =='CHAT' and room_id:
+        if notification_type =='CHAT' and conversation_id:
             notification,created = Notification.objects.update_or_create(
                 user=user,
                 notification_type='CHAT',
                 is_read=False,
+                conversation_id=conversation_id,
                 defaults={
                     'message':message,
                     'created_at':timezone.now()
@@ -34,7 +35,7 @@ def create_notification(user,message,notification_type='INFO',room_id=None):
                 'notification_type':notification_type,
                 'is_read':notification.is_read,
                 'id':notification.id,
-                'room_id':room_id
+                'conversation_id':conversation_id
             }
         )
     except Exception:

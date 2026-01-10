@@ -18,6 +18,7 @@ class Notification(models.Model):
         ],
         default='INFO'
     )
+    conversation_id  = models.IntegerField(null=True,blank=True)
 
     class Meta:
         ordering = ['-created_at']

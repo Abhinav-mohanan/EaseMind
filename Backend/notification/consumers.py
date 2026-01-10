@@ -22,4 +22,5 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'message':event['message'],
             'is_read':event['is_read'],
             'notification_type':event['notification_type'],
+            'conversation_id':event['conversation_id'],
         }))

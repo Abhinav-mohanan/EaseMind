@@ -86,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 user=receiver,
                 message=f'New message from {sender.get_full_name()}',
                 notification_type='CHAT',
-                room_id=self.room_name
+                conversation_id=self.room_name,
             )
 
             payload = {
