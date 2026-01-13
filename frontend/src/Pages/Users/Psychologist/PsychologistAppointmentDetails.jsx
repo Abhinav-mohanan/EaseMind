@@ -11,6 +11,8 @@ import default_img from '../../../assets/default_image.png'
 import CancellationModal from '../../../Components/Layouts/CancellationModal';
 import { CreateConversationApi } from '../../../api/chatApi';
 import ActionModal from '../../../Components/Layouts/ActionModal';
+import { CanStartVideoCallApi } from '../../../api/videocallApi';
+import { toast } from 'react-toastify';
 
 const PsychologistAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -85,8 +87,16 @@ const PsychologistAppointmentDetails = () => {
       }
     }
 
-    const handleStartVideoCall = () =>{
-        navigate(`/video-call/${appointment_id}`)
+    const handleStartVideoCall = async() =>{
+      try{
+        const data = await CanStartVideoCallApi(appointment_id)
+        if (data.allowed){
+          navigate(`/video-call/${appointment_id}`)
+        }
+      }catch(error){
+        const message = error?.response?.data?.reason || "You cannot start the call yet"
+        toast.error(message)
+      }  
     }
 
     const handleComplete = async() =>{
