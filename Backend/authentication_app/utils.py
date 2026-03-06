@@ -44,7 +44,10 @@ def send_otp_email(user, purpose='email_verification'):
         EaseMind Team
         """
 
-    send_otp_email_task.delay(user.email, subject, message)
+    try:
+        send_otp_email_task.delay(user.email, subject, message)
+    except Exception as exc:
+        logger.error('Failed to queue OTP email task', exc_info=True)
 
 
 # set jwt token in to http only cookie

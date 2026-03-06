@@ -36,38 +36,46 @@ const AuthForm = ({ type, fields }) => {
 
   const validateForm = () => {
     const newErrors = {};
+
     fields.forEach((field) => {
       const value = formData[field.name];
+
       if (!value || value.trim() === '') {
-        newErrors[field.name] =
-          `${field.name.replace(/_/g, ' ').toLowerCase() || field.placeholder} is required`;
+        newErrors[field.name] = `${field.name.replace(/_/g, ' ')} is required`;
       }
+
       if ((field.name === 'first_name' || field.name === 'last_name') && value) {
         if (!/^[A-Za-z]+$/.test(value.trim())) {
-          newErrors[field.name] = `Enter a Valid ${field.name.replace(/_/g, ' ')}`;
+          newErrors[field.name] = `Enter a valid ${field.name.replace(/_/g, ' ')}`;
         }
       }
+
       if (field.name === 'phone_number' && value) {
-        if (value.length !== 10) {
-          newErrors.phone_number = 'Enter a Valid Phone number';
+        if (!/^\d{10}$/.test(value.trim())) {
+          newErrors.phone_number = 'Enter a valid 10-digit phone number';
         }
       }
+
       if (field.name === 'email' && value) {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           newErrors[field.name] = 'Please enter a valid email address';
         }
       }
+
       if (field.name === 'password' && value && type === 'signup') {
-        if (value.length < 6) {
-          newErrors.password = 'Password must be at least 6 characters';
+        if (!/^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(value)) {
+          newErrors.password =
+            'Password must be at least 6 characters long and contain at least one letter and one number';
         }
       }
     });
+
     if (formData.password && formData.confirm_password && type === 'signup') {
       if (formData.password !== formData.confirm_password) {
         newErrors.confirm_password = 'Passwords do not match';
       }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -84,17 +92,8 @@ const AuthForm = ({ type, fields }) => {
         toast.success(data.message);
         navigate('/verify-otp', { state: { email: formData.email } });
       } else if (type == 'login') {
-        if (data?.is_email_verified != true) {
-          toast.error('Please verify your email before logged in');
-          navigate('/verify-otp', { state: { email: formData.email } }); // If user is not email verified -> verify otp
-        } else {
-          toast.success(data.message);
-          const { access, refresh } = data;
-          if (!access || !refresh) {
-            console.log('access or refresh is not present');
-          }
-          navigate('/'); // home
-        }
+        toast.success(data.message);
+        navigate('/');
       }
     } catch (error) {
       ErrorHandler(error);
@@ -252,3 +251,4 @@ const AuthForm = ({ type, fields }) => {
 };
 
 export default AuthForm;
+

@@ -7,6 +7,7 @@ import PsychologistSidebar from '../../../Components/Users/Psychologist/Psycholo
 import { Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';
 import { useNavigate } from 'react-router-dom';
+import { getAppointmentStatusLabel } from '../../../utils/appointmentStatus';
 
 const PsychologistAppointments = () => {
     const navigate = useNavigate()
@@ -60,7 +61,7 @@ const PsychologistAppointments = () => {
                             }`}
                             onClick={()=>setStatusFilter(status)}
                             >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                            {getAppointmentStatusLabel(status)}
                             </button>
                         ))}
                         </div>
@@ -110,7 +111,7 @@ const PsychologistAppointments = () => {
                                                         appointment.status === 'completed' ? 'bg-green-100 text-green-800' :
                                                         'bg-red-100 text-red-800'
                                                     }`}>
-                                                        {appointment.status}
+                                                        {getAppointmentStatusLabel(appointment.status)}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -130,7 +131,7 @@ const PsychologistAppointments = () => {
                         ) : (
                             <div className='text-center py-12 bg-white shadow-lg rounded-xl'>
                                 <Calendar className='h-16 w-16 text-gray-300 mx-auto mb-4' />
-                                <p className='text-gray-600 text-lg'>No {statusFilter} appointments .</p>
+                                <p className='text-gray-600 text-lg'>No {getAppointmentStatusLabel(statusFilter)} appointments.</p>
                                 <p className='text-gray-500 text-sm'>Check back later for new bookings.</p>
                             </div>
                         )}

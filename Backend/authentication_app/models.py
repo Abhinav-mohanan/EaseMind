@@ -94,10 +94,15 @@ class PsychologistProfile(models.Model):
     
 # Email Model
 class EmailOTP(models.Model):
-    user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='email_otps')
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
-    purpose = models.CharField(max_length=50,null=True,blank=True)
+    purpose = models.CharField(max_length=50,default='email_verification')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'purpose'], name='unique_user_purpose_otp')
+        ]
 
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(

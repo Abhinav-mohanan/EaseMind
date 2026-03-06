@@ -7,6 +7,7 @@ import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import Pagination from '../../../Components/Layouts/Pagination';
 import UserSidebar from '../../../Components/Users/User/UserSidebar';
 import { useNavigate } from 'react-router-dom';
+import { getAppointmentStatusLabel } from '../../../utils/appointmentStatus';
 
 const UserAppointments = () => {
     const navigate = useNavigate()
@@ -78,7 +79,7 @@ const UserAppointments = () => {
                                             }`}
                                         onClick={() => setStatusFilter(status)}
                                     >
-                                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                                        {getAppointmentStatusLabel(status)}
                                     </button>
                                 ))}
                             </div>
@@ -120,7 +121,7 @@ const UserAppointments = () => {
                                                         ? 'bg-green-100 text-green-700'
                                                         : 'bg-red-100 text-red-700'
                                                     }`}>
-                                                        {appointment.status.toUpperCase()}
+                                                        {getAppointmentStatusLabel(appointment.status)}
                                                     </span>
                                                 </div>
 
@@ -206,7 +207,7 @@ const UserAppointments = () => {
                                                                         : 'bg-red-100 text-red-700'
                                                                 }`}
                                                         >
-                                                            {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)} 
+                                                            {getAppointmentStatusLabel(appointment.status)} 
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -227,7 +228,7 @@ const UserAppointments = () => {
                             ) : (
                                 <div className="text-center py-16 bg-white shadow-lg rounded-xl flex flex-col items-center justify-center"> 
                                     <Calendar className="h-20 w-20 text-gray-300 mx-auto mb-6" /> 
-                                    <p className="text-gray-700 text-xl font-medium mb-2">No {statusFilter} appointments.</p> 
+                                    <p className="text-gray-700 text-xl font-medium mb-2">No {getAppointmentStatusLabel(statusFilter)} appointments.</p> 
                                     <p className="text-gray-500 text-base">Check back later for new bookings or adjust your filter.</p> 
                                 </div>
                             )}

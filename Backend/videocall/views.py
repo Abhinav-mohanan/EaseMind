@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from authentication_app.permissions import IsEmailVerified, IsNotBlocked
 from . models import VideoCallSession
 from .utils import generate_token04
 from django.shortcuts import get_object_or_404
@@ -54,7 +55,7 @@ class GetZegoTokenView(APIView):
         })
 
 class StartVideoCallView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmailVerified, IsNotBlocked]
     
     def get(self,request,appointment_id):
         try:

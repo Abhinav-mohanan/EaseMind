@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from authentication_app.permissions import IsEmailVerified, IsNotBlocked
 from rest_framework_simplejwt.tokens import AccessToken
 from cloudinary.uploader import upload as cloudinary_upload
 from .models import ChatRoom
@@ -71,7 +72,7 @@ class MessageListView(APIView):
             return Response({"error":"Conversation does not foun"},status=status.HTTP_404_NOT_FOUND)
 
 class UploadFileView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmailVerified, IsNotBlocked]
     
     def post(self,request,*args,**kwargs):
         file_obj = request.FILES.get('file')

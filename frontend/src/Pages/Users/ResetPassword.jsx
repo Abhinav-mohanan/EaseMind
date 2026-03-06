@@ -34,14 +34,17 @@ const ResetPassword = () => {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const validateForm = (e) => {
+  const validateForm = () => {
     let formError = {};
+
     if (formData.password.trim() === '') {
-      formError.password = 'Password is requiredd';
+      formError.password = 'Password is required';
     }
+
     if (formData.confirm_password.trim() === '') {
       formError.confirm_password = 'Confirm password is required';
     }
+
     if (
       formData.password.trim() !== '' &&
       formData.confirm_password.trim() !== '' &&
@@ -49,10 +52,12 @@ const ResetPassword = () => {
     ) {
       formError.confirm_password = 'Passwords do not match';
     }
-    const value = formData['password'];
-    if (!formError.password && !formError.confirm_password && value.length < 6) {
-      formError.password = 'Password must be at least 6 characters';
+
+    if (formData.password.trim() !== '' && !/^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(formData.password)) {
+      formError.password =
+        'Password must be at least 6 characters long and contain at least one letter and one number';
     }
+
     setErrors(formError);
     return Object.keys(formError).length === 0;
   };
@@ -156,3 +161,4 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+

@@ -13,6 +13,7 @@ import { CreateConversationApi } from '../../../api/chatApi';
 import { GetZegoTokenApi } from '../../../api/videocallApi';
 import ActionModal from '../../../Components/Layouts/ActionModal';
 import Breadcrumbs from '../../../Components/Layouts/Breadcrumbs';
+import { getAppointmentStatusLabel } from '../../../utils/appointmentStatus';
 
 const UserAppointmentDetails = () => {
     const {appointment_id} = useParams()
@@ -139,11 +140,11 @@ const UserAppointmentDetails = () => {
                         <div className="flex items-center">
                           {getStatusConfig(appointment.status).icon}
                           <span className={`ml-2 font-semibold ${getStatusConfig(appointment.status).textColor}`}>
-                            Status: {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                            Status: {getAppointmentStatusLabel(appointment.status)}
                           </span>
                         </div>
                         <div className={`px-3 py-1 rounded-full border ${getStatusConfig(appointment.status).color}`}>
-                          <span className="text-sm font-medium capitalize">{appointment.status}</span>
+                          <span className="text-sm font-medium">{getAppointmentStatusLabel(appointment.status)}</span>
                         </div>
                       </div>
                     </div>

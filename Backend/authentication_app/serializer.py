@@ -1,16 +1,20 @@
-from rest_framework import serializers
-from . models import EmailOTP,CustomUser,PsychologistProfile
-from django.utils.crypto import get_random_string
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
-from .utils import send_otp_email
-from rest_framework_simplejwt.tokens import RefreshToken
-from datetime import timedelta,datetime,date
+from datetime import date
 import re
+from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import EmailOTP, CustomUser, PsychologistProfile
+from .utils import send_otp_email
+
+
+PASSWORD_RULE_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d).{6,}$')
+PASSWORD_RULE_MESSAGE = (
+    'Password must be at least 6 characters long and contain at least one letter and one number'
+)
+PHONE_RULE_REGEX = re.compile(r'^\d{10}$')
+PHONE_RULE_MESSAGE = 'Enter a valid 10-digit phone number'
+
 
 class SignupSerializer(serializers.ModelSerializer):
-    # Write-only (not  returned in response)
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
@@ -32,19 +36,14 @@ class SignupSerializer(serializers.ModelSerializer):
         if not bool(re.fullmatch(r'[A-Za-z]+',last_name)):
             errors['last_name'] = 'Enter a valid last name'
         if password != confirm_password:
-            errors['password'] = 'Password do not match'
+            errors['confirm_password'] = 'Password do not match'
         if CustomUser.objects.filter(email=email).exists():
             errors['email'] = 'Email already exists'
-        if password:
-            if len(password) < 6:
-                errors['password'] = 'Password must be at least 6 characters'
-            elif not re.search(r'[A-Za-z]',password):
-                errors['password'] = 'Password must contain at least one letter'
-            elif not re.search(r'\d',password):
-                errors['password'] = 'Password must contain at least one number'
-        if phone_number and len(phone_number) < 10:
-            errors['phone_number'] = 'Enter a valid Phone number'
-        
+        if password and not PASSWORD_RULE_REGEX.fullmatch(password):
+            errors['password'] = PASSWORD_RULE_MESSAGE
+        if phone_number and not PHONE_RULE_REGEX.fullmatch(phone_number.strip()):
+            errors['phone_number'] = PHONE_RULE_MESSAGE
+
         if errors:
             raise serializers.ValidationError(errors)
         
@@ -65,12 +64,11 @@ class SignupSerializer(serializers.ModelSerializer):
 
         if user.role == 'psychologist':
             PsychologistProfile.objects.create(user=user)
-        # send OTP
-        send_otp_email(user,purpose='email_verification')
 
+        send_otp_email(user, purpose='email_verification')
         return user
 
-# VerifyOTP[email_validation/reset_password]
+
 class VerifyOTPserializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
@@ -140,9 +138,9 @@ class LoginSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Email and Password are required")
         
         return data
-        
-    def get_token_for_users(self,user):
-        refresh = RefreshToken.for_user(user)      # create token
+
+    def get_token_for_users(self, user):
+        refresh = RefreshToken.for_user(user)
         return {
             'refresh' : str(refresh),
             'access'  : str(refresh.access_token)
@@ -152,21 +150,21 @@ class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     role = serializers.CharField()
 
-    def validate(self,data):
+    def validate(self, data):
         email = data['email']
         role = data['role']
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("No user is registered with this email")
+            raise serializers.ValidationError('No user is registered with this email')
         if user.role != role:
             raise serializers.ValidationError(f'User is not {role} Please select valid Role')
         data['user'] = user
         return data
-    
+
     def save(self):
         user = self.validated_data['user']
-        send_otp_email(user,purpose='password_reset')   # send otp
+        send_otp_email(user, purpose='password_reset')
         return user
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -179,13 +177,15 @@ class ResetPasswordSerializer(serializers.Serializer):
         confirm_password = data.get('confirm_password')
         email = data.get('email')
         if password != confirm_password:
-            raise serializers.ValidationError("Passwords do not match")
-        if len(password) < 6:
-            raise serializers.ValidationError("Password must be at least 6 characters")
+            raise serializers.ValidationError('Passwords do not match')
+        if not PASSWORD_RULE_REGEX.fullmatch(password):
+            raise serializers.ValidationError(PASSWORD_RULE_MESSAGE)
+
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("User with this email does not exists")
+            raise serializers.ValidationError('User with this email does not exists')
+
         data['user'] = user
         return data
     
@@ -210,7 +210,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return None
 
 class UserProfileWriterSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'profile_picture', 'phone_number', 'gender', 'date_of_birth']

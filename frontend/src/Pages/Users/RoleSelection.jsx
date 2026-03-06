@@ -11,7 +11,7 @@ const RoleSelection = () => {
 
   const handleRoleSelection = (role) => {
     dispatch(setRole(role));
-    navigate('/signup');
+    navigate('/login');
   };
 
   return (

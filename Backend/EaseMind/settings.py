@@ -103,6 +103,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        'authentication_app.permissions.IsEmailVerified',
         'authentication_app.permissions.IsNotBlocked'
     ],
 
