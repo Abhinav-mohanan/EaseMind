@@ -35,9 +35,6 @@ const Navbar = () => {
     }
   };
   
-  if (loading) {
-    return <div className="h-16 bg-white shadow-md"></div>;
-  }
 
   return (
     <>
